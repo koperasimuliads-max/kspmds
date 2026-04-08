@@ -59,6 +59,20 @@ const pendapatanOptions = [
   { value: '20jt_keatas', label: 'Rp 20.000.000 ke atas' },
 ];
 
+const referensiOptions = [
+  { value: 'Samudera Ginting, S.H', label: 'Samudera Ginting, S.H' },
+  { value: 'Ahmad Dahlan Surbakti, A.md', label: 'Ahmad Dahlan Surbakti, A.md' },
+  { value: 'Carolla Sembiring, S.H., M.Kn', label: 'Carolla Sembiring, S.H., M.Kn' },
+  { value: 'Mika Jepani Karosekali, S.Kep Ners', label: 'Mika Jepani Karosekali, S.Kep Ners' },
+  { value: 'Juniawan Sebayang, S.P, CHT', label: 'Juniawan Sebayang, S.P, CHT' },
+  { value: 'Dustin Farrel Sembiring Pandia', label: 'Dustin Farrel Sembiring Pandia' },
+  { value: 'Sayang David Ginting, S.H., S.Pn', label: 'Sayang David Ginting, S.H., S.Pn' },
+  { value: 'Sahala Panjaitan, S.P', label: 'Sahala Panjaitan, S.P' },
+  { value: 'Marwan Esra Bangun', label: 'Marwan Esra Bangun' },
+  { value: 'Ezzra Mazmur Sembiring', label: 'Ezzra Mazmur Sembiring' },
+  { value: 'Erni Sembiring', label: 'Erni Sembiring' },
+];
+
 export default function AnggotaPage() {
   const { anggota, addAnggota, updateAnggota, deleteAnggota } = useKSP();
   const [showForm, setShowForm] = useState(false);
@@ -236,7 +250,10 @@ export default function AnggotaPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <input type="text" placeholder="Nama Saudara Tidak Serumah" value={formData.namaSaudara} onChange={e => setFormData({ ...formData, namaSaudara: e.target.value })} className="border p-2 rounded" />
                 <input type="tel" placeholder="No HP Saudara" value={formData.noHpSaudara} onChange={e => setFormData({ ...formData, noHpSaudara: e.target.value })} className="border p-2 rounded" />
-                <input type="text" placeholder="Nama Referensi" value={formData.namaReferensi} onChange={e => setFormData({ ...formData, namaReferensi: e.target.value })} className="border p-2 rounded" />
+                <select value={formData.namaReferensi} onChange={e => setFormData({ ...formData, namaReferensi: e.target.value })} className="border p-2 rounded">
+                  <option value="">Pilih Referensi</option>
+                  {referensiOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
               </div>
             </div>
 
