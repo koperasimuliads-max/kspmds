@@ -2,6 +2,11 @@ export interface Anggota {
   id: string;
   nama: string;
   nik: string;
+  nomorNBA: string;
+  jenisKelamin: 'L' | 'P';
+  tempatLahir: string;
+  tanggalLahir: string;
+  agama: string;
   alamat: string;
   telefon: string;
   tanggalJoin: string;
