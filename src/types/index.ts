@@ -39,6 +39,9 @@ export interface Pinjaman {
   cicilanPerBulan: number;
   totalPembayaran: number;
   sudahDibayar: number;
+  kolektibilitas: 'lancar' | 'kurang_lancar' | 'diragukan' | 'macet';
+  hariTerlambat: number;
+  kategoriKesehatan: 'sehat' | 'cukup_sehat' | 'kurang_sehat' | 'tidak_sehat';
 }
 
 export interface Simpanan {
