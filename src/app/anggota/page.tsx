@@ -22,8 +22,8 @@ const statusRumahOptions = [
 
 const jenisPembayaranOptions = [
   { value: 'tunai', label: 'Tunai' },
-  { value: 'transfer', label: 'Transfer' },
-  { value: 'potongan_gaji', label: 'Potongan Gaji' },
+  { value: 'bri_tigabinanga', label: 'BRI Cab. Tigabinanga' },
+  { value: 'bri_berastagi', label: 'BRI Cab. Berastagi' },
 ];
 
 const agamaOptions = ['Islam', 'Kristen', 'Katholik', 'Hindu', 'Budha', 'Konghucu', 'Lainnya'];
@@ -100,7 +100,7 @@ export default function AnggotaPage() {
     simpananPokok: 0,
     simpananWajib: 0,
     uangBuku: 0,
-    jenisPembayaran: 'tunai' as 'tunai' | 'transfer' | 'potongan_gaji',
+    jenisPembayaran: 'tunai' as 'tunai' | 'bri_tigabinanga' | 'bri_berastagi',
     telefon: '',
     tanggalJoin: new Date().toISOString().split('T')[0],
     status: 'aktif' as 'aktif' | 'nonaktif',

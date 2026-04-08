@@ -22,7 +22,7 @@ export interface Anggota {
   simpananPokok: number;
   simpananWajib: number;
   uangBuku: number;
-  jenisPembayaran: 'tunai' | 'transfer' | 'potongan_gaji';
+  jenisPembayaran: 'tunai' | 'bri_tigabinanga' | 'bri_berastagi';
   telefon: string;
   tanggalJoin: string;
   status: 'aktif' | 'nonaktif';
