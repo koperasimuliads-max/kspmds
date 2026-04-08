@@ -11,12 +11,12 @@ export interface Anggota {
   alamatDomisili: string;
   statusPerkawinan: 'belum_kawin' | 'kawin' | 'cerai' | 'janda' | 'duda';
   namaPasangan: string;
-  jumlahAnak: number;
+  jumlahAnak: string;
   namaIbuKandung: string;
   namaSaudara: string;
   noHpSaudara: string;
   pekerjaan: string;
-  pendapatanPerbulan: number;
+  pendapatanPerbulan: string;
   statusRumah: 'milik_sendiri' | 'sewa' | 'kontrak' | 'menumpang' | 'lainnya';
   namaReferensi: string;
   simpananPokok: number;

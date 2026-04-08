@@ -28,6 +28,37 @@ const jenisPembayaranOptions = [
 
 const agamaOptions = ['Islam', 'Kristen', 'Katholik', 'Hindu', 'Budha', 'Konghucu', 'Lainnya'];
 
+const jumlahAnakOptions = [
+  { value: '0', label: '0' },
+  { value: '1', label: '1' },
+  { value: '2', label: '2' },
+  { value: '3', label: '3' },
+  { value: '4', label: '4' },
+  { value: '5', label: '5+' },
+];
+
+const pekerjaanOptions = [
+  { value: 'pns', label: 'PNS' },
+  { value: 'tni_polri', label: 'TNI/Polri' },
+  { value: 'karyawan_swasta', label: 'Karyawan Swasta' },
+  { value: 'karyawan_negeri', label: 'Karyawan Negeri' },
+  { value: 'wiraswasta', label: 'Wiraswasta' },
+  { value: 'petani', label: 'Petani' },
+  { value: 'nelayan', label: 'Nelayan' },
+  { value: 'pedagang', label: 'Pedagang' },
+  { value: 'tukang', label: 'Tukang' },
+  { value: 'sopir', label: 'Sopir' },
+  { value: 'lainnya', label: 'Lainnya' },
+];
+
+const pendapatanOptions = [
+  { value: 'kurang_2jt', label: 'Kurang dari Rp 2.000.000' },
+  { value: '2jt_5jt', label: 'Rp 2.000.000 s/d Rp 4.999.999' },
+  { value: '5jt_10jt', label: 'Rp 5.000.000 s/d Rp 9.999.999' },
+  { value: '10jt_20jt', label: 'Rp 10.000.000 s/d Rp 19.999.999' },
+  { value: '20jt_keatas', label: 'Rp 20.000.000 ke atas' },
+];
+
 export default function AnggotaPage() {
   const { anggota, addAnggota, updateAnggota, deleteAnggota } = useKSP();
   const [showForm, setShowForm] = useState(false);
@@ -44,12 +75,12 @@ export default function AnggotaPage() {
     alamatDomisili: '',
     statusPerkawinan: 'belum_kawin' as 'belum_kawin' | 'kawin' | 'cerai' | 'janda' | 'duda',
     namaPasangan: '',
-    jumlahAnak: 0,
+    jumlahAnak: '0',
     namaIbuKandung: '',
     namaSaudara: '',
     noHpSaudara: '',
     pekerjaan: '',
-    pendapatanPerbulan: 0,
+    pendapatanPerbulan: '',
     statusRumah: 'milik_sendiri' as 'milik_sendiri' | 'sewa' | 'kontrak' | 'menumpang' | 'lainnya',
     namaReferensi: '',
     simpananPokok: 0,
@@ -85,12 +116,12 @@ export default function AnggotaPage() {
       alamatDomisili: data.alamatDomisili || '',
       statusPerkawinan: data.statusPerkawinan || 'belum_kawin',
       namaPasangan: data.namaPasangan || '',
-      jumlahAnak: data.jumlahAnak || 0,
+      jumlahAnak: data.jumlahAnak || '0',
       namaIbuKandung: data.namaIbuKandung || '',
       namaSaudara: data.namaSaudara || '',
       noHpSaudara: data.noHpSaudara || '',
       pekerjaan: data.pekerjaan || '',
-      pendapatanPerbulan: data.pendapatanPerbulan || 0,
+      pendapatanPerbulan: data.pendapatanPerbulan || '',
       statusRumah: data.statusRumah || 'milik_sendiri',
       namaReferensi: data.namaReferensi || '',
       simpananPokok: data.simpananPokok || 0,
@@ -124,12 +155,12 @@ export default function AnggotaPage() {
       alamatDomisili: '',
       statusPerkawinan: 'belum_kawin',
       namaPasangan: '',
-      jumlahAnak: 0,
+      jumlahAnak: '0',
       namaIbuKandung: '',
       namaSaudara: '',
       noHpSaudara: '',
       pekerjaan: '',
-      pendapatanPerbulan: 0,
+      pendapatanPerbulan: '',
       statusRumah: 'milik_sendiri',
       namaReferensi: '',
       simpananPokok: 0,
@@ -184,7 +215,9 @@ export default function AnggotaPage() {
                   {statusPerkawinanOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
                 <input type="text" placeholder="Nama Pasangan" value={formData.namaPasangan} onChange={e => setFormData({ ...formData, namaPasangan: e.target.value })} className="border p-2 rounded" />
-                <input type="number" placeholder="Jumlah Anak" value={formData.jumlahAnak || ''} onChange={e => setFormData({ ...formData, jumlahAnak: Number(e.target.value) })} className="border p-2 rounded" />
+                <select value={formData.jumlahAnak} onChange={e => setFormData({ ...formData, jumlahAnak: e.target.value })} className="border p-2 rounded">
+                  {jumlahAnakOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
                 <input type="text" placeholder="Nama Ibu Kandung" value={formData.namaIbuKandung} onChange={e => setFormData({ ...formData, namaIbuKandung: e.target.value })} className="border p-2 rounded" />
               </div>
             </div>
@@ -210,8 +243,14 @@ export default function AnggotaPage() {
             <div className="mb-4">
               <h3 className="text-sm font-semibold text-slate-600 mb-2 border-b pb-1">Pekerjaan & Pendapatan</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <input type="text" placeholder="Pekerjaan" value={formData.pekerjaan} onChange={e => setFormData({ ...formData, pekerjaan: e.target.value })} className="border p-2 rounded" />
-                <input type="number" placeholder="Pendapatan Perbulan" value={formData.pendapatanPerbulan || ''} onChange={e => setFormData({ ...formData, pendapatanPerbulan: Number(e.target.value) })} className="border p-2 rounded" />
+                <select value={formData.pekerjaan} onChange={e => setFormData({ ...formData, pekerjaan: e.target.value })} className="border p-2 rounded">
+                  <option value="">Pilih Pekerjaan</option>
+                  {pekerjaanOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+                <select value={formData.pendapatanPerbulan} onChange={e => setFormData({ ...formData, pendapatanPerbulan: e.target.value })} className="border p-2 rounded">
+                  <option value="">Pilih Pendapatan</option>
+                  {pendapatanOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
                 <select value={formData.statusRumah} onChange={e => setFormData({ ...formData, statusRumah: e.target.value as any })} className="border p-2 rounded">
                   {statusRumahOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
@@ -259,7 +298,7 @@ export default function AnggotaPage() {
                 <th className="text-left p-2">TTL</th>
                 <th className="text-left p-2">Status</th>
                 <th className="text-left p-2">Pekerjaan</th>
-                <th className="text-right p-2">Pendapatan</th>
+                <th className="text-left p-2">Pendapatan</th>
                 <th className="text-center p-2">Aksi</th>
               </tr>
             </thead>
@@ -275,8 +314,8 @@ export default function AnggotaPage() {
                     <td className="p-2">{a.jenisKelamin === 'L' ? 'L' : 'P'}</td>
                     <td className="p-2 text-xs">{a.tempatLahir ? `${a.tempatLahir}, ${a.tanggalLahir ? new Date(a.tanggalLahir).toLocaleDateString('id-ID') : '-'}` : '-'}</td>
                     <td className="p-2"><span className={`px-2 py-1 rounded text-xs ${a.status === 'aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{a.status}</span></td>
-                    <td className="p-2">{a.pekerjaan || '-'}</td>
-                    <td className="p-2 text-right">{a.pendapatanPerbulan ? formatRupiah(a.pendapatanPerbulan) : '-'}</td>
+                    <td className="p-2">{a.pekerjaan ? getLabel(pekerjaanOptions, a.pekerjaan) : '-'}</td>
+                    <td className="p-2 text-xs">{a.pendapatanPerbulan ? getLabel(pendapatanOptions, a.pendapatanPerbulan) : '-'}</td>
                     <td className="p-2 text-center">
                       <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-2">Edit</button>
                       <button onClick={() => handleDelete(a.id)} className="text-red-600 hover:underline">Hapus</button>
