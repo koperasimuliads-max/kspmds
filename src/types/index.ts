@@ -17,7 +17,7 @@ export interface Anggota {
   noHpSaudara: string;
   pekerjaan: string;
   pendapatanPerbulan: string;
-  statusRumah: 'milik_sendiri' | 'sewa' | 'kontrak' | 'menumpang' | 'lainnya';
+  statusRumah: 'rumah_sendiri' | 'kontrak_sewa' | 'dinas' | 'rumah_orang_tua' | 'menumpang';
   namaReferensi: string;
   simpananPokok: number;
   simpananWajib: number;

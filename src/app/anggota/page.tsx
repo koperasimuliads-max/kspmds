@@ -13,11 +13,11 @@ const statusPerkawinanOptions = [
 ];
 
 const statusRumahOptions = [
-  { value: 'milik_sendiri', label: 'Milik Sendiri' },
-  { value: 'sewa', label: 'Sewa' },
-  { value: 'kontrak', label: 'Kontrak' },
+  { value: 'rumah_sendiri', label: 'Rumah sendiri' },
+  { value: 'kontrak_sewa', label: 'Kontrak/sewa' },
+  { value: 'dinas', label: 'Dinas' },
+  { value: 'rumah_orang_tua', label: 'Rumah orang tua' },
   { value: 'menumpang', label: 'Menumpang' },
-  { value: 'lainnya', label: 'Lainnya' },
 ];
 
 const jenisPembayaranOptions = [
@@ -95,7 +95,7 @@ export default function AnggotaPage() {
     noHpSaudara: '',
     pekerjaan: '',
     pendapatanPerbulan: '',
-    statusRumah: 'milik_sendiri' as 'milik_sendiri' | 'sewa' | 'kontrak' | 'menumpang' | 'lainnya',
+    statusRumah: 'rumah_sendiri' as 'rumah_sendiri' | 'kontrak_sewa' | 'dinas' | 'rumah_orang_tua' | 'menumpang',
     namaReferensi: '',
     simpananPokok: 0,
     simpananWajib: 0,
@@ -175,7 +175,7 @@ export default function AnggotaPage() {
       noHpSaudara: '',
       pekerjaan: '',
       pendapatanPerbulan: '',
-      statusRumah: 'milik_sendiri',
+      statusRumah: 'rumah_sendiri',
       namaReferensi: '',
       simpananPokok: 0,
       simpananWajib: 0,
