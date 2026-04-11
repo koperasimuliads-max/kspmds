@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useKSP } from '@/context/KSPContext';
 import { Anggota } from '@/types';
+import * as XLSX from 'xlsx';
 
 const statusPerkawinanOptions = [
   { value: 'belum_kawin', label: 'Belum Kawin' },
@@ -217,70 +218,127 @@ export default function AnggotaPage() {
 
       {showImport && (
         <div className="bg-white p-4 rounded-lg shadow mb-4">
-          <h2 className="font-semibold mb-3">Import Data Anggota (CSV)</h2>
-          <p className="text-sm text-slate-500 mb-2">
-            Format: nama,nik,nomorNBA,jenisKelamin,tempatLahir,tanggalLahir,agama,alamat,alamatDomisili,statusPerkawinan,namaPasangan,jumlahAnak,namaIbuKandung,namaSaudara,noHpSaudara,pekerjaan,pendapatanPerbulan,statusRumah,namaReferensi,simpananPokok,simpananWajib,uangBuku,jenisPembayaran,telefon,tanggalJoin
-          </p>
-          <textarea
-            value={importText}
-            onChange={e => setImportText(e.target.value)}
-            placeholder="Paste data CSV di sini..."
-            className="border p-2 rounded w-full h-40 font-mono text-sm"
-          />
-          <div className="flex gap-2 mt-2">
-            <button
-              onClick={() => {
-                const lines = importText.trim().split('\n');
-                let count = 0;
-                lines.forEach((line, index) => {
-                  if (index === 0 && line.toLowerCase().includes('nama')) return;
-                  const cols = line.split(',').map(c => c.trim());
-                  if (cols.length >= 1 && cols[0]) {
+          <h2 className="font-semibold mb-3">Import Data Anggota (Excel/CSV)</h2>
+          <div className="mb-4">
+            <p className="text-sm text-slate-500 mb-2">Upload file Excel (.xlsx, .xls) atau CSV</p>
+            <input
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                
+                try {
+                  const data = await file.arrayBuffer();
+                  const workbook = XLSX.read(data);
+                  const sheetName = workbook.SheetNames[0];
+                  const worksheet = workbook.Sheets[sheetName];
+                  const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                  
+                  let count = 0;
+                  jsonData.forEach((row: any) => {
                     addAnggota({
-                      nama: cols[0] || '',
-                      nik: cols[1] || '',
-                      nomorNBA: cols[2] || '',
-                      jenisKelamin: (cols[3] as 'L' | 'P') || 'L',
-                      tempatLahir: cols[4] || '',
-                      tanggalLahir: cols[5] || '',
-                      agama: cols[6] || '',
-                      alamat: cols[7] || '',
-                      alamatDomisili: cols[8] || '',
-                      statusPerkawinan: (cols[9] as any) || 'belum_kawin',
-                      namaPasangan: cols[10] || '',
-                      jumlahAnak: cols[11] || '0',
-                      namaIbuKandung: cols[12] || '',
-                      namaSaudara: cols[13] || '',
-                      noHpSaudara: cols[14] || '',
-                      pekerjaan: cols[15] || '',
-                      pendapatanPerbulan: cols[16] || '',
-                      statusRumah: (cols[17] as any) || 'rumah_sendiri',
-                      namaReferensi: cols[18] || '',
-                      simpananPokok: Number(cols[19]) || 0,
-                      simpananWajib: Number(cols[20]) || 0,
-                      uangBuku: Number(cols[21]) || 0,
-                      jenisPembayaran: (cols[22] as any) || 'tunai',
-                      telefon: cols[23] || '',
-                      tanggalJoin: cols[24] || new Date().toISOString().split('T')[0],
+                      nama: row.nama || row.Nama || '',
+                      nik: row.nik || row.NIK || '',
+                      nomorNBA: row.nomorNBA || row['Nomor NBA'] || row.nomor_nba || '',
+                      jenisKelamin: (row.jenisKelamin || row['Jenis Kelamin'] || row.jenis_kelamin || 'L') as 'L' | 'P',
+                      tempatLahir: row.tempatLahir || row['Tempat Lahir'] || row.tempat_lahir || '',
+                      tanggalLahir: row.tanggalLahir || row['Tanggal Lahir'] || row.tanggal_lahir || '',
+                      agama: row.agama || row.Agama || '',
+                      alamat: row.alamat || row.Alamat || '',
+                      alamatDomisili: row.alamatDomisili || row['Alamat Domisili'] || row.alamat_domisili || '',
+                      statusPerkawinan: row.statusPerkawinan || row['Status Perkawinan'] || row.status_perkawinan || 'belum_kawin',
+                      namaPasangan: row.namaPasangan || row['Nama Pasangan'] || row.nama_pasangan || '',
+                      jumlahAnak: String(row.jumlahAnak || row['Jumlah Anak'] || row.jumlah_anak || '0'),
+                      namaIbuKandung: row.namaIbuKandung || row['Nama Ibu Kandung'] || row.nama_ibu_kandung || '',
+                      namaSaudara: row.namaSaudara || row['Nama Saudara'] || row.nama_saudara || '',
+                      noHpSaudara: row.noHpSaudara || row['No HP Saudara'] || row.no_hp_saudara || '',
+                      pekerjaan: row.pekerjaan || row.Pekerjaan || '',
+                      pendapatanPerbulan: row.pendapatanPerbulan || row['Pendapatan Perbulan'] || row.pendapatan_perbulan || '',
+                      statusRumah: row.statusRumah || row['Status Rumah'] || row.status_rumah || 'rumah_sendiri',
+                      namaReferensi: row.namaReferensi || row['Nama Referensi'] || row.nama_referensi || '',
+                      simpananPokok: Number(row.simpananPokok || row['Simpanan Pokok'] || row.simpanan_pokok) || 0,
+                      simpananWajib: Number(row.simpananWajib || row['Simpanan Wajib'] || row.simpanan_wajib) || 0,
+                      uangBuku: Number(row.uangBuku || row['Uang Buku'] || row.uang_buku) || 0,
+                      jenisPembayaran: row.jenisPembayaran || row['Jenis Pembayaran'] || row.jenis_pembayaran || 'tunai',
+                      telefon: row.telefon || row.Telepon || row.noTelepon || '',
+                      tanggalJoin: row.tanggalJoin || row['Tanggal Join'] || row.tanggal_join || new Date().toISOString().split('T')[0],
                       status: 'aktif',
                     });
                     count++;
-                  }
-                });
-                alert(`Berhasil import ${count} anggota`);
-                setImportText('');
-                setShowImport(false);
+                  });
+                  alert(`Berhasil import ${count} anggota`);
+                  setShowImport(false);
+                } catch (error) {
+                  alert('Gagal import file. Pastikan format file benar.');
+                }
               }}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            >
-              Import
-            </button>
-            <button
-              onClick={() => { setImportText(''); setShowImport(false); }}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-            >
-              Batal
-            </button>
+              className="border p-2 rounded w-full"
+            />
+          </div>
+          <div className="border-t pt-4">
+            <p className="text-sm text-slate-500 mb-2"> Atau paste data CSV:</p>
+            <textarea
+              value={importText}
+              onChange={e => setImportText(e.target.value)}
+              placeholder="Paste data CSV di sini..."
+              className="border p-2 rounded w-full h-40 font-mono text-sm"
+            />
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={() => {
+                  const lines = importText.trim().split('\n');
+                  let count = 0;
+                  lines.forEach((line, index) => {
+                    if (index === 0 && line.toLowerCase().includes('nama')) return;
+                    const cols = line.split(',').map(c => c.trim());
+                    if (cols.length >= 1 && cols[0]) {
+                      addAnggota({
+                        nama: cols[0] || '',
+                        nik: cols[1] || '',
+                        nomorNBA: cols[2] || '',
+                        jenisKelamin: (cols[3] as 'L' | 'P') || 'L',
+                        tempatLahir: cols[4] || '',
+                        tanggalLahir: cols[5] || '',
+                        agama: cols[6] || '',
+                        alamat: cols[7] || '',
+                        alamatDomisili: cols[8] || '',
+                        statusPerkawinan: (cols[9] as any) || 'belum_kawin',
+                        namaPasangan: cols[10] || '',
+                        jumlahAnak: cols[11] || '0',
+                        namaIbuKandung: cols[12] || '',
+                        namaSaudara: cols[13] || '',
+                        noHpSaudara: cols[14] || '',
+                        pekerjaan: cols[15] || '',
+                        pendapatanPerbulan: cols[16] || '',
+                        statusRumah: (cols[17] as any) || 'rumah_sendiri',
+                        namaReferensi: cols[18] || '',
+                        simpananPokok: Number(cols[19]) || 0,
+                        simpananWajib: Number(cols[20]) || 0,
+                        uangBuku: Number(cols[21]) || 0,
+                        jenisPembayaran: (cols[22] as any) || 'tunai',
+                        telefon: cols[23] || '',
+                        tanggalJoin: cols[24] || new Date().toISOString().split('T')[0],
+                        status: 'aktif',
+                      });
+                      count++;
+                    }
+                  });
+                  alert(`Berhasil import ${count} anggota`);
+                  setImportText('');
+                  setShowImport(false);
+                }}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Import CSV
+              </button>
+              <button
+                onClick={() => { setImportText(''); setShowImport(false); }}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Batal
+              </button>
+            </div>
           </div>
         </div>
       )}
