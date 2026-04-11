@@ -76,7 +76,9 @@ const referensiOptions = [
 export default function AnggotaPage() {
   const { anggota, addAnggota, updateAnggota, deleteAnggota } = useKSP();
   const [showForm, setShowForm] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [importText, setImportText] = useState('');
   const [formData, setFormData] = useState({
     nama: '',
     nik: '',
@@ -197,13 +199,91 @@ export default function AnggotaPage() {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-slate-800">Data Anggota</h1>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          {showForm ? 'Tutup Form' : '+ Tambah Anggota'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowImport(!showImport)}
+            className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+          >
+            {showImport ? 'Tutup' : '+ Import CSV'}
+          </button>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            {showForm ? 'Tutup Form' : '+ Tambah Anggota'}
+          </button>
+        </div>
       </div>
+
+      {showImport && (
+        <div className="bg-white p-4 rounded-lg shadow mb-4">
+          <h2 className="font-semibold mb-3">Import Data Anggota (CSV)</h2>
+          <p className="text-sm text-slate-500 mb-2">
+            Format: nama,nik,nomorNBA,jenisKelamin,tempatLahir,tanggalLahir,agama,alamat,alamatDomisili,statusPerkawinan,namaPasangan,jumlahAnak,namaIbuKandung,namaSaudara,noHpSaudara,pekerjaan,pendapatanPerbulan,statusRumah,namaReferensi,simpananPokok,simpananWajib,uangBuku,jenisPembayaran,telefon,tanggalJoin
+          </p>
+          <textarea
+            value={importText}
+            onChange={e => setImportText(e.target.value)}
+            placeholder="Paste data CSV di sini..."
+            className="border p-2 rounded w-full h-40 font-mono text-sm"
+          />
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={() => {
+                const lines = importText.trim().split('\n');
+                let count = 0;
+                lines.forEach((line, index) => {
+                  if (index === 0 && line.toLowerCase().includes('nama')) return;
+                  const cols = line.split(',').map(c => c.trim());
+                  if (cols.length >= 1 && cols[0]) {
+                    addAnggota({
+                      nama: cols[0] || '',
+                      nik: cols[1] || '',
+                      nomorNBA: cols[2] || '',
+                      jenisKelamin: (cols[3] as 'L' | 'P') || 'L',
+                      tempatLahir: cols[4] || '',
+                      tanggalLahir: cols[5] || '',
+                      agama: cols[6] || '',
+                      alamat: cols[7] || '',
+                      alamatDomisili: cols[8] || '',
+                      statusPerkawinan: (cols[9] as any) || 'belum_kawin',
+                      namaPasangan: cols[10] || '',
+                      jumlahAnak: cols[11] || '0',
+                      namaIbuKandung: cols[12] || '',
+                      namaSaudara: cols[13] || '',
+                      noHpSaudara: cols[14] || '',
+                      pekerjaan: cols[15] || '',
+                      pendapatanPerbulan: cols[16] || '',
+                      statusRumah: (cols[17] as any) || 'rumah_sendiri',
+                      namaReferensi: cols[18] || '',
+                      simpananPokok: Number(cols[19]) || 0,
+                      simpananWajib: Number(cols[20]) || 0,
+                      uangBuku: Number(cols[21]) || 0,
+                      jenisPembayaran: (cols[22] as any) || 'tunai',
+                      telefon: cols[23] || '',
+                      tanggalJoin: cols[24] || new Date().toISOString().split('T')[0],
+                      status: 'aktif',
+                    });
+                    count++;
+                  }
+                });
+                alert(`Berhasil import ${count} anggota`);
+                setImportText('');
+                setShowImport(false);
+              }}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              Import
+            </button>
+            <button
+              onClick={() => { setImportText(''); setShowImport(false); }}
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      )}
 
       {showForm && (
         <div className="bg-white p-4 rounded-lg shadow mb-4 max-h-[70vh] overflow-y-auto">
@@ -308,6 +388,7 @@ export default function AnggotaPage() {
           <table className="w-full text-sm">
             <thead className="bg-slate-100">
               <tr>
+                <th className="text-left p-2">Tanggal Masuk</th>
                 <th className="text-left p-2">Nama</th>
                 <th className="text-left p-2">NIK</th>
                 <th className="text-left p-2">NBA</th>
@@ -321,10 +402,11 @@ export default function AnggotaPage() {
             </thead>
             <tbody>
               {anggota.length === 0 ? (
-                <tr><td colSpan={9} className="text-center p-4 text-slate-500">Belum ada anggota</td></tr>
+                <tr><td colSpan={10} className="text-center p-4 text-slate-500">Belum ada anggota</td></tr>
               ) : (
                 anggota.map(a => (
                   <tr key={a.id} className="border-b hover:bg-slate-50">
+                    <td className="p-2">{a.tanggalJoin ? new Date(a.tanggalJoin).toLocaleDateString('id-ID') : '-'}</td>
                     <td className="p-2 font-medium">{a.nama}</td>
                     <td className="p-2">{a.nik}</td>
                     <td className="p-2">{a.nomorNBA || '-'}</td>
