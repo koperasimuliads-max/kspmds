@@ -27,13 +27,14 @@ export default function Dashboard() {
 
   const getMonthlyStats = () => {
     const now = new Date();
+    const startDate = new Date(2023, 10, 1);
     const months: { name: string; masuk: number; keluar: number }[] = [];
     
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
-      const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-      const monthName = date.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+    let currentDate = new Date(startDate);
+    while (currentDate <= now) {
+      const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+      const monthName = currentDate.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' });
       
       const masuk = anggota.filter(a => {
         if (!a.tanggalJoin) return false;
@@ -48,6 +49,8 @@ export default function Dashboard() {
       }).length;
       
       months.push({ name: monthName, masuk, keluar });
+      
+      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
     }
     return months;
   };
@@ -174,33 +177,64 @@ export default function Dashboard() {
       </div>
 
       <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <h3 className="font-semibold text-slate-700 mb-4">Anggota Masuk & Keluar per Bulan</h3>
-        <div className="relative h-48">
-          <div className="absolute bottom-0 left-0 right-0 flex items-end justify-around h-36 gap-2">
-            {monthlyStats.map((m, i) => (
-              <div key={i} className="flex flex-col items-center w-full">
-                <div className="flex gap-1 w-full justify-center h-28 items-end">
-                  <div 
-                    className="w-1/2 bg-green-500 rounded-t" 
-                    style={{ height: m.masuk > 0 ? `${Math.min((m.masuk / Math.max(...monthlyStats.map(x => Math.max(x.masuk, x.keluar)), 1)) * 100, 100)}%` : '0%' }}
-                  ></div>
-                  <div 
-                    className="w-1/2 bg-red-500 rounded-t" 
-                    style={{ height: m.keluar > 0 ? `${Math.min((m.keluar / Math.max(...monthlyStats.map(x => Math.max(x.masuk, x.keluar)), 1)) * 100, 100)}%` : '0%' }}
-                  ></div>
-                </div>
-                <span className="text-xs mt-2 text-slate-600">{m.name}</span>
-                <div className="flex gap-1 text-xs">
-                  <span className="text-green-600">↑{m.masuk}</span>
-                  <span className="text-red-600">↓{m.keluar}</span>
-                </div>
-              </div>
-            ))}
+        <h3 className="font-semibold text-slate-700 mb-4">Anggota Masuk & Keluar per Bulan (Nov 2023 - Sekarang)</h3>
+        <div className="overflow-x-auto">
+          <div className="relative h-56 min-w-[800px]">
+            <div className="absolute bottom-0 left-0 right-0 flex items-end justify-around h-40 gap-1">
+              {monthlyStats.map((m, i) => {
+                const maxVal = Math.max(...monthlyStats.map(x => Math.max(x.masuk, x.keluar)), 1);
+                return (
+                  <div key={i} className="flex flex-col items-center w-8 flex-shrink-0">
+                    <div className="flex gap-0.5 w-full justify-center h-32 items-end">
+                      <div 
+                        className="w-3 bg-green-500 rounded-t" 
+                        style={{ height: m.masuk > 0 ? `${(m.masuk / maxVal) * 100}%` : '0%' }}
+                        title={`Masuk: ${m.masuk}`}
+                      ></div>
+                      <div 
+                        className="w-3 bg-red-500 rounded-t" 
+                        style={{ height: m.keluar > 0 ? `${(m.keluar / maxVal) * 100}%` : '0%' }}
+                        title={`Keluar: ${m.keluar}`}
+                      ></div>
+                    </div>
+                    <span className="text-[10px] mt-1 text-slate-600 whitespace-nowrap">{m.name}</span>
+                    <div className="text-[10px]">
+                      <span className="text-green-600">↑{m.masuk}</span>
+                      {m.keluar > 0 && <span className="text-red-600">↓{m.keluar}</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
-        <div className="flex justify-center gap-4 mt-2 text-sm">
-          <span className="text-green-600">█ Masuk</span>
-          <span className="text-red-600">█ Keluar</span>
+        <div className="flex justify-center gap-4 mt-3 text-sm">
+          <span className="text-green-600 font-medium">█ Masuk</span>
+          <span className="text-red-600 font-medium">█ Keluar</span>
+        </div>
+        
+        <div className="mt-4 p-3 bg-slate-50 rounded text-sm">
+          <h4 className="font-semibold text-slate-700 mb-2">Ringkasan Statistik:</h4>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="text-center">
+              <p className="text-slate-500 text-xs">Total Masuk</p>
+              <p className="text-xl font-bold text-green-600">{monthlyStats.reduce((s, m) => s + m.masuk, 0)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-slate-500 text-xs">Total Keluar</p>
+              <p className="text-xl font-bold text-red-600">{monthlyStats.reduce((s, m) => s + m.keluar, 0)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-slate-500 text-xs">Rata-rata Masuk/Bulan</p>
+              <p className="text-lg font-bold text-green-600">{Math.round(monthlyStats.reduce((s, m) => s + m.masuk, 0) / monthlyStats.length)}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-slate-500 text-xs">Bulan Tertinggi</p>
+              <p className="text-lg font-bold text-slate-700">
+                {monthlyStats.reduce((max, m) => m.masuk > max.masuk ? m : max, monthlyStats[0] || {name: '-', masuk: 0}).name}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
