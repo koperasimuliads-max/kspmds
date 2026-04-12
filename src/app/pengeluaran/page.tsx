@@ -21,13 +21,8 @@ const jenisPengeluaranOptions = [
   { value: 'lainnya', label: 'Lainnya' },
 ];
 
-function generateId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
 export default function PengeluaranPage() {
-  const { pinjamans, simpanans, transactions } = useKSP();
-  const [pengeluarans, setPengeluarans] = useState<Pengeluaran[]>([]);
+  const { pengeluarans, addPengeluaran, updatePengeluaran, deletePengeluaran } = useKSP();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -40,10 +35,10 @@ export default function PengeluaranPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingId) {
-      setPengeluarans(prev => prev.map(p => p.id === editingId ? { ...p, ...formData, id: editingId } : p));
+      updatePengeluaran(editingId, formData);
       setEditingId(null);
     } else {
-      setPengeluarans(prev => [...prev, { ...formData, id: generateId() }]);
+      addPengeluaran(formData);
     }
     resetForm();
   };
@@ -61,7 +56,7 @@ export default function PengeluaranPage() {
 
   const handleDelete = (id: string) => {
     if (confirm('Yakin hapus pengeluaran ini?')) {
-      setPengeluarans(prev => prev.filter(p => p.id !== id));
+      deletePengeluaran(id);
     }
   };
 

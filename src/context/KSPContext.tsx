@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { Anggota, Pinjaman, Simpanan, Transaksi, LaporanKeuangan } from '@/types';
+import { Anggota, Pinjaman, Simpanan, Transaksi, Pengeluaran, LaporanKeuangan } from '@/types';
 
 const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
   if (typeof window === 'undefined') return defaultValue;
@@ -11,13 +11,14 @@ const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
 
 const createInitialState = () => {
   if (typeof window === 'undefined') {
-    return { anggota: [], pinjamans: [], simpanans: [], transactions: [] };
+    return { anggota: [], pinjamans: [], simpanans: [], transactions: [], pengeluarans: [] };
   }
   return {
     anggota: loadFromStorage<Anggota[]>('ksp_anggota', []),
     pinjamans: loadFromStorage<Pinjaman[]>('ksp_pinjamans', []),
     simpanans: loadFromStorage<Simpanan[]>('ksp_simpanans', []),
     transactions: loadFromStorage<Transaksi[]>('ksp_transactions', []),
+    pengeluarans: loadFromStorage<Pengeluaran[]>('ksp_pengeluarans', []),
   };
 };
 
@@ -26,6 +27,7 @@ interface KSPContextType {
   pinjamans: Pinjaman[];
   simpanans: Simpanan[];
   transactions: Transaksi[];
+  pengeluarans: Pengeluaran[];
   addAnggota: (anggota: Omit<Anggota, 'id'>) => void;
   updateAnggota: (id: string, anggota: Partial<Anggota>) => void;
   deleteAnggota: (id: string) => void;
@@ -37,6 +39,9 @@ interface KSPContextType {
   updateSimpanan: (id: string, simpanan: Partial<Simpanan>) => void;
   deleteSimpanan: (id: string) => void;
   addTransaksi: (transaksi: Omit<Transaksi, 'id'>) => void;
+  addPengeluaran: (pengeluaran: Omit<Pengeluaran, 'id'>) => void;
+  updatePengeluaran: (id: string, pengeluaran: Partial<Pengeluaran>) => void;
+  deletePengeluaran: (id: string) => void;
   getLaporanKeuangan: () => LaporanKeuangan;
   getAnggotaById: (id: string) => Anggota | undefined;
   bulkUpdateTanggalJoin: (startNBA: number, endNBA: number, tanggal: string) => void;
@@ -54,6 +59,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
   const [pinjamans, setPinjamans] = useState<Pinjaman[]>(initialState.pinjamans);
   const [simpanans, setSimpanans] = useState<Simpanan[]>(initialState.simpanans);
   const [transactions, setTransactions] = useState<Transaksi[]>(initialState.transactions);
+  const [pengeluarans, setPengeluarans] = useState<Pengeluaran[]>(initialState.pengeluarans);
 
   useEffect(() => {
     localStorage.setItem('ksp_anggota', JSON.stringify(anggota));
@@ -70,6 +76,10 @@ export function KSPProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem('ksp_transactions', JSON.stringify(transactions));
   }, [transactions]);
+
+  useEffect(() => {
+    localStorage.setItem('ksp_pengeluarans', JSON.stringify(pengeluarans));
+  }, [pengeluarans]);
 
   const addAnggota = (data: Omit<Anggota, 'id'>) => {
     const newAnggota: Anggota = { ...data, id: generateId() };
@@ -238,12 +248,25 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  const addPengeluaran = (data: Omit<Pengeluaran, 'id'>) => {
+    setPengeluarans(prev => [...prev, { ...data, id: generateId() }]);
+  };
+
+  const updatePengeluaran = (id: string, data: Partial<Pengeluaran>) => {
+    setPengeluarans(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
+  };
+
+  const deletePengeluaran = (id: string) => {
+    setPengeluarans(prev => prev.filter(p => p.id !== id));
+  };
+
   return (
     <KSPContext.Provider value={{
       anggota,
       pinjamans,
       simpanans,
       transactions,
+      pengeluarans,
       addAnggota,
       updateAnggota,
       deleteAnggota,
@@ -255,6 +278,9 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       updateSimpanan,
       deleteSimpanan,
       addTransaksi,
+      addPengeluaran,
+      updatePengeluaran,
+      deletePengeluaran,
       getLaporanKeuangan,
       getAnggotaById,
       bulkUpdateTanggalJoin,
