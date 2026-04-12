@@ -9,6 +9,7 @@ const navItems = [
   { href: '/anggota', label: 'Anggota', icon: '👥' },
   { href: '/pinjaman', label: 'Pinjaman', icon: '💰' },
   { href: '/simpanan', label: 'Simpanan', icon: '💵' },
+  { href: '/pendapatan', label: 'Pendapatan', icon: '💹' },
   { href: '/laporan', label: 'Laporan', icon: '📈' },
 ];
 
