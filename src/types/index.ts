@@ -25,6 +25,7 @@ export interface Anggota {
   jenisPembayaran: 'tunai' | 'bri_tigabinanga' | 'bri_berastagi';
   telefon: string;
   tanggalJoin: string;
+  tanggalKeluar?: string;
   status: 'aktif' | 'nonaktif';
 }
 

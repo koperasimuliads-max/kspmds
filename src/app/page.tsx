@@ -25,24 +25,63 @@ export default function Dashboard() {
   const uangBuku = anggota.reduce((sum, a) => sum + (a.uangBuku || 0), 0);
   const totalSimpanan = sukarela + wajib + pokok + uangBuku;
 
+  const getMonthlyStats = () => {
+    const now = new Date();
+    const months: { name: string; masuk: number; keluar: number }[] = [];
+    
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+      const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+      const monthName = date.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+      
+      const masuk = anggota.filter(a => {
+        if (!a.tanggalJoin) return false;
+        const joinDate = new Date(a.tanggalJoin);
+        return joinDate >= monthStart && joinDate <= monthEnd;
+      }).length;
+      
+      const keluar = anggota.filter(a => {
+        if (a.status !== 'nonaktif' || !a.tanggalKeluar) return false;
+        const exitDate = new Date(a.tanggalKeluar);
+        return exitDate >= monthStart && exitDate <= monthEnd;
+      }).length;
+      
+      months.push({ name: monthName, masuk, keluar });
+    }
+    return months;
+  };
+  
+  const monthlyStats = getMonthlyStats();
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6 text-slate-800">Dashboard</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-          <p className="text-sm text-slate-500">Total Anggota Aktif</p>
+          <p className="text-sm text-slate-500">Total Aktif</p>
           <p className="text-2xl font-bold text-slate-800">{laporan.jumlahAnggotaAktif}</p>
         </div>
         
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+          <p className="text-sm text-slate-500">Masuk (Bulan Ini)</p>
+          <p className="text-2xl font-bold text-green-600">{monthlyStats[5]?.masuk || 0}</p>
+        </div>
+        
+        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
+          <p className="text-sm text-slate-500">Keluar (Bulan Ini)</p>
+          <p className="text-2xl font-bold text-red-600">{monthlyStats[5]?.keluar || 0}</p>
+        </div>
+        
+        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
           <p className="text-sm text-slate-500">Total Simpanan</p>
-          <p className="text-2xl font-bold text-slate-800">{formatRupiah(laporan.totalSimpanan)}</p>
+          <p className="text-xl font-bold text-slate-800">{formatRupiah(laporan.totalSimpanan)}</p>
         </div>
         
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
           <p className="text-sm text-slate-500">Total Pinjaman Aktif</p>
-          <p className="text-2xl font-bold text-slate-800">{formatRupiah(laporan.totalPinjamanAktif)}</p>
+          <p className="text-xl font-bold text-slate-800">{formatRupiah(laporan.totalPinjamanAktif)}</p>
         </div>
         
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
@@ -131,6 +170,37 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="bg-white p-4 rounded-lg shadow mb-6">
+        <h3 className="font-semibold text-slate-700 mb-4">Anggota Masuk & Keluar per Bulan</h3>
+        <div className="relative h-48">
+          <div className="absolute bottom-0 left-0 right-0 flex items-end justify-around h-36 gap-2">
+            {monthlyStats.map((m, i) => (
+              <div key={i} className="flex flex-col items-center w-full">
+                <div className="flex gap-1 w-full justify-center h-28 items-end">
+                  <div 
+                    className="w-1/2 bg-green-500 rounded-t" 
+                    style={{ height: m.masuk > 0 ? `${Math.min((m.masuk / Math.max(...monthlyStats.map(x => Math.max(x.masuk, x.keluar)), 1)) * 100, 100)}%` : '0%' }}
+                  ></div>
+                  <div 
+                    className="w-1/2 bg-red-500 rounded-t" 
+                    style={{ height: m.keluar > 0 ? `${Math.min((m.keluar / Math.max(...monthlyStats.map(x => Math.max(x.masuk, x.keluar)), 1)) * 100, 100)}%` : '0%' }}
+                  ></div>
+                </div>
+                <span className="text-xs mt-2 text-slate-600">{m.name}</span>
+                <div className="flex gap-1 text-xs">
+                  <span className="text-green-600">↑{m.masuk}</span>
+                  <span className="text-red-600">↓{m.keluar}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="flex justify-center gap-4 mt-2 text-sm">
+          <span className="text-green-600">█ Masuk</span>
+          <span className="text-red-600">█ Keluar</span>
         </div>
       </div>
 
