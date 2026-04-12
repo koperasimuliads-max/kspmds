@@ -38,6 +38,7 @@ interface KSPContextType {
   addTransaksi: (transaksi: Omit<Transaksi, 'id'>) => void;
   getLaporanKeuangan: () => LaporanKeuangan;
   getAnggotaById: (id: string) => Anggota | undefined;
+  bulkUpdateTanggalJoin: (startNBA: number, endNBA: number, tanggal: string) => void;
 }
 
 const KSPContext = createContext<KSPContextType | undefined>(undefined);
@@ -240,6 +241,16 @@ export function KSPProvider({ children }: { children: ReactNode }) {
 
   const getAnggotaById = (id: string) => anggota.find(a => a.id === id);
 
+  const bulkUpdateTanggalJoin = (startNBA: number, endNBA: number, tanggal: string) => {
+    setAnggota(prev => prev.map(a => {
+      const nbaNum = parseInt(a.nomorNBA);
+      if (!isNaN(nbaNum) && nbaNum >= startNBA && nbaNum <= endNBA) {
+        return { ...a, tanggalJoin: tanggal };
+      }
+      return a;
+    }));
+  };
+
   return (
     <KSPContext.Provider value={{
       anggota,
@@ -258,6 +269,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       addTransaksi,
       getLaporanKeuangan,
       getAnggotaById,
+      bulkUpdateTanggalJoin,
     }}>
       {children}
     </KSPContext.Provider>

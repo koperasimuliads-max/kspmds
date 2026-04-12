@@ -75,11 +75,13 @@ const referensiOptions = [
 ];
 
 export default function AnggotaPage() {
-  const { anggota, addAnggota, updateAnggota, deleteAnggota } = useKSP();
+  const { anggota, addAnggota, updateAnggota, deleteAnggota, bulkUpdateTanggalJoin } = useKSP();
   const [showForm, setShowForm] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [importText, setImportText] = useState('');
+  const [showTanggalForm, setShowTanggalForm] = useState(false);
+  const [tanggalForm, setTanggalForm] = useState({ startNBA: 1, endNBA: 25, tanggal: '2023-11-09' });
   
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
   
@@ -208,6 +210,12 @@ export default function AnggotaPage() {
             {showImport ? 'Tutup' : '+ Import CSV'}
           </button>
           <button
+            onClick={() => setShowTanggalForm(!showTanggalForm)}
+            className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+          >
+            {showTanggalForm ? 'Tutup' : 'Update Tgl Masuk'}
+          </button>
+          <button
             onClick={() => setShowForm(!showForm)}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
@@ -215,6 +223,47 @@ export default function AnggotaPage() {
           </button>
         </div>
       </div>
+
+      {showTanggalForm && (
+        <div className="bg-white p-4 rounded-lg shadow mb-4">
+          <h2 className="font-semibold mb-3">Update Tanggal Masuk Massal</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <input
+              type="number"
+              placeholder="NBA Awal"
+              value={tanggalForm.startNBA}
+              onChange={e => setTanggalForm({ ...tanggalForm, startNBA: Number(e.target.value) })}
+              className="border p-2 rounded"
+            />
+            <input
+              type="number"
+              placeholder="NBA Akhir"
+              value={tanggalForm.endNBA}
+              onChange={e => setTanggalForm({ ...tanggalForm, endNBA: Number(e.target.value) })}
+              className="border p-2 rounded"
+            />
+            <input
+              type="date"
+              value={tanggalForm.tanggal}
+              onChange={e => setTanggalForm({ ...tanggalForm, tanggal: e.target.value })}
+              className="border p-2 rounded"
+            />
+            <button
+              onClick={() => {
+                bulkUpdateTanggalJoin(tanggalForm.startNBA, tanggalForm.endNBA, tanggalForm.tanggal);
+                alert(`Tanggal masuk berhasil diupdate untuk NBA ${tanggalForm.startNBA} - ${tanggalForm.endNBA}`);
+                setShowTanggalForm(false);
+              }}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              Update
+            </button>
+          </div>
+          <p className="text-xs text-slate-500 mt-2">
+            Contoh: NBA 1-25 ubah ke tgl 09/11/2023
+          </p>
+        </div>
+      )}
 
       {showImport && (
         <div className="bg-white p-4 rounded-lg shadow mb-4">
