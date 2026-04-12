@@ -17,13 +17,13 @@ export default function Dashboard() {
   const pinjamansAktif = pinjamans.filter(p => p.status === 'aktif').length;
   const pinjamansLunas = pinjamans.filter(p => p.status === 'lunas').length;
   const pinjamansMacet = pinjamans.filter(p => p.status === 'macet').length;
-  const totalPinjaman = pinjamansAktif + pinjamansLunas + pinjamansMacet || 1;
+  const totalPinjaman = pinjamansAktif + pinjamansLunas + pinjamansMacet;
   
   const sukarela = simpanans.filter(s => s.jenis === 'sukarela' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
   const wajib = simpanans.filter(s => s.jenis === 'wajib' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananWajib || 0), 0);
   const pokok = simpanans.filter(s => s.jenis === 'pokok' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananPokok || 0), 0);
   const uangBuku = anggota.reduce((sum, a) => sum + (a.uangBuku || 0), 0);
-  const totalSimpanan = sukarela + wajib + pokok + uangBuku || 1;
+  const totalSimpanan = sukarela + wajib + pokok + uangBuku;
 
   return (
     <div>
@@ -53,61 +53,81 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="font-semibold text-slate-700 mb-4">Grafik Pinjaman per Status</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-semibold text-slate-700">Grafik Pinjaman per Status</h3>
+            <span className="text-sm text-slate-500">Total: {pinjamansAktif + pinjamansLunas + pinjamansMacet}</span>
+          </div>
           <div className="relative h-48">
             <div className="absolute bottom-0 left-0 right-0 flex items-end justify-around h-36 gap-2">
               <div className="flex flex-col items-center w-1/3">
                 <div 
                   className="w-full bg-blue-500 rounded-t-lg transition-all" 
-                  style={{ height: `${(pinjamansAktif / totalPinjaman) * 100}%` }}
+                  style={{ height: totalPinjaman > 1 ? `${(pinjamansAktif / totalPinjaman) * 100}%` : '0%' }}
                 ></div>
-                <span className="text-xs mt-2 text-slate-600">Aktif ({pinjamansAktif})</span>
+                <span className="text-xs mt-2 text-slate-600">Aktif</span>
+                <span className="text-xs font-bold">{totalPinjaman > 1 ? Math.round((pinjamansAktif / totalPinjaman) * 100) : 0}%</span>
+                <span className="text-xs text-slate-500">({pinjamansAktif})</span>
               </div>
               <div className="flex flex-col items-center w-1/3">
                 <div 
                   className="w-full bg-green-500 rounded-t-lg transition-all" 
-                  style={{ height: `${(pinjamansLunas / totalPinjaman) * 100}%` }}
+                  style={{ height: totalPinjaman > 1 ? `${(pinjamansLunas / totalPinjaman) * 100}%` : '0%' }}
                 ></div>
-                <span className="text-xs mt-2 text-slate-600">Lunas ({pinjamansLunas})</span>
+                <span className="text-xs mt-2 text-slate-600">Lunas</span>
+                <span className="text-xs font-bold">{totalPinjaman > 1 ? Math.round((pinjamansLunas / totalPinjaman) * 100) : 0}%</span>
+                <span className="text-xs text-slate-500">({pinjamansLunas})</span>
               </div>
               <div className="flex flex-col items-center w-1/3">
                 <div 
                   className="w-full bg-red-500 rounded-t-lg transition-all" 
-                  style={{ height: `${(pinjamansMacet / totalPinjaman) * 100}%` }}
+                  style={{ height: totalPinjaman > 1 ? `${(pinjamansMacet / totalPinjaman) * 100}%` : '0%' }}
                 ></div>
-                <span className="text-xs mt-2 text-slate-600">Macet ({pinjamansMacet})</span>
+                <span className="text-xs mt-2 text-slate-600">Macet</span>
+                <span className="text-xs font-bold">{totalPinjaman > 1 ? Math.round((pinjamansMacet / totalPinjaman) * 100) : 0}%</span>
+                <span className="text-xs text-slate-500">({pinjamansMacet})</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="font-semibold text-slate-700 mb-4">Grafik Simpanan per Jenis</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-semibold text-slate-700">Grafik Simpanan per Jenis</h3>
+            <span className="text-sm text-slate-500">Total: {formatRupiah(totalSimpanan)}</span>
+          </div>
           <div className="relative h-48">
             <div className="absolute bottom-0 left-0 right-0 flex items-end justify-around h-36 gap-2">
-              <div className="flex flex-col items-center w-1/3">
+              <div className="flex flex-col items-center w-1/4">
                 <div 
                   className="w-full bg-purple-500 rounded-t-lg transition-all" 
-                  style={{ height: `${(sukarela / totalSimpanan) * 100}%` }}
+                  style={{ height: totalSimpanan > 1 ? `${(sukarela / totalSimpanan) * 100}%` : '0%' }}
                 ></div>
                 <span className="text-xs mt-2 text-slate-600">Sukarela</span>
-                <span className="text-xs text-slate-500">{formatRupiah(sukarela)}</span>
+                <span className="text-xs font-bold">{totalSimpanan > 1 ? Math.round((sukarela / totalSimpanan) * 100) : 0}%</span>
               </div>
-              <div className="flex flex-col items-center w-1/3">
+              <div className="flex flex-col items-center w-1/4">
                 <div 
                   className="w-full bg-yellow-500 rounded-t-lg transition-all" 
-                  style={{ height: `${(wajib / totalSimpanan) * 100}%` }}
+                  style={{ height: totalSimpanan > 1 ? `${(wajib / totalSimpanan) * 100}%` : '0%' }}
                 ></div>
                 <span className="text-xs mt-2 text-slate-600">Wajib</span>
-                <span className="text-xs text-slate-500">{formatRupiah(wajib)}</span>
+                <span className="text-xs font-bold">{totalSimpanan > 1 ? Math.round((wajib / totalSimpanan) * 100) : 0}%</span>
               </div>
-              <div className="flex flex-col items-center w-1/3">
+              <div className="flex flex-col items-center w-1/4">
                 <div 
                   className="w-full bg-teal-500 rounded-t-lg transition-all" 
-                  style={{ height: `${(uangBuku / totalSimpanan) * 100}%` }}
+                  style={{ height: totalSimpanan > 1 ? `${(pokok / totalSimpanan) * 100}%` : '0%' }}
                 ></div>
-                <span className="text-xs mt-2 text-slate-600">Berjangka</span>
-                <span className="text-xs text-slate-500">{formatRupiah(uangBuku)}</span>
+                <span className="text-xs mt-2 text-slate-600">Pokok</span>
+                <span className="text-xs font-bold">{totalSimpanan > 1 ? Math.round((pokok / totalSimpanan) * 100) : 0}%</span>
+              </div>
+              <div className="flex flex-col items-center w-1/4">
+                <div 
+                  className="w-full bg-orange-500 rounded-t-lg transition-all" 
+                  style={{ height: totalSimpanan > 1 ? `${(uangBuku / totalSimpanan) * 100}%` : '0%' }}
+                ></div>
+                <span className="text-xs mt-2 text-slate-600">Uang Buku</span>
+                <span className="text-xs font-bold">{totalSimpanan > 1 ? Math.round((uangBuku / totalSimpanan) * 100) : 0}%</span>
               </div>
             </div>
           </div>
