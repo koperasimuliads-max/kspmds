@@ -68,12 +68,26 @@ export default function SimpananPage() {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-slate-800">Data Simpanan</h1>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          {showForm ? 'Tutup Form' : '+ Tambah Simpanan'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              const berjangkaIds = simpanans.filter(s => s.jenis === 'berjangka').map(s => s.id);
+              if (berjangkaIds.length > 0 && confirm(`Hapus ${berjangkaIds.length} data berjangka (uang buku)?`)) {
+                berjangkaIds.forEach(id => deleteSimpanan(id));
+                alert('Data berjangka telah dihapus');
+              }
+            }}
+            className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 text-sm"
+          >
+            Hapus Berjangka ({simpanans.filter(s => s.jenis === 'berjangka').length})
+          </button>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            {showForm ? 'Tutup Form' : '+ Tambah Simpanan'}
+          </button>
+        </div>
       </div>
 
       {showForm && (
