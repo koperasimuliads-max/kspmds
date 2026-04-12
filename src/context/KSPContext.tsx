@@ -88,6 +88,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     
     const anggotaId = newAnggota.id;
     const today = new Date().toISOString().split('T')[0];
+    const tanggalJoin = data.tanggalJoin || today;
     
     if (data.simpananPokok > 0) {
       const newSimpanan: Simpanan = {
@@ -95,7 +96,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
         anggotaId,
         jumlah: data.simpananPokok,
         jenis: 'pokok',
-        tanggalSimpan: today,
+        tanggalSimpan: tanggalJoin,
         status: 'aktif'
       };
       setSimpanans(prev => [...prev, newSimpanan]);
@@ -105,7 +106,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
         anggotaId,
         referensiId: newSimpanan.id,
         jumlah: data.simpananPokok,
-        tanggal: today,
+        tanggal: tanggalJoin,
         deskripsi: `Simpanan Pokok - ${data.nama}`
       }]);
     }
@@ -116,7 +117,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
         anggotaId,
         jumlah: data.simpananWajib,
         jenis: 'wajib',
-        tanggalSimpan: today,
+        tanggalSimpan: tanggalJoin,
         status: 'aktif'
       };
       setSimpanans(prev => [...prev, newSimpanan]);
@@ -126,8 +127,20 @@ export function KSPProvider({ children }: { children: ReactNode }) {
         anggotaId,
         referensiId: newSimpanan.id,
         jumlah: data.simpananWajib,
-        tanggal: today,
+        tanggal: tanggalJoin,
         deskripsi: `Simpanan Wajib - ${data.nama}`
+      }]);
+    }
+    
+    if (data.uangBuku > 0) {
+      setTransactions(prev => [...prev, {
+        id: generateId(),
+        jenis: 'pendapatan',
+        anggotaId,
+        referensiId: '',
+        jumlah: data.uangBuku,
+        tanggal: tanggalJoin,
+        deskripsi: `Uang Buku (Admin) - ${data.nama}`
       }]);
     }
   };

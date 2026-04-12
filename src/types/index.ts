@@ -56,7 +56,7 @@ export interface Simpanan {
 
 export interface Transaksi {
   id: string;
-  jenis: 'pinjaman' | 'simpanan' | 'pembayaran' | 'penarikan';
+  jenis: 'pinjaman' | 'simpanan' | 'pembayaran' | 'penarikan' | 'pendapatan';
   anggotaId: string;
   referensiId: string;
   jumlah: number;
