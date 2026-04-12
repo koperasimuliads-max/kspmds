@@ -22,8 +22,7 @@ export default function Dashboard() {
   const sukarela = simpanans.filter(s => s.jenis === 'sukarela' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
   const wajib = simpanans.filter(s => s.jenis === 'wajib' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananWajib || 0), 0);
   const pokok = simpanans.filter(s => s.jenis === 'pokok' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananPokok || 0), 0);
-  const uangBuku = anggota.reduce((sum, a) => sum + (a.uangBuku || 0), 0);
-  const totalSimpanan = sukarela + wajib + pokok + uangBuku;
+  const totalSimpanan = sukarela + wajib + pokok;
 
   const getMonthlyStats = () => {
     const now = new Date();
@@ -163,15 +162,7 @@ export default function Dashboard() {
                 <span className="text-xs mt-2 text-slate-600">Pokok</span>
                 <span className="text-xs font-bold">{totalSimpanan > 1 ? Math.round((pokok / totalSimpanan) * 100) : 0}%</span>
               </div>
-              <div className="flex flex-col items-center w-1/4">
-                <div 
-                  className="w-full bg-orange-500 rounded-t-lg transition-all" 
-                  style={{ height: totalSimpanan > 1 ? `${(uangBuku / totalSimpanan) * 100}%` : '0%' }}
-                ></div>
-                <span className="text-xs mt-2 text-slate-600">Uang Buku</span>
-                <span className="text-xs font-bold">{totalSimpanan > 1 ? Math.round((uangBuku / totalSimpanan) * 100) : 0}%</span>
               </div>
-            </div>
           </div>
         </div>
       </div>
@@ -268,10 +259,7 @@ export default function Dashboard() {
               <span>Wajib:</span>
               <span className="font-medium">{formatRupiah(wajib)}</span>
             </p>
-            <p className="flex justify-between">
-              <span>Berjangka:</span>
-              <span className="font-medium">{formatRupiah(uangBuku)}</span>
-            </p>
+            
           </div>
         </div>
         

@@ -14,10 +14,9 @@ export default function LaporanPage() {
     sukarela: simpanans.filter(s => s.jenis === 'sukarela' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0),
     wajib: simpanans.filter(s => s.jenis === 'wajib' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananWajib || 0), 0),
     pokok: simpanans.filter(s => s.jenis === 'pokok' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananPokok || 0), 0),
-    uangBuku: anggota.reduce((sum, a) => sum + (a.uangBuku || 0), 0),
   };
 
-  const totalSimpanan = simpananByJenis.sukarela + simpananByJenis.wajib + simpananByJenis.pokok + simpananByJenis.uangBuku;
+  const totalSimpanan = simpananByJenis.sukarela + simpananByJenis.wajib + simpananByJenis.pokok;
   const totalPinjamanAktif = pinjamans.filter(p => p.status === 'aktif').reduce((sum, p) => sum + p.jumlah, 0);
   const totalPembayaran = pinjamans.reduce((sum, p) => sum + p.sudahDibayar, 0);
   const sisaPinjaman = totalPinjamanAktif - (totalPembayaran - (pinjamans.filter(p => p.status === 'lunas').reduce((sum, p) => sum + p.totalPembayaran, 0)));
@@ -37,7 +36,6 @@ export default function LaporanPage() {
               <p className="flex justify-between"><span>Simpanan Sukarela</span><span>{formatRupiah(simpananByJenis.sukarela)}</span></p>
               <p className="flex justify-between"><span>Simpanan Wajib</span><span>{formatRupiah(simpananByJenis.wajib)}</span></p>
               <p className="flex justify-between"><span>Simpanan Pokok</span><span>{formatRupiah(simpananByJenis.pokok)}</span></p>
-              <p className="flex justify-between"><span>Uang Buku</span><span>{formatRupiah(simpananByJenis.uangBuku)}</span></p>
               <p className="flex justify-between font-medium border-t pt-1"><span>Total Simpanan</span><span>{formatRupiah(totalSimpanan)}</span></p>
             </div>
           </div>

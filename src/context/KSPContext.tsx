@@ -119,27 +119,6 @@ export function KSPProvider({ children }: { children: ReactNode }) {
         deskripsi: `Simpanan Wajib - ${data.nama}`
       }]);
     }
-    
-    if (data.uangBuku > 0) {
-      const newSimpanan: Simpanan = {
-        id: generateId(),
-        anggotaId,
-        jumlah: data.uangBuku,
-        jenis: 'berjangka',
-        tanggalSimpan: today,
-        status: 'aktif'
-      };
-      setSimpanans(prev => [...prev, newSimpanan]);
-      setTransactions(prev => [...prev, {
-        id: generateId(),
-        jenis: 'simpanan',
-        anggotaId,
-        referensiId: newSimpanan.id,
-        jumlah: data.uangBuku,
-        tanggal: today,
-        deskripsi: `Uang Buku - ${data.nama}`
-      }]);
-    }
   };
 
   const updateAnggota = (id: string, data: Partial<Anggota>) => {
