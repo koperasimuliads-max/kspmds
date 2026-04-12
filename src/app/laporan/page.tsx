@@ -13,10 +13,10 @@ export default function LaporanPage() {
   const simpananByJenis = {
     sukarela: simpanans.filter(s => s.jenis === 'sukarela' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0),
     wajib: simpanans.filter(s => s.jenis === 'wajib' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0),
-    berjangka: simpanans.filter(s => s.jenis === 'berjangka' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0),
+    berjangka: simpanans.filter(s => (s.jenis === 'berjangka' || s.jenis === 'pokok') && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0),
   };
 
-  const totalSimpanan = simpananByJenis.sukarela + simpananByJenis.wajib + simpananByJenis.berjangka;
+  const totalSimpanan = simpananByJenis.sukarela + simpananByJenis.wajib + simpananByJenis.berjangka + simpanans.filter(s => s.jenis === 'pokok' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
   const totalPinjamanAktif = pinjamans.filter(p => p.status === 'aktif').reduce((sum, p) => sum + p.jumlah, 0);
   const totalPembayaran = pinjamans.reduce((sum, p) => sum + p.sudahDibayar, 0);
   const sisaPinjaman = totalPinjamanAktif - (totalPembayaran - (pinjamans.filter(p => p.status === 'lunas').reduce((sum, p) => sum + p.totalPembayaran, 0)));
@@ -35,7 +35,8 @@ export default function LaporanPage() {
             <div className="pl-4 space-y-1 text-sm">
               <p className="flex justify-between"><span>Simpanan Sukarela</span><span>{formatRupiah(simpananByJenis.sukarela)}</span></p>
               <p className="flex justify-between"><span>Simpanan Wajib</span><span>{formatRupiah(simpananByJenis.wajib)}</span></p>
-              <p className="flex justify-between"><span>Simpanan Berjangka</span><span>{formatRupiah(simpananByJenis.berjangka)}</span></p>
+              <p className="flex justify-between"><span>Simpanan Berjangka</span><span>{formatRupiah(simpanans.filter(s => s.jenis === 'berjangka' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0))}</span></p>
+              <p className="flex justify-between"><span>Simpanan Pokok</span><span>{formatRupiah(simpanans.filter(s => s.jenis === 'pokok' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0))}</span></p>
               <p className="flex justify-between font-medium border-t pt-1"><span>Total Simpanan</span><span>{formatRupiah(totalSimpanan)}</span></p>
             </div>
           </div>

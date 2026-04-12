@@ -21,7 +21,7 @@ export default function Dashboard() {
   
   const sukarela = simpanans.filter(s => s.jenis === 'sukarela' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
   const wajib = simpanans.filter(s => s.jenis === 'wajib' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
-  const berjangka = simpanans.filter(s => s.jenis === 'berjangka' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
+  const berjangka = simpanans.filter(s => (s.jenis === 'berjangka' || s.jenis === 'pokok') && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
   const totalSimpanan = sukarela + wajib + berjangka || 1;
 
   return (
