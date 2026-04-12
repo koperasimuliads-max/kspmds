@@ -11,12 +11,16 @@ export default function LaporanPage() {
   const laporan = getLaporanKeuangan();
 
   const simpananByJenis = {
-    sukarela: simpanans.filter(s => s.jenis === 'sukarela' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0),
-    wajib: simpanans.filter(s => s.jenis === 'wajib' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananWajib || 0), 0),
-    pokok: simpanans.filter(s => s.jenis === 'pokok' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananPokok || 0), 0),
+    sukarela: simpanans.filter(s => s.jenis === 'sukarela' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0),
+    wajib: simpanans.filter(s => s.jenis === 'wajib' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananWajib || 0), 0),
+    pokok: simpanans.filter(s => s.jenis === 'pokok' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananPokok || 0), 0),
+    sibuhar: simpanans.filter(s => s.jenis === 'sibuhar' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0),
+    simapan: simpanans.filter(s => s.jenis === 'simapan' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0),
+    sihat: simpanans.filter(s => s.jenis === 'sihat' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0),
+    sihar: simpanans.filter(s => s.jenis === 'sihar' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0),
   };
 
-  const totalSimpanan = simpananByJenis.sukarela + simpananByJenis.wajib + simpananByJenis.pokok;
+  const totalSimpanan = Object.values(simpananByJenis).reduce((a, b) => a + b, 0);
   const totalPinjamanAktif = pinjamans.filter(p => p.status === 'aktif').reduce((sum, p) => sum + p.jumlah, 0);
   const totalPembayaran = pinjamans.reduce((sum, p) => sum + p.sudahDibayar, 0);
   const sisaPinjaman = totalPinjamanAktif - (totalPembayaran - (pinjamans.filter(p => p.status === 'lunas').reduce((sum, p) => sum + p.totalPembayaran, 0)));
@@ -36,6 +40,10 @@ export default function LaporanPage() {
               <p className="flex justify-between"><span>Simpanan Sukarela</span><span>{formatRupiah(simpananByJenis.sukarela)}</span></p>
               <p className="flex justify-between"><span>Simpanan Wajib</span><span>{formatRupiah(simpananByJenis.wajib)}</span></p>
               <p className="flex justify-between"><span>Simpanan Pokok</span><span>{formatRupiah(simpananByJenis.pokok)}</span></p>
+              <p className="flex justify-between"><span>Sibuhar (3%/thn)</span><span>{formatRupiah(simpananByJenis.sibuhar)}</span></p>
+              <p className="flex justify-between"><span>Simapan (5%/thn)</span><span>{formatRupiah(simpananByJenis.simapan)}</span></p>
+              <p className="flex justify-between"><span>Sihat (6%/thn)</span><span>{formatRupiah(simpananByJenis.sihat)}</span></p>
+              <p className="flex justify-between"><span>Sihar</span><span>{formatRupiah(simpananByJenis.sihar)}</span></p>
               <p className="flex justify-between font-medium border-t pt-1"><span>Total Simpanan</span><span>{formatRupiah(totalSimpanan)}</span></p>
             </div>
           </div>

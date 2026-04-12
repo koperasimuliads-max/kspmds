@@ -19,10 +19,14 @@ export default function Dashboard() {
   const pinjamansMacet = pinjamans.filter(p => p.status === 'macet').length;
   const totalPinjaman = pinjamansAktif + pinjamansLunas + pinjamansMacet;
   
-  const sukarela = simpanans.filter(s => s.jenis === 'sukarela' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
-  const wajib = simpanans.filter(s => s.jenis === 'wajib' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananWajib || 0), 0);
-  const pokok = simpanans.filter(s => s.jenis === 'pokok' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananPokok || 0), 0);
-  const totalSimpanan = sukarela + wajib + pokok;
+  const sukarela = simpanans.filter(s => s.jenis === 'sukarela' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
+  const wajib = simpanans.filter(s => s.jenis === 'wajib' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananWajib || 0), 0);
+  const pokok = simpanans.filter(s => s.jenis === 'pokok' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananPokok || 0), 0);
+  const sibuhar = simpanans.filter(s => s.jenis === 'sibuhar' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
+  const simapan = simpanans.filter(s => s.jenis === 'simapan' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
+  const sihat = simpanans.filter(s => s.jenis === 'sihat' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
+  const sihar = simpanans.filter(s => s.jenis === 'sihar' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
+  const totalSimpanan = sukarela + wajib + pokok + sibuhar + simapan + sihat + sihar;
 
   const getMonthlyStats = () => {
     const now = new Date();

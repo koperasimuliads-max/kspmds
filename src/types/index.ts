@@ -49,9 +49,12 @@ export interface Simpanan {
   id: string;
   anggotaId: string;
   jumlah: number;
-  jenis: 'sukarela' | 'wajib' | 'berjangka' | 'pokok';
+  jenis: 'sukarela' | 'wajib' | 'pokok' | 'berjangka' | 'sibuhar' | 'simapan' | 'sihat' | 'sihar';
   tanggalSimpan: string;
-  status: 'aktif' | 'ditarik';
+  status: 'aktif' | 'ditarik' | 'aktif_auto';
+  tenor?: number;
+  premi?: number;
+  bunga?: number;
 }
 
 export interface Transaksi {
