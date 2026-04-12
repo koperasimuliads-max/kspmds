@@ -6,27 +6,29 @@ import { Anggota } from '@/types';
 import * as XLSX from 'xlsx';
 
 const parseDate = (dateStr: any): string => {
-  if (!dateStr) return '';
+  if (!dateStr && dateStr !== 0) return '';
   if (typeof dateStr === 'number') {
-    const excelEpoch = new Date(1899, 11, 30);
-    const date = new Date(excelEpoch.getTime() + dateStr * 86400000);
-    return date.toISOString().split('T')[0];
+    const date = new Date((dateStr - 25569) * 86400 * 1000);
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   }
-  if (typeof dateStr !== 'string') return '';
+  if (typeof dateStr !== 'string') return String(dateStr);
   const trimmed = dateStr.trim();
   if (!trimmed) return '';
   if (trimmed.match(/^\d{4}-\d{2}-\d{2}$/)) return trimmed;
   if (trimmed.match(/^\d{2}-\d{2}-\d{4}$/)) {
-    const [dd, mm, yyyy] = trimmed.split('-');
-    return `${yyyy}-${mm}-${dd}`;
+    const parts = trimmed.split('-');
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
   }
   if (trimmed.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
-    const [dd, mm, yyyy] = trimmed.split('/');
-    return `${yyyy}-${mm}-${dd}`;
+    const parts = trimmed.split('/');
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
   }
   if (trimmed.match(/^\d{4}\/\d{2}\/\d{2}$/)) {
-    const [yyyy, mm, dd] = trimmed.split('/');
-    return `${yyyy}-${mm}-${dd}`;
+    const parts = trimmed.split('/');
+    return `${parts[0]}-${parts[1]}-${parts[2]}`;
   }
   return trimmed;
 };
