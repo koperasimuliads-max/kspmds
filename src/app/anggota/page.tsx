@@ -279,6 +279,22 @@ export default function AnggotaPage() {
       {showImport && (
         <div className="bg-white p-4 rounded-lg shadow mb-4">
           <h2 className="font-semibold mb-3">Import Data Anggota (Excel/CSV)</h2>
+          
+          <div className="bg-blue-50 p-3 rounded mb-4 text-sm">
+            <h3 className="font-semibold text-blue-800 mb-2">Format Kolom Excel/CSV:</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-blue-700">
+              <div>nama</div><div>nik</div><div>nomorNBA</div><div>jenisKelamin</div>
+              <div>tempatLahir</div><div>tanggalLahir</div><div>agama</div><div>alamat</div>
+              <div>alamatDomisili</div><div>statusPerkawinan</div><div>namaPasangan</div><div>jumlahAnak</div>
+              <div>namaIbuKandung</div><div>namaSaudara</div><div>noHpSaudara</div><div>pekerjaan</div>
+              <div>pendapatanPerbulan</div><div>statusRumah</div><div>namaReferensi</div><div>simpananPokok</div>
+              <div>simpananWajib</div><div>uangBuku</div><div>jenisPembayaran</div><div>telepon</div>
+              <div>tanggalJoin</div>
+            </div>
+            <p className="text-blue-600 mt-2 text-xs">Kolom bisa menggunakan huruf besar/kecil campuran (contoh: Nama, nama, NAMA)</p>
+            <a href="/contoh_import_anggota.csv" download className="inline-block mt-2 text-blue-700 underline text-xs">Download contoh CSV</a>
+          </div>
+
           <div className="mb-4">
             <p className="text-sm text-slate-500 mb-2">Upload file Excel (.xlsx, .xls) atau CSV</p>
             <input
