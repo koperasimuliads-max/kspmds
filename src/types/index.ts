@@ -48,7 +48,7 @@ export interface Simpanan {
   id: string;
   anggotaId: string;
   jumlah: number;
-  jenis: 'sukarela' | 'wajib' | 'berjangka';
+  jenis: 'sukarela' | 'wajib' | 'berjangka' | 'pokok';
   tanggalSimpan: string;
   status: 'aktif' | 'ditarik';
 }

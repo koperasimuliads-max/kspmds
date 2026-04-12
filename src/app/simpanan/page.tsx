@@ -15,7 +15,7 @@ export default function SimpananPage() {
   const [formData, setFormData] = useState({
     anggotaId: '',
     jumlah: 0,
-    jenis: 'sukarela' as 'sukarela' | 'wajib' | 'berjangka',
+    jenis: 'sukarela' as 'sukarela' | 'wajib' | 'berjangka' | 'pokok',
     tanggalSimpan: new Date().toISOString().split('T')[0],
     status: 'aktif' as 'aktif' | 'ditarik',
   });
@@ -101,7 +101,7 @@ export default function SimpananPage() {
             />
             <select
               value={formData.jenis}
-              onChange={e => setFormData({ ...formData, jenis: e.target.value as 'sukarela' | 'wajib' | 'berjangka' })}
+              onChange={e => setFormData({ ...formData, jenis: e.target.value as 'sukarela' | 'wajib' | 'berjangka' | 'pokok' })}
               className="border p-2 rounded"
             >
               <option value="sukarela">Sukarela</option>
