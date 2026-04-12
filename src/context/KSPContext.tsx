@@ -222,8 +222,12 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     const pinjamansAktif = pinjamans.filter(p => p.status === 'aktif');
     const simpanansAktif = simpanans.filter(s => s.status === 'aktif');
 
+    const totalSimpananDariAnggota = anggota.reduce((sum, a) => {
+      return sum + (a.simpananPokok || 0) + (a.simpananWajib || 0) + (a.uangBuku || 0);
+    }, 0);
+
     return {
-      totalSimpanan: simpanansAktif.reduce((sum, s) => sum + s.jumlah, 0),
+      totalSimpanan: simpanansAktif.reduce((sum, s) => sum + s.jumlah, 0) + totalSimpananDariAnggota,
       totalPinjaman: pinjamans.reduce((sum, p) => sum + p.jumlah, 0),
       totalPinjamanAktif: pinjamansAktif.reduce((sum, p) => sum + p.jumlah, 0),
       totalPinjamanLunas: pinjamans.filter(p => p.status === 'lunas').length,

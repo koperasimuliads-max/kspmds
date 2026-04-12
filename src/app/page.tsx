@@ -20,9 +20,10 @@ export default function Dashboard() {
   const totalPinjaman = pinjamansAktif + pinjamansLunas + pinjamansMacet || 1;
   
   const sukarela = simpanans.filter(s => s.jenis === 'sukarela' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
-  const wajib = simpanans.filter(s => s.jenis === 'wajib' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
-  const berjangka = simpanans.filter(s => (s.jenis === 'berjangka' || s.jenis === 'pokok') && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
-  const totalSimpanan = sukarela + wajib + berjangka || 1;
+  const wajib = simpanans.filter(s => s.jenis === 'wajib' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananWajib || 0), 0);
+  const pokok = simpanans.filter(s => s.jenis === 'pokok' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananPokok || 0), 0);
+  const uangBuku = anggota.reduce((sum, a) => sum + (a.uangBuku || 0), 0);
+  const totalSimpanan = sukarela + wajib + pokok + uangBuku || 1;
 
   return (
     <div>
@@ -103,10 +104,10 @@ export default function Dashboard() {
               <div className="flex flex-col items-center w-1/3">
                 <div 
                   className="w-full bg-teal-500 rounded-t-lg transition-all" 
-                  style={{ height: `${(berjangka / totalSimpanan) * 100}%` }}
+                  style={{ height: `${(uangBuku / totalSimpanan) * 100}%` }}
                 ></div>
                 <span className="text-xs mt-2 text-slate-600">Berjangka</span>
-                <span className="text-xs text-slate-500">{formatRupiah(berjangka)}</span>
+                <span className="text-xs text-slate-500">{formatRupiah(uangBuku)}</span>
               </div>
             </div>
           </div>
@@ -145,7 +146,7 @@ export default function Dashboard() {
             </p>
             <p className="flex justify-between">
               <span>Berjangka:</span>
-              <span className="font-medium">{formatRupiah(berjangka)}</span>
+              <span className="font-medium">{formatRupiah(uangBuku)}</span>
             </p>
           </div>
         </div>
