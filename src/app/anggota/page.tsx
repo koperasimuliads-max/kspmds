@@ -289,7 +289,7 @@ export default function AnggotaPage() {
               <div>namaIbuKandung</div><div>namaSaudara</div><div>noHpSaudara</div><div>pekerjaan</div>
               <div>pendapatanPerbulan</div><div>statusRumah</div><div>namaReferensi</div><div>simpananPokok</div>
               <div>simpananWajib</div><div>uangBuku</div><div>jenisPembayaran</div><div>telepon</div>
-              <div>tanggalJoin</div>
+              <div>tanggalJoin</div><div>tglMasuk</div><div>tanggalMasuk</div>
             </div>
             <p className="text-blue-600 mt-2 text-xs">Kolom bisa menggunakan huruf besar/kecil campuran (contoh: Nama, nama, NAMA)</p>
             <a href="/contoh_import_anggota.csv" download className="inline-block mt-2 text-blue-700 underline text-xs">Download contoh CSV</a>
@@ -358,7 +358,7 @@ export default function AnggotaPage() {
                       uangBuku: Number(row.uangBuku || row['Uang Buku'] || row.uang_buku) || 0,
                       jenisPembayaran: row.jenisPembayaran || row['Jenis Pembayaran'] || row.jenis_pembayaran || 'tunai',
                       telefon: row.telefon || row.Telepon || row.noTelepon || '',
-                      tanggalJoin: row.tanggalJoin || row['Tanggal Join'] || row.tanggal_join || new Date().toISOString().split('T')[0],
+                      tanggalJoin: row.tanggalJoin || row['Tanggal Join'] || row.tanggal_join || row['Tgl Masuk'] || row.tgl_masuk || row.tanggalMasuk || row['Tanggal Masuk'] || new Date().toISOString().split('T')[0],
                       status: 'aktif',
                     });
                     count++;
@@ -414,7 +414,7 @@ export default function AnggotaPage() {
                         uangBuku: Number(cols[21]) || 0,
                         jenisPembayaran: (cols[22] as any) || 'tunai',
                         telefon: cols[23] || '',
-                        tanggalJoin: cols[24] || new Date().toISOString().split('T')[0],
+                        tanggalJoin: cols[24] || cols[25] || cols[26] || new Date().toISOString().split('T')[0],
                         status: 'aktif',
                       });
                       count++;
