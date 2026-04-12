@@ -80,6 +80,10 @@ export default function AnggotaPage() {
   const [showImport, setShowImport] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [importText, setImportText] = useState('');
+  
+  const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+  
+  const getLabel = (options: {value: string, label: string}[], value: string) => options.find(o => o.value === value)?.label || value;
   const [formData, setFormData] = useState({
     nama: '',
     nik: '',
@@ -191,10 +195,6 @@ export default function AnggotaPage() {
     setShowForm(false);
     setEditingId(null);
   };
-
-  const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
-
-  const getLabel = (options: {value: string, label: string}[], value: string) => options.find(o => o.value === value)?.label || value;
 
   return (
     <div>
@@ -474,13 +474,15 @@ export default function AnggotaPage() {
                 <th className="text-left p-2">TTL</th>
                 <th className="text-left p-2">Status</th>
                 <th className="text-left p-2">Pekerjaan</th>
-                <th className="text-left p-2">Pendapatan</th>
+                <th className="text-right p-2">Simpanan Pokok</th>
+                <th className="text-right p-2">Simpanan Wajib</th>
+                <th className="text-right p-2">Uang Buku</th>
                 <th className="text-center p-2">Aksi</th>
               </tr>
             </thead>
             <tbody>
               {anggota.length === 0 ? (
-                <tr><td colSpan={10} className="text-center p-4 text-slate-500">Belum ada anggota</td></tr>
+                <tr><td colSpan={12} className="text-center p-4 text-slate-500">Belum ada anggota</td></tr>
               ) : (
                 anggota.map(a => (
                   <tr key={a.id} className="border-b hover:bg-slate-50">
@@ -492,7 +494,9 @@ export default function AnggotaPage() {
                     <td className="p-2 text-xs">{a.tempatLahir ? `${a.tempatLahir}, ${a.tanggalLahir ? new Date(a.tanggalLahir).toLocaleDateString('id-ID') : '-'}` : '-'}</td>
                     <td className="p-2"><span className={`px-2 py-1 rounded text-xs ${a.status === 'aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{a.status}</span></td>
                     <td className="p-2">{a.pekerjaan ? getLabel(pekerjaanOptions, a.pekerjaan) : '-'}</td>
-                    <td className="p-2 text-xs">{a.pendapatanPerbulan ? getLabel(pendapatanOptions, a.pendapatanPerbulan) : '-'}</td>
+                    <td className="p-2 text-right">{formatRupiah(a.simpananPokok)}</td>
+                    <td className="p-2 text-right">{formatRupiah(a.simpananWajib)}</td>
+                    <td className="p-2 text-right">{formatRupiah(a.uangBuku)}</td>
                     <td className="p-2 text-center">
                       <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-2">Edit</button>
                       <button onClick={() => handleDelete(a.id)} className="text-red-600 hover:underline">Hapus</button>
