@@ -45,6 +45,7 @@ interface KSPContextType {
   getLaporanKeuangan: () => LaporanKeuangan;
   getAnggotaById: (id: string) => Anggota | undefined;
   bulkUpdateTanggalJoin: (startNBA: number, endNBA: number, tanggal: string) => void;
+  bulkUpdateUangBuku: (startNBA: number, endNBA: number, jumlah: number) => void;
 }
 
 const KSPContext = createContext<KSPContextType | undefined>(undefined);
@@ -260,6 +261,16 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     setPengeluarans(prev => prev.filter(p => p.id !== id));
   };
 
+  const bulkUpdateUangBuku = (startNBA: number, endNBA: number, jumlah: number) => {
+    setAnggota(prev => prev.map(a => {
+      const nbaNum = parseInt(a.nomorNBA);
+      if (!isNaN(nbaNum) && nbaNum >= startNBA && nbaNum <= endNBA) {
+        return { ...a, uangBuku: jumlah };
+      }
+      return a;
+    }));
+  };
+
   return (
     <KSPContext.Provider value={{
       anggota,
@@ -284,6 +295,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       getLaporanKeuangan,
       getAnggotaById,
       bulkUpdateTanggalJoin,
+      bulkUpdateUangBuku,
     }}>
       {children}
     </KSPContext.Provider>
