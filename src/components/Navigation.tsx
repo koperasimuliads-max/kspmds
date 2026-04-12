@@ -10,6 +10,7 @@ const navItems = [
   { href: '/pinjaman', label: 'Pinjaman', icon: '💰' },
   { href: '/simpanan', label: 'Simpanan', icon: '💵' },
   { href: '/pendapatan', label: 'Pendapatan', icon: '💹' },
+  { href: '/pengeluaran', label: 'Pengeluaran', icon: '📤' },
   { href: '/laporan', label: 'Laporan', icon: '📈' },
 ];
 

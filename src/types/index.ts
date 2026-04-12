@@ -64,6 +64,14 @@ export interface Transaksi {
   deskripsi: string;
 }
 
+export interface Pengeluaran {
+  id: string;
+  jenis: string;
+  deskripsi: string;
+  jumlah: number;
+  tanggal: string;
+}
+
 export interface LaporanKeuangan {
   totalSimpanan: number;
   totalPinjaman: number;
