@@ -5,8 +5,14 @@ import { useKSP } from '@/context/KSPContext';
 import { Anggota } from '@/types';
 import * as XLSX from 'xlsx';
 
-const parseDate = (dateStr: string): string => {
-  if (!dateStr || typeof dateStr !== 'string') return '';
+const parseDate = (dateStr: any): string => {
+  if (!dateStr) return '';
+  if (typeof dateStr === 'number') {
+    const excelEpoch = new Date(1899, 11, 30);
+    const date = new Date(excelEpoch.getTime() + dateStr * 86400000);
+    return date.toISOString().split('T')[0];
+  }
+  if (typeof dateStr !== 'string') return '';
   const trimmed = dateStr.trim();
   if (!trimmed) return '';
   if (trimmed.match(/^\d{4}-\d{2}-\d{2}$/)) return trimmed;
