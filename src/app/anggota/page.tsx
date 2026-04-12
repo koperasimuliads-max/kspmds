@@ -5,6 +5,26 @@ import { useKSP } from '@/context/KSPContext';
 import { Anggota } from '@/types';
 import * as XLSX from 'xlsx';
 
+const parseDate = (dateStr: string): string => {
+  if (!dateStr || typeof dateStr !== 'string') return '';
+  const trimmed = dateStr.trim();
+  if (!trimmed) return '';
+  if (trimmed.match(/^\d{4}-\d{2}-\d{2}$/)) return trimmed;
+  if (trimmed.match(/^\d{2}-\d{2}-\d{4}$/)) {
+    const [dd, mm, yyyy] = trimmed.split('-');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  if (trimmed.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+    const [dd, mm, yyyy] = trimmed.split('/');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  if (trimmed.match(/^\d{4}\/\d{2}\/\d{2}$/)) {
+    const [yyyy, mm, dd] = trimmed.split('/');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  return trimmed;
+};
+
 const statusPerkawinanOptions = [
   { value: 'belum_kawin', label: 'Belum Kawin' },
   { value: 'kawin', label: 'Kawin' },
@@ -292,7 +312,7 @@ export default function AnggotaPage() {
               <div>tanggalJoin</div><div>tglMasuk</div><div>tanggalMasuk</div>
             </div>
             <p className="text-blue-600 mt-2 text-xs">Kolom bisa menggunakan huruf besar/kecil campuran (contoh: Nama, nama, NAMA)</p>
-            <a href="/contoh_import_anggota.csv" download className="inline-block mt-2 text-blue-700 underline text-xs">Download contoh CSV</a>
+            <a href="/contoh_import_anggota.csv" download className="inline-block mt-2 text-blue-700 underline text-xs">Download contoh CSV (format: dd-mm-yyyy)</a>
           </div>
 
           <div className="mb-4">
@@ -339,7 +359,7 @@ export default function AnggotaPage() {
                       nomorNBA: row.nomorNBA || row['Nomor NBA'] || row.nomor_nba || '',
                       jenisKelamin: (row.jenisKelamin || row['Jenis Kelamin'] || row.jenis_kelamin || 'L') as 'L' | 'P',
                       tempatLahir: row.tempatLahir || row['Tempat Lahir'] || row.tempat_lahir || row.Tempat || '',
-                      tanggalLahir: row.tanggalLahir || row['Tanggal Lahir'] || row.tanggal_lahir || row['Tgl Lahir'] || row.tgl_lahir || '',
+                      tanggalLahir: parseDate(row.tanggalLahir || row['Tanggal Lahir'] || row.tanggal_lahir || row['Tgl Lahir'] || row.tgl_lahir || ''),
                       agama: row.agama || row.Agama || '',
                       alamat: row.alamat || row.Alamat || '',
                       alamatDomisili: row.alamatDomisili || row['Alamat Domisili'] || row.alamat_domisili || '',
@@ -358,7 +378,7 @@ export default function AnggotaPage() {
                       uangBuku: Number(row.uangBuku || row['Uang Buku'] || row.uang_buku) || 0,
                       jenisPembayaran: row.jenisPembayaran || row['Jenis Pembayaran'] || row.jenis_pembayaran || 'tunai',
                       telefon: row.telefon || row.Telepon || row.noTelepon || '',
-                      tanggalJoin: row.tanggalJoin || row['Tanggal Join'] || row.tanggal_join || row['Tgl Masuk'] || row.tgl_masuk || row.tanggalMasuk || row['Tanggal Masuk'] || new Date().toISOString().split('T')[0],
+                      tanggalJoin: parseDate(row.tanggalJoin || row['Tanggal Join'] || row.tanggal_join || row['Tgl Masuk'] || row.tgl_masuk || row.tanggalMasuk || row['Tanggal Masuk']) || new Date().toISOString().split('T')[0],
                       status: 'aktif',
                     });
                     count++;
