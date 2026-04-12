@@ -600,7 +600,23 @@ export default function AnggotaPage() {
                     <td className="p-2">{a.pekerjaan ? getLabel(pekerjaanOptions, a.pekerjaan) : '-'}</td>
                     <td className="p-2 text-right">{formatRupiah(a.simpananPokok)}</td>
                     <td className="p-2 text-right">{formatRupiah(a.simpananWajib)}</td>
-                    <td className="p-2 text-right">{formatRupiah(a.uangBuku)}</td>
+                    <td className="p-2 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <span>{formatRupiah(a.uangBuku)}</span>
+                        <button 
+                          onClick={() => {
+                            const newUangBuku = prompt(`Ubah Uang Buku untuk ${a.nama}:`, String(a.uangBuku || 0));
+                            if (newUangBuku !== null) {
+                              updateAnggota(a.id, { uangBuku: Number(newUangBuku) || 0 });
+                            }
+                          }}
+                          className="text-xs text-blue-600 hover:underline ml-1"
+                          title="Klik untuk ubah"
+                        >
+                          ✏️
+                        </button>
+                      </div>
+                    </td>
                     <td className="p-2 text-center">
                       <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-2">Edit</button>
                       <button onClick={() => handleDelete(a.id)} className="text-red-600 hover:underline">Hapus</button>
