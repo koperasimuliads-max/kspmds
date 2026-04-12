@@ -75,7 +75,7 @@ const referensiOptions = [
 ];
 
 export default function AnggotaPage() {
-  const { anggota, addAnggota, updateAnggota, deleteAnggota, bulkUpdateTanggalJoin } = useKSP();
+  const { anggota, addAnggota, updateAnggota, deleteAnggota, clearAllAnggota, bulkUpdateTanggalJoin } = useKSP();
   const [showForm, setShowForm] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -203,6 +203,17 @@ export default function AnggotaPage() {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-slate-800">Data Anggota</h1>
         <div className="flex gap-2">
+          <button
+            onClick={() => {
+              if (confirm(`Hapus SEMUA ${anggota.length} anggota? Semua data pinjaman dan simpanan juga akan dihapus.`)) {
+                clearAllAnggota();
+                alert('Semua data anggota telah dihapus. Silakan Import ulang.');
+              }
+            }}
+            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+          >
+            Hapus Semua ({anggota.length})
+          </button>
           <button
             onClick={() => setShowImport(!showImport)}
             className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"

@@ -29,6 +29,7 @@ interface KSPContextType {
   addAnggota: (anggota: Omit<Anggota, 'id'>) => void;
   updateAnggota: (id: string, anggota: Partial<Anggota>) => void;
   deleteAnggota: (id: string) => void;
+  clearAllAnggota: () => void;
   addPinjaman: (pinjaman: Omit<Pinjaman, 'id'>) => void;
   updatePinjaman: (id: string, pinjaman: Partial<Pinjaman>) => void;
   deletePinjaman: (id: string) => void;
@@ -151,6 +152,13 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     setSimpanans(prev => prev.filter(s => s.anggotaId !== id));
   };
 
+  const clearAllAnggota = () => {
+    setAnggota([]);
+    setPinjamans([]);
+    setSimpanans([]);
+    setTransactions([]);
+  };
+
   const addPinjaman = (data: Omit<Pinjaman, 'id'>) => {
     const newPinjaman: Pinjaman = { ...data, id: generateId() };
     setPinjamans(prev => [...prev, newPinjaman]);
@@ -260,6 +268,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       addAnggota,
       updateAnggota,
       deleteAnggota,
+      clearAllAnggota,
       addPinjaman,
       updatePinjaman,
       deletePinjaman,
