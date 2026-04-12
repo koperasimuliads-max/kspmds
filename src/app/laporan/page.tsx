@@ -42,6 +42,19 @@ export default function LaporanPage() {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow">
+          <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">PENDAPATAN</h2>
+          <div className="space-y-2">
+            <p className="text-sm">Uang Buku (BIAYA ADMINISTRASI)</p>
+            <div className="pl-4 space-y-1 text-sm">
+              <p className="flex justify-between">
+                <span>Uang Buku Anggota ({anggota.filter(a => a.uangBuku > 0).length} anggota)</span>
+                <span className="font-medium">{formatRupiah(anggota.reduce((sum, a) => sum + (a.uangBuku || 0), 0))}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-lg shadow">
           <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">PIUTANG</h2>
           
           <div className="space-y-2">

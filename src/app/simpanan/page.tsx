@@ -66,28 +66,23 @@ export default function SimpananPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
+<div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-slate-800">Data Simpanan</h1>
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              const berjangkaIds = simpanans.filter(s => s.jenis === 'berjangka').map(s => s.id);
-              if (berjangkaIds.length > 0 && confirm(`Hapus ${berjangkaIds.length} data berjangka (uang buku)?`)) {
-                berjangkaIds.forEach(id => deleteSimpanan(id));
-                alert('Data berjangka telah dihapus');
-              }
-            }}
-            className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 text-sm"
-          >
-            Hapus Berjangka ({simpanans.filter(s => s.jenis === 'berjangka').length})
-          </button>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            {showForm ? 'Tutup Form' : '+ Tambah Simpanan'}
-          </button>
-        </div>
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          {showForm ? 'Tutup Form' : '+ Tambah Simpanan'}
+        </button>
+      </div>
+
+      <div className="bg-green-50 border border-green-200 p-3 rounded mb-4 text-sm">
+        <p className="text-green-800 font-medium">Catatan:</p>
+        <ul className="text-green-700 list-disc list-inside mt-1">
+          <li>Uang Buku (Rp 15.000) adalah biaya adminstrasi, bukan simpanan</li>
+          <li>Uang Buku masuk ke pendapatan (bukan simpanan)</li>
+          <li>Simpanan Berjangka yang tersedia untuk ditarik adalah simpanan lain</li>
+        </ul>
       </div>
 
       {showForm && (
