@@ -233,10 +233,30 @@ export default function AnggotaPage() {
                   const workbook = XLSX.read(data);
                   const sheetName = workbook.SheetNames[0];
                   const worksheet = workbook.Sheets[sheetName];
-                  const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                  const jsonData = XLSX.utils.sheet_to_json(worksheet) as any[];
+                  
+                  if (jsonData.length === 0) {
+                    alert('File kosong atau tidak memiliki data!');
+                    return;
+                  }
+                  
+                  const firstRow = jsonData[0];
+                  const requiredFields = ['nama', 'Nama', 'Nama Lengkap', 'nik', 'NIK'];
+                  const hasRequiredField = requiredFields.some(field => firstRow[field] !== undefined);
+                  
+                  if (!hasRequiredField) {
+                    alert('Struktur file tidak sesuai! Kolom "nama" atau "NIK" tidak ditemukan.\n\nKolom yang diharapkan:\n- nama/Nama/Nama Lengkap\n- nik/NIK\n- nomorNBA\n- jenisKelamin\n- tempatLahir\n- tanggalLahir\n- agama\n- alamat\n- alamatDomisili\n- statusPerkawinan\n- namaPasangan\n- jumlahAnak\n- namaIbuKandung\n- namaSaudara\n- noHpSaudara\n- pekerjaan\n- pendapatanPerbulan\n- statusRumah\n- namaReferensi\n- simpananPokok\n- simpananWajib\n- uangBuku\n- jenisPembayaran\n- telefon\n- tanggalJoin');
+                    return;
+                  }
+                  
+                  if (jsonData.length > 0) {
+                    const confirmImport = confirm(`Ditemukan ${jsonData.length} data. Lanjutkan import?`);
+                    if (!confirmImport) return;
+                  }
                   
                   let count = 0;
                   jsonData.forEach((row: any) => {
+                    if (!row.nama && !row.Nama && !row['Nama Lengkap']) return;
                     addAnggota({
                       nama: row.nama || row.Nama || '',
                       nik: row.nik || row.NIK || '',
