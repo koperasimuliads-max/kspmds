@@ -75,6 +75,14 @@ export interface Pengeluaran {
   tanggal: string;
 }
 
+export interface Pendapatan {
+  id: string;
+  jenis: string;
+  deskripsi: string;
+  jumlah: number;
+  tanggal: string;
+}
+
 export interface LaporanKeuangan {
   totalSimpanan: number;
   totalPinjaman: number;

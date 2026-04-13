@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { Anggota, Pinjaman, Simpanan, Transaksi, Pengeluaran, LaporanKeuangan } from '@/types';
+import { Anggota, Pinjaman, Simpanan, Transaksi, Pengeluaran, Pendapatan, LaporanKeuangan } from '@/types';
 
 const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
   if (typeof window === 'undefined') return defaultValue;
@@ -11,7 +11,7 @@ const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
 
 const createInitialState = () => {
   if (typeof window === 'undefined') {
-    return { anggota: [], pinjamans: [], simpanans: [], transactions: [], pengeluarans: [] };
+    return { anggota: [], pinjamans: [], simpanans: [], transactions: [], pengeluarans: [], pendapatans: [] };
   }
   return {
     anggota: loadFromStorage<Anggota[]>('ksp_anggota', []),
@@ -19,6 +19,7 @@ const createInitialState = () => {
     simpanans: loadFromStorage<Simpanan[]>('ksp_simpanans', []),
     transactions: loadFromStorage<Transaksi[]>('ksp_transactions', []),
     pengeluarans: loadFromStorage<Pengeluaran[]>('ksp_pengeluarans', []),
+    pendapatans: loadFromStorage<Pendapatan[]>('ksp_pendapatans', []),
   };
 };
 
@@ -28,6 +29,7 @@ interface KSPContextType {
   simpanans: Simpanan[];
   transactions: Transaksi[];
   pengeluarans: Pengeluaran[];
+  pendapatans: Pendapatan[];
   addAnggota: (anggota: Omit<Anggota, 'id'>) => void;
   updateAnggota: (id: string, anggota: Partial<Anggota>) => void;
   deleteAnggota: (id: string) => void;
@@ -42,6 +44,9 @@ interface KSPContextType {
   addPengeluaran: (pengeluaran: Omit<Pengeluaran, 'id'>) => void;
   updatePengeluaran: (id: string, pengeluaran: Partial<Pengeluaran>) => void;
   deletePengeluaran: (id: string) => void;
+  addPendapatan: (pendapatan: Omit<Pendapatan, 'id'>) => void;
+  updatePendapatan: (id: string, pendapatan: Partial<Pendapatan>) => void;
+  deletePendapatan: (id: string) => void;
   getLaporanKeuangan: () => LaporanKeuangan;
   getAnggotaById: (id: string) => Anggota | undefined;
   bulkUpdateTanggalJoin: (startNBA: number, endNBA: number, tanggal: string) => void;
@@ -62,6 +67,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
   const [simpanans, setSimpanans] = useState<Simpanan[]>(initialState.simpanans);
   const [transactions, setTransactions] = useState<Transaksi[]>(initialState.transactions);
   const [pengeluarans, setPengeluarans] = useState<Pengeluaran[]>(initialState.pengeluarans);
+  const [pendapatans, setPendapatans] = useState<Pendapatan[]>(initialState.pendapatans);
 
   useEffect(() => {
     localStorage.setItem('ksp_anggota', JSON.stringify(anggota));
@@ -82,6 +88,10 @@ export function KSPProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem('ksp_pengeluarans', JSON.stringify(pengeluarans));
   }, [pengeluarans]);
+
+  useEffect(() => {
+    localStorage.setItem('ksp_pendapatans', JSON.stringify(pendapatans));
+  }, [pendapatans]);
 
   const addAnggota = (data: Omit<Anggota, 'id'>) => {
     const newAnggota: Anggota = { ...data, id: generateId() };
@@ -275,6 +285,18 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     setPengeluarans(prev => prev.filter(p => p.id !== id));
   };
 
+  const addPendapatan = (data: Omit<Pendapatan, 'id'>) => {
+    setPendapatans(prev => [...prev, { ...data, id: generateId() }]);
+  };
+
+  const updatePendapatan = (id: string, data: Partial<Pendapatan>) => {
+    setPendapatans(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
+  };
+
+  const deletePendapatan = (id: string) => {
+    setPendapatans(prev => prev.filter(p => p.id !== id));
+  };
+
   const bulkUpdateUangBuku = (startNBA: number, endNBA: number, jumlah: number) => {
     setAnggota(prev => prev.map(a => {
       const nbaNum = parseInt(a.nomorNBA);
@@ -302,6 +324,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       simpanans,
       transactions,
       pengeluarans,
+      pendapatans,
       addAnggota,
       updateAnggota,
       deleteAnggota,
@@ -316,6 +339,9 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       addPengeluaran,
       updatePengeluaran,
       deletePengeluaran,
+      addPendapatan,
+      updatePendapatan,
+      deletePendapatan,
       getLaporanKeuangan,
       getAnggotaById,
       bulkUpdateTanggalJoin,
