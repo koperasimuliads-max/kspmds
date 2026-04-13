@@ -11,8 +11,8 @@ export default function LaporanPage() {
   const laporan = getLaporanKeuangan();
 
   const simpananByJenis = {
-    wajib: simpanans.filter(s => s.jenis === 'wajib' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananWajib || 0), 0),
-    pokok: simpanans.filter(s => s.jenis === 'pokok' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananPokok || 0), 0),
+    wajib: simpanans.filter(s => s.jenis === 'wajib' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0),
+    pokok: simpanans.filter(s => s.jenis === 'pokok' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0),
     sibuhar: simpanans.filter(s => s.jenis === 'sibuhar' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0),
     simapan: simpanans.filter(s => s.jenis === 'simapan' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0),
     sihat: simpanans.filter(s => s.jenis === 'sihat' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0),
