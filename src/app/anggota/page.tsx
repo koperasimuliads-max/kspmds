@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useKSP } from '@/context/KSPContext';
 import { Anggota } from '@/types';
 import * as XLSX from 'xlsx';
@@ -117,6 +117,7 @@ export default function AnggotaPage() {
   const getLabel = (options: {value: string, label: string}[], value: string) => options.find(o => o.value === value)?.label || value;
   
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
   
   const filteredAnggota = filterStatus === 'all' 
     ? anggota 
@@ -130,6 +131,18 @@ export default function AnggotaPage() {
         return namaMatch || nbaMatch;
       })
     : filteredAnggota;
+    
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.search-dropdown')) {
+        setShowSearchResults(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   const [formData, setFormData] = useState({
     nama: '',
     nik: '',
@@ -239,6 +252,14 @@ export default function AnggotaPage() {
     }
   };
 
+  const handleSelectSearch = (id: string) => {
+    const ag = anggota.find(a => a.id === id);
+    if (ag) {
+      handleEdit(ag);
+      setSearchQuery('');
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       nama: '',
@@ -330,14 +351,47 @@ export default function AnggotaPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-4 items-center">
-        <input
-          type="text"
-          placeholder="Cari by No. NBA atau Nama..."
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          className="border p-2 rounded flex-1 min-w-[200px]"
-        />
+      <div className="relative flex flex-wrap gap-2 mb-4 items-center search-dropdown">
+        <div className="relative flex-1 min-w-[200px]">
+          <input
+            type="text"
+            placeholder="Cari by No. NBA atau Nama..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            onFocus={() => searchQuery.trim() && displayAnggota.length > 0 && setShowSearchResults(true)}
+            className="border p-2 rounded w-full pr-8"
+          />
+          {searchQuery && (
+            <button 
+              onClick={() => { setSearchQuery(''); setShowSearchResults(false); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            >
+              ✕
+            </button>
+          )}
+          {showSearchResults && displayAnggota.length > 0 && (
+            <div className="absolute z-10 w-full bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto mt-1 search-dropdown">
+              {displayAnggota.slice(0, 10).map(a => (
+                <div 
+                  key={a.id}
+                  onClick={() => {
+                    handleSelectSearch(a.id);
+                    setShowSearchResults(false);
+                  }}
+                  className="p-2 hover:bg-slate-100 cursor-pointer border-b last:border-b-0"
+                >
+                  <div className="font-medium">{a.nama}</div>
+                  <div className="text-xs text-slate-500">NBA: {a.nomorNBA || '-'} | Status: {a.status}</div>
+                </div>
+              ))}
+              {displayAnggota.length > 10 && (
+                <div className="p-2 text-xs text-slate-500 text-center">
+                  +{displayAnggota.length - 10} hasil lainnya...
+                </div>
+              )}
+            </div>
+          )}
+        </div>
         {searchQuery && (
           <span className="text-sm text-slate-500">
             Ditemukan: {displayAnggota.length} dari {filteredAnggota.length} anggota
