@@ -21,6 +21,7 @@ export default function SimpananPage() {
   const { anggota, simpanans, addSimpanan, updateSimpanan, deleteSimpanan } = useKSP();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [filterJenis, setFilterJenis] = useState<string>('all');
   const [formData, setFormData] = useState({
     anggotaId: '',
     jumlah: 0,
@@ -92,6 +93,24 @@ export default function SimpananPage() {
         >
           {showForm ? 'Tutup Form' : '+ Tambah Simpanan'}
         </button>
+      </div>
+
+      <div className="flex gap-2 mb-4 overflow-x-auto">
+        <button
+          onClick={() => setFilterJenis('all')}
+          className={`px-3 py-2 rounded text-sm ${filterJenis === 'all' ? 'bg-blue-600 text-white' : 'bg-white border'}`}
+        >
+          Semua ({simpanans.length})
+        </button>
+        {jenisSimpananOptions.map(opt => (
+          <button
+            key={opt.value}
+            onClick={() => setFilterJenis(opt.value)}
+            className={`px-3 py-2 rounded text-sm ${filterJenis === opt.value ? 'bg-blue-600 text-white' : 'bg-white border'}`}
+          >
+            {opt.label.split(' ')[0]} ({simpanans.filter(s => s.jenis === opt.value).length})
+          </button>
+        ))}
       </div>
 
       <div className="bg-green-50 border border-green-200 p-3 rounded mb-4 text-sm">
@@ -189,7 +208,7 @@ export default function SimpananPage() {
                 <td colSpan={8} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
               </tr>
             ) : (
-              simpanans.map(s => {
+              simpanans.filter(s => filterJenis === 'all' || s.jenis === filterJenis).map(s => {
                 const ag = anggota.find(a => a.id === s.anggotaId);
                 return (
                   <tr key={s.id} className="border-b hover:bg-slate-50">
