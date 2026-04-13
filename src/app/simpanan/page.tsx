@@ -214,8 +214,12 @@ export default function SimpananPage() {
               <th className="text-left p-3">Anggota</th>
               <th className="text-left p-3">Jenis</th>
               <th className="text-right p-3">Jumlah</th>
-              <th className="text-right p-3">Bunga</th>
-              <th className="text-right p-3">Tenor</th>
+              {filterJenis === 'all' || filterJenis === 'sibuhar' || filterJenis === 'simapan' || filterJenis === 'sihat' || filterJenis === 'sihar' ? (
+                <>
+                  <th className="text-right p-3">Bunga</th>
+                  <th className="text-right p-3">Tenor</th>
+                </>
+              ) : null}
               <th className="text-left p-3">Tanggal</th>
               <th className="text-left p-3">Status</th>
               <th className="text-center p-3">Aksi</th>
@@ -229,13 +233,25 @@ export default function SimpananPage() {
             ) : (
               filteredSimpanans.map(s => {
                 const ag = anggota.find(a => a.id === s.anggotaId);
+                const showBungaTenor = s.jenis === 'sibuhar' || s.jenis === 'simapan' || s.jenis === 'sihat' || s.jenis === 'sihar';
                 return (
                   <tr key={s.id} className="border-b hover:bg-slate-50">
                     <td className="p-3 font-medium">{ag?.nama || '-'}</td>
                     <td className="p-3 capitalize">{s.jenis}</td>
                     <td className="p-3 text-right">{formatRupiah(s.jumlah)}</td>
-                    <td className="p-3 text-right">{s.bunga || 0}%</td>
-                    <td className="p-3 text-right">{s.tenor || '-'} bln</td>
+                    {showBungaTenor ? (
+                      <>
+                        <td className="p-3 text-right">{s.bunga || 0}%</td>
+                        <td className="p-3 text-right">{s.tenor || '-'} bln</td>
+                      </>
+                    ) : (
+                      filterJenis === 'all' ? (
+                        <>
+                          <td className="p-3 text-right">-</td>
+                          <td className="p-3 text-right">-</td>
+                        </>
+                      ) : null
+                    )}
                     <td className="p-3">{formatDate(s.tanggalSimpan)}</td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded text-xs ${s.status === 'aktif' ? 'bg-green-100 text-green-800' : s.status === 'aktif_auto' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
