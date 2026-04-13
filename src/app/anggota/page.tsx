@@ -297,7 +297,7 @@ export default function AnggotaPage() {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4 no-print">
         <h1 className="text-2xl font-bold text-slate-800">Data Anggota</h1>
         <div className="flex gap-2">
           <button
@@ -312,12 +312,18 @@ export default function AnggotaPage() {
           >
             ➕ Tambah
           </button>
+          <button
+            onClick={() => window.print()}
+            className="px-4 py-2 rounded font-medium bg-orange-500 text-white hover:bg-orange-600"
+          >
+            🖨️ Cetak
+          </button>
         </div>
       </div>
 
       {viewMode === 'data' ? (
         <>
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-2 mb-4 no-print">
             <input
               type="text"
               placeholder="Cari nama atau No. NBA..."
@@ -348,7 +354,7 @@ export default function AnggotaPage() {
           )}
 
           {showTanggalForm && (
-            <div className="bg-white p-4 rounded-lg shadow mb-4">
+            <div className="bg-white p-4 rounded-lg shadow mb-4 no-print">
               <h2 className="font-semibold mb-3">Update Tanggal Masuk Massal</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
             <input
@@ -685,7 +691,7 @@ export default function AnggotaPage() {
                 <th className="text-right p-2">Simpanan Pokok</th>
                 <th className="text-right p-2">Simpanan Wajib</th>
                 <th className="text-right p-2">Uang Buku</th>
-                <th className="text-center p-2">Aksi</th>
+                <th className="text-center p-2 no-print">Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -723,7 +729,7 @@ export default function AnggotaPage() {
                         </button>
                       </div>
                     </td>
-                    <td className="p-2 text-center">
+                    <td className="p-2 text-center no-print">
                       <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-1">Edit</button>
                       {a.status === 'aktif' && (
                         <button onClick={() => handleKeluar(a.id)} className="text-orange-600 hover:underline mr-1">Keluar</button>
