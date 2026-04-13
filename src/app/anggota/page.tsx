@@ -181,7 +181,7 @@ export default function AnggotaPage() {
       ...formData,
       alamatDomisili: alamatSamaKTP ? formData.alamat : formData.alamatDomisili,
       simpananPokok: 100000,
-      simpananWajib: 50000,
+      simpananWajib: 25000,
       uangBuku: 25000,
     };
     if (editingId) {
@@ -834,7 +834,7 @@ export default function AnggotaPage() {
                     </div>
                     <div className="border p-2 rounded bg-slate-100">
                       <label className="text-xs text-slate-500 block">Simpanan Wajib</label>
-                      <span className="font-medium">Rp 50.000</span>
+                      <span className="font-medium">Rp 25.000</span>
                     </div>
                     <div className="border p-2 rounded bg-slate-100">
                       <label className="text-xs text-slate-500 block">Uang Buku</label>
