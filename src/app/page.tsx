@@ -199,6 +199,45 @@ export default function Dashboard() {
           <span className="text-red-600 font-medium">█ Keluar</span>
         </div>
         
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-100">
+              <tr>
+                <th className="text-left p-2">Bulan</th>
+                <th className="text-right p-2">Masuk</th>
+                <th className="text-right p-2">%</th>
+                <th className="text-right p-2">Keluar</th>
+                <th className="text-right p-2">%</th>
+              </tr>
+            </thead>
+            <tbody>
+              {monthlyStats.map((m, i) => {
+                const total = monthlyStats.reduce((s, x) => s + x.masuk + x.keluar, 0);
+                const masukPct = total > 0 ? Math.round((m.masuk / total) * 100) : 0;
+                const keluarPct = total > 0 ? Math.round((m.keluar / total) * 100) : 0;
+                return (
+                  <tr key={i} className="border-b hover:bg-slate-50">
+                    <td className="p-2">{m.name}</td>
+                    <td className="p-2 text-right text-green-600 font-medium">{m.masuk}</td>
+                    <td className="p-2 text-right text-slate-500">{masukPct}%</td>
+                    <td className="p-2 text-right text-red-600 font-medium">{m.keluar}</td>
+                    <td className="p-2 text-right text-slate-500">{keluarPct}%</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot className="bg-slate-100 font-semibold">
+              <tr>
+                <td className="p-2">Total</td>
+                <td className="p-2 text-right text-green-600">{monthlyStats.reduce((s, m) => s + m.masuk, 0)}</td>
+                <td className="p-2 text-right">100%</td>
+                <td className="p-2 text-right text-red-600">{monthlyStats.reduce((s, m) => s + m.keluar, 0)}</td>
+                <td className="p-2 text-right">100%</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        
         <div className="mt-4 p-3 bg-slate-50 rounded text-sm">
           <h4 className="font-semibold text-slate-700 mb-2">Ringkasan Statistik:</h4>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
