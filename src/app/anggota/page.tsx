@@ -116,7 +116,20 @@ export default function AnggotaPage() {
   
   const getLabel = (options: {value: string, label: string}[], value: string) => options.find(o => o.value === value)?.label || value;
   
-  const filteredAnggota = filterStatus === 'all' ? anggota : anggota.filter(a => a.status === filterStatus);
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const filteredAnggota = filterStatus === 'all' 
+    ? anggota 
+    : anggota.filter(a => a.status === filterStatus);
+  
+  const displayAnggota = searchQuery.trim() 
+    ? filteredAnggota.filter(a => {
+        const query = searchQuery.toLowerCase();
+        const namaMatch = a.nama?.toLowerCase().includes(query);
+        const nbaMatch = a.nomorNBA?.toLowerCase().includes(query);
+        return namaMatch || nbaMatch;
+      })
+    : filteredAnggota;
   const [formData, setFormData] = useState({
     nama: '',
     nik: '',
@@ -315,6 +328,21 @@ export default function AnggotaPage() {
             {showForm ? 'Tutup Form' : '+ Tambah Anggota'}
           </button>
         </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-4 items-center">
+        <input
+          type="text"
+          placeholder="Cari by No. NBA atau Nama..."
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          className="border p-2 rounded flex-1 min-w-[200px]"
+        />
+        {searchQuery && (
+          <span className="text-sm text-slate-500">
+            Ditemukan: {displayAnggota.length} dari {filteredAnggota.length} anggota
+          </span>
+        )}
       </div>
 
       {showTanggalForm && (
@@ -655,10 +683,10 @@ export default function AnggotaPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredAnggota.length === 0 ? (
+              {displayAnggota.length === 0 ? (
                 <tr><td colSpan={14} className="text-center p-4 text-slate-500">Belum ada anggota</td></tr>
               ) : (
-                filteredAnggota.map((a, index) => (
+                displayAnggota.map((a, index) => (
                   <tr key={a.id} className="border-b hover:bg-slate-50">
                     <td className="p-2 text-center text-slate-500">{index + 1}</td>
                     <td className="p-2">{a.tanggalJoin ? new Date(a.tanggalJoin).toLocaleDateString('id-ID') : '-'}</td>
