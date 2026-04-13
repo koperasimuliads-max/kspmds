@@ -300,119 +300,56 @@ export default function AnggotaPage() {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-slate-800">Data Anggota</h1>
         <div className="flex gap-2">
-          <div className="flex rounded overflow-hidden border">
-            <button
-              onClick={() => setViewMode('data')}
-              className={`px-4 py-2 text-sm ${viewMode === 'data' ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
-            >
-              📋 Data Anggota
-            </button>
-            <button
-              onClick={() => { setViewMode('tambah'); setShowForm(true); }}
-              className={`px-4 py-2 text-sm ${viewMode === 'tambah' ? 'bg-green-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
-            >
-              ➕ Tambah Baru
-            </button>
-          </div>
-          <div className="flex rounded overflow-hidden border">
-            <button
-              onClick={() => setFilterStatus('all')}
-              className={`px-3 py-2 text-sm ${filterStatus === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
-            >
-              Semua ({anggota.length})
-            </button>
-            <button
-              onClick={() => setFilterStatus('aktif')}
-              className={`px-3 py-2 text-sm ${filterStatus === 'aktif' ? 'bg-green-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
-            >
-              Aktif ({anggota.filter(a => a.status === 'aktif').length})
-            </button>
-            <button
-              onClick={() => setFilterStatus('nonaktif')}
-              className={`px-3 py-2 text-sm ${filterStatus === 'nonaktif' ? 'bg-red-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
-            >
-              Keluar ({anggota.filter(a => a.status === 'nonaktif').length})
-            </button>
-          </div>
           <button
-            onClick={() => {
-              if (confirm(`Hapus SEMUA ${anggota.length} anggota? Semua data pinjaman dan simpanan juga akan dihapus.`)) {
-                clearAllAnggota();
-                alert('Semua data anggota telah dihapus. Silakan Import ulang.');
-              }
-            }}
-            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            onClick={() => setViewMode('data')}
+            className={`px-4 py-2 rounded font-medium ${viewMode === 'data' ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}
           >
-            Hapus Semua ({anggota.length})
+            📋 Data
           </button>
           <button
-            onClick={() => setShowImport(!showImport)}
-            className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+            onClick={() => { setViewMode('tambah'); setShowForm(true); }}
+            className={`px-4 py-2 rounded font-medium ${viewMode === 'tambah' ? 'bg-green-600 text-white' : 'bg-slate-200 text-slate-700 hover:bg-slate-300'}`}
           >
-            {showImport ? 'Tutup' : '+ Import CSV'}
-          </button>
-          <button
-            onClick={() => setShowTanggalForm(!showTanggalForm)}
-            className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
-          >
-            {showTanggalForm ? 'Tutup' : 'Update Tgl Masuk'}
+            ➕ Tambah
           </button>
         </div>
       </div>
 
       {viewMode === 'data' ? (
         <>
-          <div className="relative flex flex-wrap gap-2 mb-4 items-center search-dropdown">
-        <div className="relative flex-1 min-w-[200px]">
-          <input
-            type="text"
-            placeholder="Cari by No. NBA atau Nama..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            onFocus={() => searchQuery.trim() && displayAnggota.length > 0 && setShowSearchResults(true)}
-            className="border p-2 rounded w-full pr-8"
-          />
-          {searchQuery && (
-            <button 
-              onClick={() => { setSearchQuery(''); setShowSearchResults(false); }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+          <div className="flex gap-2 mb-4">
+            <input
+              type="text"
+              placeholder="Cari nama atau No. NBA..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="border p-2 rounded flex-1"
+            />
+            <select
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value as any)}
+              className="border p-2 rounded"
             >
-              ✕
+              <option value="all">Semua</option>
+              <option value="aktif">Aktif</option>
+              <option value="nonaktif">Keluar</option>
+            </select>
+            <button
+              onClick={() => setShowImport(!showImport)}
+              className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+            >
+              📥 Import
             </button>
+          </div>
+          {searchQuery && (
+            <span className="text-sm text-slate-500">
+              Ditemukan: {displayAnggota.length} dari {filteredAnggota.length} anggota
+            </span>
           )}
-          {showSearchResults && displayAnggota.length > 0 && (
-            <div className="absolute z-10 w-full bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto mt-1 search-dropdown">
-              {displayAnggota.slice(0, 10).map(a => (
-                <div 
-                  key={a.id}
-                  onClick={() => {
-                    handleSelectSearch(a.id);
-                    setShowSearchResults(false);
-                  }}
-                  className="p-2 hover:bg-slate-100 cursor-pointer border-b last:border-b-0"
-                >
-                  <div className="font-medium">{a.nama}</div>
-                  <div className="text-xs text-slate-500">NBA: {a.nomorNBA || '-'} | Status: {a.status}</div>
-                </div>
-              ))}
-              {displayAnggota.length > 10 && (
-                <div className="p-2 text-xs text-slate-500 text-center">
-                  +{displayAnggota.length - 10} hasil lainnya...
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-        {searchQuery && (
-          <span className="text-sm text-slate-500">
-            Ditemukan: {displayAnggota.length} dari {filteredAnggota.length} anggota
-          </span>
-        )}
-      </div>
 
-      {showTanggalForm && (
-        <div className="bg-white p-4 rounded-lg shadow mb-4">
-          <h2 className="font-semibold mb-3">Update Tanggal Masuk Massal</h2>
+          {showTanggalForm && (
+            <div className="bg-white p-4 rounded-lg shadow mb-4">
+              <h2 className="font-semibold mb-3">Update Tanggal Masuk Massal</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
             <input
               type="number"

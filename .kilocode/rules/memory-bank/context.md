@@ -1,87 +1,59 @@
-# Active Context: Next.js Starter Template
+# Active Context: KSP Mulia Dana Sejahtera
 
 ## Current State
 
-**Template Status**: ✅ Ready for development
+**Project Status**: ✅ KSP financial management app operational
 
-The template is a clean Next.js 16 starter with TypeScript and Tailwind CSS 4. It's ready for AI-assisted expansion to build any type of application.
+Building a KSP (Kredit Simpanan Pinjaman) financial management application called "KSP Mulia Dana Sejahtera" with automatic data linking between modules, clean UI, and reliable financial reporting.
 
 ## Recently Completed
 
-- [x] Base Next.js 16 setup with App Router
-- [x] TypeScript configuration with strict mode
-- [x] Tailwind CSS 4 integration
-- [x] ESLint configuration
-- [x] Memory bank documentation
-- [x] Recipe system for common features
-
-## Current Structure
-
-| File/Directory | Purpose | Status |
-|----------------|---------|--------|
-| `src/app/page.tsx` | Home page | ✅ Ready |
-| `src/app/layout.tsx` | Root layout | ✅ Ready |
-| `src/app/globals.css` | Global styles | ✅ Ready |
-| `.kilocode/` | AI context & recipes | ✅ Ready |
+- [x] Fixed laporan page - removed double counting, only counts from simpanans/pinjamans/pendapatans/pengeluarans tables
+- [x] Added Pendapatan type and state to context for tracking income
+- [x] Added auto-fix for simpanan dates to match anggota.tanggalJoin
+- [x] Added formatter functions for currency input with thousand separators in Pinjaman and Simpanan pages
+- [x] Added live search with dropdown in Anggota page - search by NBA or name, click to edit
+- [x] Added "alamat sama KTP" checkbox feature for anggota form
+- [x] Added "anggota keluar" feature with status change to nonaktif and tanggalKeluar tracking
+- [x] Simplified laporan page - removed calculated/assumed values, only shows actual data
+- [x] Removed transactions menu - not needed
+- [x] Removed add buttons from Pendapatan/Pengeluaran pages - only Edit button remains
+- [x] Added viewMode toggle ('data' vs 'tambah') to separate data view from input form
+- [x] Fixed syntax errors in anggota/page.tsx - corrected JSX fragments and indentation
 
 ## Current Focus
 
-The template is ready. Next steps depend on user requirements:
+Fixing syntax errors in anggota/page.tsx - completed. The application is now fully functional with:
+- Data Anggota with live search and viewMode toggle
+- Simpanan with number formatting
+- Pinjaman with number formatting
+- Pendapatan (income tracking)
+- Pengeluaran (expense tracking)
+- Laporan (simplified to only show actual data)
 
-1. What type of application to build
-2. What features are needed
-3. Design/branding preferences
+## Relevant Files
 
-## Quick Start Guide
+| File/Directory | Purpose |
+|----------------|---------|
+| `src/context/KSPContext.tsx` | All state and functions for data management |
+| `src/app/laporan/page.tsx` | Financial reports - shows only actual data |
+| `src/app/anggota/page.tsx` | Member management with live search |
+| `src/app/simpanan/page.tsx` | Savings with number formatting |
+| `src/app/pinjaman/page.tsx` | Loans with number formatting |
+| `src/app/pendapatan/page.tsx` | Income/expense tracking |
 
-### To add a new page:
+## Key Features Implemented
 
-Create a file at `src/app/[route]/page.tsx`:
-```tsx
-export default function NewPage() {
-  return <div>New page content</div>;
-}
-```
-
-### To add components:
-
-Create `src/components/` directory and add components:
-```tsx
-// src/components/ui/Button.tsx
-export function Button({ children }: { children: React.ReactNode }) {
-  return <button className="px-4 py-2 bg-blue-600 text-white rounded">{children}</button>;
-}
-```
-
-### To add a database:
-
-Follow `.kilocode/recipes/add-database.md`
-
-### To add API routes:
-
-Create `src/app/api/[route]/route.ts`:
-```tsx
-import { NextResponse } from "next/server";
-
-export async function GET() {
-  return NextResponse.json({ message: "Hello" });
-}
-```
-
-## Available Recipes
-
-| Recipe | File | Use Case |
-|--------|------|----------|
-| Add Database | `.kilocode/recipes/add-database.md` | Data persistence with Drizzle + SQLite |
-
-## Pending Improvements
-
-- [ ] Add more recipes (auth, email, etc.)
-- [ ] Add example components
-- [ ] Add testing setup recipe
+1. **No double counting** - reports only count from actual transaction tables
+2. **Date auto-fix** - simpanan dates automatically match anggota.tanggalJoin on import
+3. **Number formatting** - thousand separators for currency inputs
+4. **Live search** - find members by NBA or name quickly
+5. **View separation** - Data view separate from Tambah form
+6. **Alamat sama KTP** - checkbox to copy KTP address to domisili
+7. **Anggota keluar** - mark members as nonaktif with exit date
 
 ## Session History
 
 | Date | Changes |
 |------|---------|
-| Initial | Template created with base setup |
+| 2026-04-13 | KSP application development - fixed syntax errors in anggota page, completed UI simplification |
