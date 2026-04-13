@@ -29,7 +29,7 @@ const jenisSimpananOptions = [
 ];
 
 export default function SimpananPage() {
-  const { anggota, simpanans, addSimpanan, updateSimpanan, deleteSimpanan } = useKSP();
+  const { anggota, simpanans, addSimpanan, updateSimpanan, deleteSimpanan, fixSimpananTanggal } = useKSP();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filterJenis, setFilterJenis] = useState('all');
@@ -122,6 +122,17 @@ export default function SimpananPage() {
             {opt.label.split(' ')[0]} ({simpanans.filter(s => s.jenis === opt.value).length})
           </button>
         ))}
+        <button
+          onClick={() => {
+            if (confirm('Samakan tanggal simpanan pokok & wajib dengan tanggal masuk anggota?')) {
+              fixSimpananTanggal();
+              alert('Tanggal simpanan telah diperbaiki!');
+            }
+          }}
+          className="px-3 py-2 rounded text-sm bg-yellow-500 text-white hover:bg-yellow-600"
+        >
+          🔧 Perbaiki Tanggal
+        </button>
       </div>
 
       {showForm && (

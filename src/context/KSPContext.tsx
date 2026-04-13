@@ -46,6 +46,7 @@ interface KSPContextType {
   getAnggotaById: (id: string) => Anggota | undefined;
   bulkUpdateTanggalJoin: (startNBA: number, endNBA: number, tanggal: string) => void;
   bulkUpdateUangBuku: (startNBA: number, endNBA: number, jumlah: number) => void;
+  fixSimpananTanggal: () => void;
 }
 
 const KSPContext = createContext<KSPContextType | undefined>(undefined);
@@ -284,6 +285,16 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  const fixSimpananTanggal = () => {
+    setSimpanans(prev => prev.map(s => {
+      const ag = anggota.find(a => a.id === s.anggotaId);
+      if (ag && ag.tanggalJoin && (s.jenis === 'pokok' || s.jenis === 'wajib')) {
+        return { ...s, tanggalSimpan: ag.tanggalJoin };
+      }
+      return s;
+    }));
+  };
+
   return (
     <KSPContext.Provider value={{
       anggota,
@@ -309,6 +320,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       getAnggotaById,
       bulkUpdateTanggalJoin,
       bulkUpdateUangBuku,
+      fixSimpananTanggal,
     }}>
       {children}
     </KSPContext.Provider>
