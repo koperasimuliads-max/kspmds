@@ -29,7 +29,7 @@ const jenisSimpananOptions = [
 ];
 
 export default function SimpananPage() {
-  const { anggota, simpanans, addSimpanan, updateSimpanan, deleteSimpanan, fixSimpananTanggal } = useKSP();
+  const { anggota, simpanans, addSimpanan, updateSimpanan, deleteSimpanan, fixSimpananTanggal, addTransaksi } = useKSP();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filterJenis, setFilterJenis] = useState('all');
@@ -61,6 +61,16 @@ export default function SimpananPage() {
       setEditingId(null);
     } else {
       addSimpanan(formData);
+      
+      const ag = anggota.find(a => a.id === formData.anggotaId);
+      addTransaksi({
+        jenis: 'simpanan',
+        anggotaId: formData.anggotaId,
+        referensiId: '',
+        jumlah: formData.jumlah,
+        tanggal: formData.tanggalSimpan,
+        deskripsi: `${formData.jenis} dari ${ag?.nama || '-'}`,
+      });
     }
     resetForm();
   };

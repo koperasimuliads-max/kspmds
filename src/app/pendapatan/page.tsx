@@ -19,7 +19,7 @@ function formatDate(dateStr: string) {
 }
 
 export default function PendapatanPage() {
-  const { anggota, pendapatans, pengeluarans, bulkUpdateUangBuku, addPendapatan, deletePendapatan, addPengeluaran, deletePengeluaran } = useKSP();
+  const { anggota, pendapatans, pengeluarans, bulkUpdateUangBuku, addPendapatan, deletePendapatan, addPengeluaran, deletePengeluaran, addTransaksi } = useKSP();
   const [showUbahForm, setShowUbahForm] = useState(false);
   const [showTambahForm, setShowTambahForm] = useState(false);
   const [jenisForm, setJenisForm] = useState<'pendapatan' | 'pengeluaran'>('pendapatan');
@@ -37,19 +37,36 @@ export default function PendapatanPage() {
       alert('Jumlah harus lebih dari 0');
       return;
     }
+    const today = new Date().toISOString().split('T')[0];
     if (jenisForm === 'pendapatan') {
       addPendapatan({
         jenis: formData.jenis,
         deskripsi: formData.deskripsi || formData.jenis,
         jumlah: formData.jumlah,
-        tanggal: '2024-01-01',
+        tanggal: today,
+      });
+      addTransaksi({
+        jenis: 'pendapatan',
+        anggotaId: '',
+        referensiId: '',
+        jumlah: formData.jumlah,
+        tanggal: today,
+        deskripsi: `${formData.jenis.replace('_', ' ')} - ${formData.deskripsi || '-'}`,
       });
     } else {
       addPengeluaran({
         jenis: formData.jenis,
         deskripsi: formData.deskripsi || formData.jenis,
         jumlah: formData.jumlah,
-        tanggal: '2024-01-01',
+        tanggal: today,
+      });
+      addTransaksi({
+        jenis: 'penarikan',
+        anggotaId: '',
+        referensiId: '',
+        jumlah: formData.jumlah,
+        tanggal: today,
+        deskripsi: `${formData.jenis.replace('_', ' ')} - ${formData.deskripsi || '-'}`,
       });
     }
     setFormData({ jenis: 'uang_buku', deskripsi: '', jumlah: 0 });

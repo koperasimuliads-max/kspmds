@@ -41,6 +41,7 @@ interface KSPContextType {
   updateSimpanan: (id: string, simpanan: Partial<Simpanan>) => void;
   deleteSimpanan: (id: string) => void;
   addTransaksi: (transaksi: Omit<Transaksi, 'id'>) => void;
+  deleteTransaksi: (id: string) => void;
   addPengeluaran: (pengeluaran: Omit<Pengeluaran, 'id'>) => void;
   updatePengeluaran: (id: string, pengeluaran: Partial<Pengeluaran>) => void;
   deletePengeluaran: (id: string) => void;
@@ -240,6 +241,10 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const deleteTransaksi = (id: string) => {
+    setTransactions(prev => prev.filter(t => t.id !== id));
+  };
+
   const getLaporanKeuangan = (): LaporanKeuangan => {
     const anggotaAktif = anggota.filter(a => a.status === 'aktif');
     const pinjamansAktif = pinjamans.filter(p => p.status === 'aktif');
@@ -336,6 +341,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       updateSimpanan,
       deleteSimpanan,
       addTransaksi,
+      deleteTransaksi,
       addPengeluaran,
       updatePengeluaran,
       deletePengeluaran,

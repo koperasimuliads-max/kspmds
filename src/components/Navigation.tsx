@@ -7,8 +7,9 @@ import { usePathname } from 'next/navigation';
 const navItems = [
   { href: '/', label: 'Dashboard', icon: '📊' },
   { href: '/anggota', label: 'Anggota', icon: '👥' },
-  { href: '/pinjaman', label: 'Pinjaman', icon: '💰' },
   { href: '/simpanan', label: 'Simpanan', icon: '💵' },
+  { href: '/pinjaman', label: 'Pinjaman', icon: '💰' },
+  { href: '/transaksi', label: 'Transaksi', icon: '🔄' },
   { href: '/pendapatan', label: 'Pendapatan', icon: '💹' },
   { href: '/pengeluaran', label: 'Pengeluaran', icon: '📤' },
   { href: '/laporan', label: 'Laporan', icon: '📈' },

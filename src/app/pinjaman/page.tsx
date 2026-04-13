@@ -87,6 +87,16 @@ export default function PinjamanPage() {
       setEditingId(null);
     } else {
       addPinjaman(data);
+      
+      const ag = anggota.find(a => a.id === formData.anggotaId);
+      addTransaksi({
+        jenis: 'pinjaman',
+        anggotaId: formData.anggotaId,
+        referensiId: '',
+        jumlah: formData.jumlah,
+        tanggal: formData.tanggalPinjaman,
+        deskripsi: `Pinjaman dari ${ag?.nama || '-'}`,
+      });
     }
     resetForm();
   };
