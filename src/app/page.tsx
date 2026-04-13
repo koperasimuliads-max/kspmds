@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useKSP } from '@/context/KSPContext';
 
 function formatRupiah(amount: number): string {
@@ -8,6 +9,7 @@ function formatRupiah(amount: number): string {
 
 export default function Dashboard() {
   const { anggota, pinjamans, simpanans, transactions, getLaporanKeuangan } = useKSP();
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const laporan = getLaporanKeuangan();
 
   const recentTransactions = [...transactions]
@@ -27,37 +29,39 @@ export default function Dashboard() {
   const sihar = simpanans.filter(s => s.jenis === 'sihar' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
   const totalSimpanan = wajib + pokok + sibuhar + simapan + sihat + sihar;
 
-  const getMonthlyStats = () => {
-    const now = new Date();
-    const startDate = new Date(2023, 10, 1);
+  const getYearStats = (year: number) => {
     const months: { name: string; masuk: number; keluar: number }[] = [];
     
-    let currentDate = new Date(startDate);
-    while (currentDate <= now) {
-      const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-      const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-      const monthName = currentDate.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' });
+    for (let month = 0; month < 12; month++) {
+      const monthStart = new Date(year, month, 1);
+      const monthEnd = new Date(year, month + 1, 0);
+      const monthName = monthStart.toLocaleDateString('id-ID', { month: 'short' });
       
       const masuk = anggota.filter(a => {
         if (!a.tanggalJoin) return false;
         const joinDate = new Date(a.tanggalJoin);
-        return joinDate >= monthStart && joinDate <= monthEnd;
+        return joinDate.getFullYear() === year && joinDate.getMonth() === month;
       }).length;
       
       const keluar = anggota.filter(a => {
         if (a.status !== 'nonaktif' || !a.tanggalKeluar) return false;
         const exitDate = new Date(a.tanggalKeluar);
-        return exitDate >= monthStart && exitDate <= monthEnd;
+        return exitDate.getFullYear() === year && exitDate.getMonth() === month;
       }).length;
       
       months.push({ name: monthName, masuk, keluar });
-      
-      currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
     }
     return months;
   };
-  
-  const monthlyStats = getMonthlyStats();
+
+  const availableYears = Array.from(new Set(anggota.map(a => {
+    if (a.tanggalJoin) return new Date(a.tanggalJoin).getFullYear();
+    return new Date().getFullYear();
+  }).concat(anggota.filter(a => a.tanggalKeluar).map(a => new Date(a.tanggalKeluar!).getFullYear())))).sort((a, b) => b - a);
+
+  const yearStats = getYearStats(selectedYear);
+  const currentYearMasuk = yearStats.reduce((s, m) => s + m.masuk, 0);
+  const currentYearKeluar = yearStats.reduce((s, m) => s + m.keluar, 0);
 
   return (
     <div>
@@ -70,13 +74,13 @@ export default function Dashboard() {
         </div>
         
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-          <p className="text-sm text-slate-500">Masuk (Bulan Ini)</p>
-          <p className="text-2xl font-bold text-green-600">{monthlyStats[5]?.masuk || 0}</p>
+          <p className="text-sm text-slate-500">Masuk ({selectedYear})</p>
+          <p className="text-2xl font-bold text-green-600">{currentYearMasuk}</p>
         </div>
         
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
-          <p className="text-sm text-slate-500">Keluar (Bulan Ini)</p>
-          <p className="text-2xl font-bold text-red-600">{monthlyStats[5]?.keluar || 0}</p>
+          <p className="text-sm text-slate-500">Keluar ({selectedYear})</p>
+          <p className="text-2xl font-bold text-red-600">{currentYearKeluar}</p>
         </div>
         
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
@@ -163,12 +167,23 @@ export default function Dashboard() {
       </div>
 
       <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <h3 className="font-semibold text-slate-700 mb-4">Anggota Masuk & Keluar per Bulan (Nov 2023 - Sekarang)</h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-semibold text-slate-700">Anggota Masuk & Keluar per Bulan</h3>
+          <select 
+            value={selectedYear} 
+            onChange={e => setSelectedYear(Number(e.target.value))}
+            className="border p-2 rounded"
+          >
+            {availableYears.map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
         <div className="overflow-x-auto">
           <div className="relative h-56 min-w-[800px]">
             <div className="absolute bottom-0 left-0 right-0 flex items-end justify-around h-40 gap-1">
-              {monthlyStats.map((m, i) => {
-                const maxVal = Math.max(...monthlyStats.map(x => Math.max(x.masuk, x.keluar)), 1);
+              {yearStats.map((m, i) => {
+                const maxVal = Math.max(...yearStats.map(x => Math.max(x.masuk, x.keluar)), 1);
                 return (
                   <div key={i} className="flex flex-col items-center w-8 flex-shrink-0">
                     <div className="flex gap-0.5 w-full justify-center h-32 items-end">
@@ -211,8 +226,8 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {monthlyStats.map((m, i) => {
-                const total = monthlyStats.reduce((s, x) => s + x.masuk + x.keluar, 0);
+              {yearStats.map((m, i) => {
+                const total = yearStats.reduce((s, x) => s + x.masuk + x.keluar, 0);
                 const masukPct = total > 0 ? Math.round((m.masuk / total) * 100) : 0;
                 const keluarPct = total > 0 ? Math.round((m.keluar / total) * 100) : 0;
                 return (
@@ -229,9 +244,9 @@ export default function Dashboard() {
             <tfoot className="bg-slate-100 font-semibold">
               <tr>
                 <td className="p-2">Total</td>
-                <td className="p-2 text-right text-green-600">{monthlyStats.reduce((s, m) => s + m.masuk, 0)}</td>
+                <td className="p-2 text-right text-green-600">{yearStats.reduce((s, m) => s + m.masuk, 0)}</td>
                 <td className="p-2 text-right">100%</td>
-                <td className="p-2 text-right text-red-600">{monthlyStats.reduce((s, m) => s + m.keluar, 0)}</td>
+                <td className="p-2 text-right text-red-600">{yearStats.reduce((s, m) => s + m.keluar, 0)}</td>
                 <td className="p-2 text-right">100%</td>
               </tr>
             </tfoot>
@@ -239,24 +254,24 @@ export default function Dashboard() {
         </div>
         
         <div className="mt-4 p-3 bg-slate-50 rounded text-sm">
-          <h4 className="font-semibold text-slate-700 mb-2">Ringkasan Statistik:</h4>
+          <h4 className="font-semibold text-slate-700 mb-2">Ringkasan Statistik {selectedYear}:</h4>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             <div className="text-center">
               <p className="text-slate-500 text-xs">Total Masuk</p>
-              <p className="text-xl font-bold text-green-600">{monthlyStats.reduce((s, m) => s + m.masuk, 0)}</p>
+              <p className="text-xl font-bold text-green-600">{currentYearMasuk}</p>
             </div>
             <div className="text-center">
               <p className="text-slate-500 text-xs">Total Keluar</p>
-              <p className="text-xl font-bold text-red-600">{monthlyStats.reduce((s, m) => s + m.keluar, 0)}</p>
+              <p className="text-xl font-bold text-red-600">{currentYearKeluar}</p>
             </div>
             <div className="text-center">
               <p className="text-slate-500 text-xs">Rata-rata Masuk/Bulan</p>
-              <p className="text-lg font-bold text-green-600">{Math.round(monthlyStats.reduce((s, m) => s + m.masuk, 0) / monthlyStats.length)}</p>
+              <p className="text-lg font-bold text-green-600">{Math.round(currentYearMasuk / 12)}</p>
             </div>
             <div className="text-center">
               <p className="text-slate-500 text-xs">Bulan Tertinggi</p>
               <p className="text-lg font-bold text-slate-700">
-                {monthlyStats.reduce((max, m) => m.masuk > max.masuk ? m : max, monthlyStats[0] || {name: '-', masuk: 0}).name}
+                {yearStats.reduce((max, m) => m.masuk > max.masuk ? m : max, yearStats[0] || {name: '-', masuk: 0}).name}
               </p>
             </div>
           </div>
