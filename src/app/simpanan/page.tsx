@@ -211,8 +211,10 @@ export default function SimpananPage() {
         <table className="w-full text-sm">
           <thead className="bg-slate-100">
             <tr>
-              <th className="text-left p-3">Anggota</th>
-              <th className="text-left p-3">Jenis</th>
+              <th className="text-center p-3 w-12">No</th>
+              <th className="text-left p-3">Tanggal</th>
+              <th className="text-left p-3">Nama Anggota</th>
+              <th className="text-left p-3">Jenis Simpanan</th>
               <th className="text-right p-3">Jumlah</th>
               {filterJenis === 'all' || filterJenis === 'sibuhar' || filterJenis === 'simapan' || filterJenis === 'sihat' || filterJenis === 'sihar' ? (
                 <>
@@ -220,7 +222,6 @@ export default function SimpananPage() {
                   <th className="text-right p-3">Tenor</th>
                 </>
               ) : null}
-              <th className="text-left p-3">Tanggal</th>
               <th className="text-left p-3">Status</th>
               <th className="text-center p-3">Aksi</th>
             </tr>
@@ -228,14 +229,16 @@ export default function SimpananPage() {
           <tbody>
             {filteredSimpanans.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
+                <td colSpan={9} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
               </tr>
             ) : (
-              filteredSimpanans.map(s => {
+              filteredSimpanans.map((s, index) => {
                 const ag = anggota.find(a => a.id === s.anggotaId);
                 const showBungaTenor = s.jenis === 'sibuhar' || s.jenis === 'simapan' || s.jenis === 'sihat' || s.jenis === 'sihar';
                 return (
                   <tr key={s.id} className="border-b hover:bg-slate-50">
+                    <td className="p-3 text-center text-slate-500">{index + 1}</td>
+                    <td className="p-3">{formatDate(s.tanggalSimpan)}</td>
                     <td className="p-3 font-medium">{ag?.nama || '-'}</td>
                     <td className="p-3 capitalize">{s.jenis}</td>
                     <td className="p-3 text-right">{formatRupiah(s.jumlah)}</td>
@@ -252,7 +255,6 @@ export default function SimpananPage() {
                         </>
                       ) : null
                     )}
-                    <td className="p-3">{formatDate(s.tanggalSimpan)}</td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded text-xs ${s.status === 'aktif' ? 'bg-green-100 text-green-800' : s.status === 'aktif_auto' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
                         {s.status}

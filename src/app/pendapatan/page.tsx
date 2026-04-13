@@ -7,6 +7,17 @@ function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
 }
 
+function formatDate(dateStr: string) {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('id-ID');
+  } catch {
+    return '-';
+  }
+}
+
 export default function PendapatanPage() {
   const { anggota, pendapatans, pengeluarans, bulkUpdateUangBuku, addPendapatan, deletePendapatan, addPengeluaran, deletePengeluaran } = useKSP();
   const [showUbahForm, setShowUbahForm] = useState(false);
@@ -196,6 +207,8 @@ export default function PendapatanPage() {
             <table className="w-full text-sm">
               <thead className="bg-slate-100">
                 <tr>
+                  <th className="text-center p-2 w-12">No</th>
+                  <th className="text-left p-2">Tanggal</th>
                   <th className="text-left p-2">Jenis</th>
                   <th className="text-left p-2">Deskripsi</th>
                   <th className="text-right p-2">Jumlah</th>
@@ -204,10 +217,12 @@ export default function PendapatanPage() {
               </thead>
               <tbody>
                 {pendapatans.length === 0 ? (
-                  <tr><td colSpan={4} className="text-center p-4 text-slate-500">Belum ada pendapatan lain</td></tr>
+                  <tr><td colSpan={6} className="text-center p-4 text-slate-500">Belum ada pendapatan lain</td></tr>
                 ) : (
-                  pendapatans.map(p => (
+                  pendapatans.map((p, index) => (
                     <tr key={p.id} className="border-b hover:bg-slate-50">
+                      <td className="p-2 text-center text-slate-500">{index + 1}</td>
+                      <td className="p-2">{formatDate(p.tanggal)}</td>
                       <td className="p-2 capitalize">{p.jenis.replace('_', ' ')}</td>
                       <td className="p-2">{p.deskripsi || '-'}</td>
                       <td className="p-2 text-right">{formatRupiah(p.jumlah)}</td>
@@ -228,6 +243,8 @@ export default function PendapatanPage() {
             <table className="w-full text-sm">
               <thead className="bg-slate-100">
                 <tr>
+                  <th className="text-center p-2 w-12">No</th>
+                  <th className="text-left p-2">Tanggal</th>
                   <th className="text-left p-2">Jenis</th>
                   <th className="text-left p-2">Deskripsi</th>
                   <th className="text-right p-2">Jumlah</th>
@@ -236,10 +253,12 @@ export default function PendapatanPage() {
               </thead>
               <tbody>
                 {pengeluarans.length === 0 ? (
-                  <tr><td colSpan={4} className="text-center p-4 text-slate-500">Belum ada pengeluaran</td></tr>
+                  <tr><td colSpan={6} className="text-center p-4 text-slate-500">Belum ada pengeluaran</td></tr>
                 ) : (
-                  pengeluarans.map(p => (
+                  pengeluarans.map((p, index) => (
                     <tr key={p.id} className="border-b hover:bg-slate-50">
+                      <td className="p-2 text-center text-slate-500">{index + 1}</td>
+                      <td className="p-2">{formatDate(p.tanggal)}</td>
                       <td className="p-2 capitalize">{p.jenis.replace('_', ' ')}</td>
                       <td className="p-2">{p.deskripsi || '-'}</td>
                       <td className="p-2 text-right">{formatRupiah(p.jumlah)}</td>

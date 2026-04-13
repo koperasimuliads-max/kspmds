@@ -570,8 +570,9 @@ export default function AnggotaPage() {
           <table className="w-full text-sm">
             <thead className="bg-slate-100">
               <tr>
+                <th className="text-center p-2 w-12">No</th>
                 <th className="text-left p-2">Tanggal Masuk</th>
-                <th className="text-left p-2">Nama</th>
+                <th className="text-left p-2">Nama Anggota</th>
                 <th className="text-left p-2">NIK</th>
                 <th className="text-left p-2">NBA</th>
                 <th className="text-left p-2">JK</th>
@@ -586,10 +587,11 @@ export default function AnggotaPage() {
             </thead>
             <tbody>
               {anggota.length === 0 ? (
-                <tr><td colSpan={12} className="text-center p-4 text-slate-500">Belum ada anggota</td></tr>
+                <tr><td colSpan={13} className="text-center p-4 text-slate-500">Belum ada anggota</td></tr>
               ) : (
-                anggota.map(a => (
+                anggota.map((a, index) => (
                   <tr key={a.id} className="border-b hover:bg-slate-50">
+                    <td className="p-2 text-center text-slate-500">{index + 1}</td>
                     <td className="p-2">{a.tanggalJoin ? new Date(a.tanggalJoin).toLocaleDateString('id-ID') : '-'}</td>
                     <td className="p-2 font-medium">{a.nama}</td>
                     <td className="p-2">{a.nik}</td>

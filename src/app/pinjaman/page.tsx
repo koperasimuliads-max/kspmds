@@ -8,6 +8,17 @@ function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
 }
 
+function formatDate(dateStr: string) {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('id-ID');
+  } catch {
+    return '-';
+  }
+}
+
 function hitungKolektibilitas(hariTerlambat: number): 'lancar' | 'kurang_lancar' | 'diragukan' | 'macet' {
   if (hariTerlambat <= 90) return 'lancar';
   if (hariTerlambat <= 120) return 'kurang_lancar';
@@ -295,8 +306,10 @@ export default function PinjamanPage() {
         <table className="w-full text-sm">
           <thead className="bg-slate-100">
             <tr>
-              <th className="text-left p-2">Anggota</th>
-              <th className="text-right p-2">Jumlah</th>
+              <th className="text-center p-2 w-12">No</th>
+              <th className="text-left p-2">Tanggal</th>
+              <th className="text-left p-2">Nama Anggota</th>
+              <th className="text-right p-2">Jumlah Pinjaman</th>
               <th className="text-right p-2">Bunga</th>
               <th className="text-right p-2">Tenor</th>
               <th className="text-right p-2">Cicilan/Bulan</th>
@@ -309,14 +322,16 @@ export default function PinjamanPage() {
           <tbody>
             {pinjamans.length === 0 ? (
               <tr>
-                <td colSpan={9} className="text-center p-4 text-slate-500">Belum ada pinjaman</td>
+                <td colSpan={11} className="text-center p-4 text-slate-500">Belum ada pinjaman</td>
               </tr>
             ) : (
-              pinjamans.map(p => {
+              pinjamans.map((p, index) => {
                 const ag = anggota.find(a => a.id === p.anggotaId);
                 const kolekLabel = p.kolektibilitas === 'lancar' ? 'Lancar' : p.kolektibilitas === 'kurang_lancar' ? 'Kurang Lancar' : p.kolektibilitas === 'diragukan' ? 'Diragukan' : 'Macet';
                 return (
                   <tr key={p.id} className="border-b hover:bg-slate-50">
+                    <td className="p-2 text-center text-slate-500">{index + 1}</td>
+                    <td className="p-2">{formatDate(p.tanggalPinjaman)}</td>
                     <td className="p-2 font-medium">{ag?.nama || '-'}</td>
                     <td className="p-2 text-right">{formatRupiah(p.jumlah)}</td>
                     <td className="p-2 text-right">{p.bunga}%</td>
