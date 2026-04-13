@@ -11,7 +11,6 @@ export default function LaporanPage() {
   const laporan = getLaporanKeuangan();
 
   const simpananByJenis = {
-    sukarela: simpanans.filter(s => s.jenis === 'sukarela' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0),
     wajib: simpanans.filter(s => s.jenis === 'wajib' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananWajib || 0), 0),
     pokok: simpanans.filter(s => s.jenis === 'pokok' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananPokok || 0), 0),
     sibuhar: simpanans.filter(s => s.jenis === 'sibuhar' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0),
@@ -37,7 +36,6 @@ export default function LaporanPage() {
           <div className="space-y-2">
             <h3 className="font-medium text-green-700">Simpanan</h3>
             <div className="pl-4 space-y-1 text-sm">
-              <p className="flex justify-between"><span>Simpanan Sukarela</span><span>{formatRupiah(simpananByJenis.sukarela)}</span></p>
               <p className="flex justify-between"><span>Simpanan Wajib</span><span>{formatRupiah(simpananByJenis.wajib)}</span></p>
               <p className="flex justify-between"><span>Simpanan Pokok</span><span>{formatRupiah(simpananByJenis.pokok)}</span></p>
               <p className="flex justify-between"><span>Sibuhar (3%/thn)</span><span>{formatRupiah(simpananByJenis.sibuhar)}</span></p>

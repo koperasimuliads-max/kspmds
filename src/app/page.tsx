@@ -19,14 +19,13 @@ export default function Dashboard() {
   const pinjamansMacet = pinjamans.filter(p => p.status === 'macet').length;
   const totalPinjaman = pinjamansAktif + pinjamansLunas + pinjamansMacet;
   
-  const sukarela = simpanans.filter(s => s.jenis === 'sukarela' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
   const wajib = simpanans.filter(s => s.jenis === 'wajib' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananWajib || 0), 0);
   const pokok = simpanans.filter(s => s.jenis === 'pokok' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0) + anggota.reduce((sum, a) => sum + (a.simpananPokok || 0), 0);
   const sibuhar = simpanans.filter(s => s.jenis === 'sibuhar' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
   const simapan = simpanans.filter(s => s.jenis === 'simapan' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
   const sihat = simpanans.filter(s => s.jenis === 'sihat' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
   const sihar = simpanans.filter(s => s.jenis === 'sihar' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
-  const totalSimpanan = sukarela + wajib + pokok + sibuhar + simapan + sihat + sihar;
+  const totalSimpanan = wajib + pokok + sibuhar + simapan + sihat + sihar;
 
   const getMonthlyStats = () => {
     const now = new Date();
@@ -144,14 +143,6 @@ export default function Dashboard() {
             <div className="absolute bottom-0 left-0 right-0 flex items-end justify-around h-36 gap-2">
               <div className="flex flex-col items-center w-1/4">
                 <div 
-                  className="w-full bg-purple-500 rounded-t-lg transition-all" 
-                  style={{ height: totalSimpanan > 1 ? `${(sukarela / totalSimpanan) * 100}%` : '0%' }}
-                ></div>
-                <span className="text-xs mt-2 text-slate-600">Sukarela</span>
-                <span className="text-xs font-bold">{totalSimpanan > 1 ? Math.round((sukarela / totalSimpanan) * 100) : 0}%</span>
-              </div>
-              <div className="flex flex-col items-center w-1/4">
-                <div 
                   className="w-full bg-yellow-500 rounded-t-lg transition-all" 
                   style={{ height: totalSimpanan > 1 ? `${(wajib / totalSimpanan) * 100}%` : '0%' }}
                 ></div>
@@ -256,14 +247,13 @@ export default function Dashboard() {
           <h3 className="font-semibold text-slate-700 mb-2">Detail Simpanan</h3>
           <div className="space-y-1 text-sm">
             <p className="flex justify-between">
-              <span>Sukarela:</span>
-              <span className="font-medium">{formatRupiah(sukarela)}</span>
-            </p>
-            <p className="flex justify-between">
               <span>Wajib:</span>
               <span className="font-medium">{formatRupiah(wajib)}</span>
             </p>
-            
+            <p className="flex justify-between">
+              <span>Pokok:</span>
+              <span className="font-medium">{formatRupiah(pokok)}</span>
+            </p>
           </div>
         </div>
         

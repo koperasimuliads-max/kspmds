@@ -49,7 +49,7 @@ export interface Simpanan {
   id: string;
   anggotaId: string;
   jumlah: number;
-  jenis: 'sukarela' | 'wajib' | 'pokok' | 'berjangka' | 'sibuhar' | 'simapan' | 'sihat' | 'sihar';
+  jenis: 'wajib' | 'pokok' | 'sibuhar' | 'simapan' | 'sihat' | 'sihar';
   tanggalSimpan: string;
   status: 'aktif' | 'ditarik' | 'aktif_auto';
   tenor?: number;

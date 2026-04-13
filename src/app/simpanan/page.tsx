@@ -11,7 +11,6 @@ function formatRupiah(amount: number): string {
 const jenisSimpananOptions = [
   { value: 'pokok', label: 'Simpanan Pokok (SP)', bunga: 0 },
   { value: 'wajib', label: 'Simpanan Wajib (SW)', bunga: 0 },
-  { value: 'sukarela', label: 'Sukarela', bunga: 0 },
   { value: 'sibuhar', label: 'Simpanan Masa Depan (Sibuhar)', bunga: 3, tenor: 12, premiMin: 100000, premiMax: 1000000 },
   { value: 'simapan', label: 'Simpanan Masa Depan (Simapan)', bunga: 5, tenor: 12, tenorMax: 120, premiMin: 100000, premiMax: 1000000 },
   { value: 'sihat', label: 'Simpanan Hari Tua (Sihat)', bunga: 6, tenor: 12, tenorMax: 180, premiMin: 100000, premiMax: 1000000 },
@@ -25,7 +24,7 @@ export default function SimpananPage() {
   const [formData, setFormData] = useState({
     anggotaId: '',
     jumlah: 0,
-    jenis: 'sukarela' as 'sukarela' | 'wajib' | 'berjangka' | 'pokok' | 'sibuhar' | 'simapan' | 'sihat' | 'sihar',
+    jenis: 'wajib' as 'wajib' | 'pokok' | 'sibuhar' | 'simapan' | 'sihat' | 'sihar',
     tanggalSimpan: new Date().toISOString().split('T')[0],
     status: 'aktif' as 'aktif' | 'ditarik' | 'aktif_auto',
     tenor: 12,
@@ -70,7 +69,7 @@ export default function SimpananPage() {
     setFormData({
       anggotaId: '',
       jumlah: 0,
-      jenis: 'sukarela',
+      jenis: 'wajib',
       tanggalSimpan: new Date().toISOString().split('T')[0],
       status: 'aktif',
       tenor: 12,
@@ -85,28 +84,14 @@ export default function SimpananPage() {
 
   return (
     <div>
-<div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-slate-800">Data Simpanan</h1>
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              const berjangkaIds = simpanans.filter(s => s.jenis === 'berjangka').map(s => s.id);
-              if (berjangkaIds.length > 0 && confirm(`Hapus SEMUA ${berjangkaIds.length} data berjangka (uang buku)?`)) {
-                berjangkaIds.forEach(id => deleteSimpanan(id));
-                alert('Semua data berjangka telah dihapus');
-              }
-            }}
-            className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 text-sm"
-          >
-            Hapus Semua Berjangka ({simpanans.filter(s => s.jenis === 'berjangka').length})
-          </button>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            {showForm ? 'Tutup Form' : '+ Tambah Simpanan'}
-          </button>
-        </div>
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          {showForm ? 'Tutup Form' : '+ Tambah Simpanan'}
+        </button>
       </div>
 
       <div className="bg-green-50 border border-green-200 p-3 rounded mb-4 text-sm">
@@ -114,7 +99,6 @@ export default function SimpananPage() {
         <ul className="text-green-700 list-disc list-inside mt-1">
           <li><strong>SP</strong> - Simpanan Pokok (sekali saat入会)</li>
           <li><strong>SW</strong> - Simpanan Wajib (per bulan)</li>
-          <li><strong>Sukarela</strong> - Simpanan sukarela</li>
           <li><strong>Sibuhar</strong> - Simpanan Masa Depan, bunga 3%/thn, tenor 12 bln, premi Rp100rb-1jt</li>
           <li><strong>Simapan</strong> - Simpanan Masa Depan, bunga 5%/thn, tenor 1-10 thn, premi Rp100rb-1jt</li>
           <li><strong>Sihat</strong> - Simpanan Hari Tua, bunga 6%/thn, tenor 1-15 thn, premi Rp100rb-1jt</li>
