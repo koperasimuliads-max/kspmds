@@ -110,10 +110,13 @@ export default function AnggotaPage() {
   const [importText, setImportText] = useState('');
   const [showTanggalForm, setShowTanggalForm] = useState(false);
   const [tanggalForm, setTanggalForm] = useState({ startNBA: 1, endNBA: 25, tanggal: '2023-11-09' });
+  const [filterStatus, setFilterStatus] = useState<'all' | 'aktif' | 'nonaktif'>('all');
   
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
   
   const getLabel = (options: {value: string, label: string}[], value: string) => options.find(o => o.value === value)?.label || value;
+  
+  const filteredAnggota = filterStatus === 'all' ? anggota : anggota.filter(a => a.status === filterStatus);
   const [formData, setFormData] = useState({
     nama: '',
     nik: '',
@@ -193,6 +196,29 @@ export default function AnggotaPage() {
     }
   };
 
+  const handleKeluar = (id: string) => {
+    const ag = anggota.find(a => a.id === id);
+    if (!ag) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const confirmKeluar = confirm(
+      `Yakin anggota "${ag.nama}" keluar/mengundurkan diri?\n\n` +
+      `Simpanan yang dikembalikan:\n` +
+      `- Simpanan Pokok: Rp ${ag.simpananPokok?.toLocaleString('id-ID') || 0}\n` +
+      `- Simpanan Wajib: Rp ${ag.simpananWajib?.toLocaleString('id-ID') || 0}\n` +
+      `- Total: Rp ${((ag.simpananPokok || 0) + (ag.simpananWajib || 0)).toLocaleString('id-ID')}\n\n` +
+      `Status akan diubah menjadi "nonaktif" dan data simpanan tetap tersimpan.`
+    );
+    
+    if (confirmKeluar) {
+      updateAnggota(id, {
+        status: 'nonaktif',
+        tanggalKeluar: today,
+      });
+      alert(`Anggota "${ag.nama}" telah keluar pada ${today}`);
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       nama: '',
@@ -230,7 +256,27 @@ export default function AnggotaPage() {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-slate-800">Data Anggota</h1>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <div className="flex rounded overflow-hidden border">
+            <button
+              onClick={() => setFilterStatus('all')}
+              className={`px-3 py-2 text-sm ${filterStatus === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
+            >
+              Semua ({anggota.length})
+            </button>
+            <button
+              onClick={() => setFilterStatus('aktif')}
+              className={`px-3 py-2 text-sm ${filterStatus === 'aktif' ? 'bg-green-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
+            >
+              Aktif ({anggota.filter(a => a.status === 'aktif').length})
+            </button>
+            <button
+              onClick={() => setFilterStatus('nonaktif')}
+              className={`px-3 py-2 text-sm ${filterStatus === 'nonaktif' ? 'bg-red-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
+            >
+              Keluar ({anggota.filter(a => a.status === 'nonaktif').length})
+            </button>
+          </div>
           <button
             onClick={() => {
               if (confirm(`Hapus SEMUA ${anggota.length} anggota? Semua data pinjaman dan simpanan juga akan dihapus.`)) {
@@ -578,6 +624,7 @@ export default function AnggotaPage() {
                 <th className="text-left p-2">JK</th>
                 <th className="text-left p-2">TTL</th>
                 <th className="text-left p-2">Status</th>
+                <th className="text-left p-2">Tgl Keluar</th>
                 <th className="text-left p-2">Pekerjaan</th>
                 <th className="text-right p-2">Simpanan Pokok</th>
                 <th className="text-right p-2">Simpanan Wajib</th>
@@ -586,10 +633,10 @@ export default function AnggotaPage() {
               </tr>
             </thead>
             <tbody>
-              {anggota.length === 0 ? (
-                <tr><td colSpan={13} className="text-center p-4 text-slate-500">Belum ada anggota</td></tr>
+              {filteredAnggota.length === 0 ? (
+                <tr><td colSpan={14} className="text-center p-4 text-slate-500">Belum ada anggota</td></tr>
               ) : (
-                anggota.map((a, index) => (
+                filteredAnggota.map((a, index) => (
                   <tr key={a.id} className="border-b hover:bg-slate-50">
                     <td className="p-2 text-center text-slate-500">{index + 1}</td>
                     <td className="p-2">{a.tanggalJoin ? new Date(a.tanggalJoin).toLocaleDateString('id-ID') : '-'}</td>
@@ -599,6 +646,7 @@ export default function AnggotaPage() {
                     <td className="p-2">{a.jenisKelamin === 'L' ? 'L' : 'P'}</td>
                     <td className="p-2 text-xs">{a.tempatLahir ? `${a.tempatLahir}, ${a.tanggalLahir ? new Date(a.tanggalLahir).toLocaleDateString('id-ID') : '-'}` : '-'}</td>
                     <td className="p-2"><span className={`px-2 py-1 rounded text-xs ${a.status === 'aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{a.status}</span></td>
+                    <td className="p-2 text-slate-500">{a.tanggalKeluar ? new Date(a.tanggalKeluar).toLocaleDateString('id-ID') : '-'}</td>
                     <td className="p-2">{a.pekerjaan ? getLabel(pekerjaanOptions, a.pekerjaan) : '-'}</td>
                     <td className="p-2 text-right">{formatRupiah(a.simpananPokok)}</td>
                     <td className="p-2 text-right">{formatRupiah(a.simpananWajib)}</td>
@@ -620,7 +668,10 @@ export default function AnggotaPage() {
                       </div>
                     </td>
                     <td className="p-2 text-center">
-                      <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-2">Edit</button>
+                      <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-1">Edit</button>
+                      {a.status === 'aktif' && (
+                        <button onClick={() => handleKeluar(a.id)} className="text-orange-600 hover:underline mr-1">Keluar</button>
+                      )}
                       <button onClick={() => handleDelete(a.id)} className="text-red-600 hover:underline">Hapus</button>
                     </td>
                   </tr>
