@@ -146,13 +146,19 @@ export default function AnggotaPage() {
     status: 'aktif' as 'aktif' | 'nonaktif',
   });
 
+  const [alamatSamaKTP, setAlamatSamaKTP] = useState(false);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const dataToSubmit = {
+      ...formData,
+      alamatDomisili: alamatSamaKTP ? formData.alamat : formData.alamatDomisili,
+    };
     if (editingId) {
-      updateAnggota(editingId, formData);
+      updateAnggota(editingId, dataToSubmit);
       setEditingId(null);
     } else {
-      addAnggota(formData);
+      addAnggota(dataToSubmit);
     }
     resetForm();
   };
@@ -186,6 +192,7 @@ export default function AnggotaPage() {
       tanggalJoin: data.tanggalJoin,
       status: data.status,
     });
+    setAlamatSamaKTP(data.alamat === data.alamatDomisili);
     setEditingId(data.id);
     setShowForm(true);
   };
@@ -248,6 +255,7 @@ export default function AnggotaPage() {
       tanggalJoin: '2024-01-01',
       status: 'aktif',
     });
+    setAlamatSamaKTP(false);
     setShowForm(false);
     setEditingId(null);
   };
@@ -548,7 +556,21 @@ export default function AnggotaPage() {
               <h3 className="text-sm font-semibold text-slate-600 mb-2 border-b pb-1">Alamat</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <input type="text" placeholder="Alamat (KTP)" value={formData.alamat} onChange={e => setFormData({ ...formData, alamat: e.target.value })} className="border p-2 rounded" required />
-                <input type="text" placeholder="Alamat Domisili" value={formData.alamatDomisili} onChange={e => setFormData({ ...formData, alamatDomisili: e.target.value })} className="border p-2 rounded" />
+                {!alamatSamaKTP ? (
+                  <div className="flex items-center gap-2">
+                    <input type="text" placeholder="Alamat Domisili" value={formData.alamatDomisili} onChange={e => setFormData({ ...formData, alamatDomisili: e.target.value })} className="border p-2 rounded flex-1" />
+                    <button type="button" onClick={() => setAlamatSamaKTP(true)} className="text-xs text-blue-600 hover:underline whitespace-nowrap">
+                      Sama dengan KTP
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 p-2 bg-green-50 rounded border border-green-200">
+                    <span className="text-sm text-green-700">✓ Alamat Domisili sama dengan KTP</span>
+                    <button type="button" onClick={() => setAlamatSamaKTP(false)} className="text-xs text-red-600 hover:underline ml-auto">
+                      Ubah
+                    </button>
+                  </div>
+                )}
                 <input type="tel" placeholder="Nomor Telepon" value={formData.telefon} onChange={e => setFormData({ ...formData, telefon: e.target.value })} className="border p-2 rounded" required />
               </div>
             </div>
