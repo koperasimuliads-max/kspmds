@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useKSP } from '@/context/KSPContext';
 import { Simpanan } from '@/types';
 
@@ -43,6 +43,16 @@ export default function SimpananPage() {
     premi: 100000,
     bunga: 0,
   });
+
+  useEffect(() => {
+    const hasWrongDate = simpanans.some(s => {
+      const ag = anggota.find(a => a.id === s.anggotaId);
+      return ag && ag.tanggalJoin && s.tanggalSimpan !== ag.tanggalJoin && (s.jenis === 'pokok' || s.jenis === 'wajib');
+    });
+    if (hasWrongDate) {
+      fixSimpananTanggal();
+    }
+  }, [anggota, simpanans, fixSimpananTanggal]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
