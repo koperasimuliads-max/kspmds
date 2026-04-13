@@ -139,7 +139,7 @@ export default function AnggotaPage() {
     uangBuku: 0,
     jenisPembayaran: 'tunai' as 'tunai' | 'bri_tigabinanga' | 'bri_berastagi',
     telefon: '',
-    tanggalJoin: new Date().toISOString().split('T')[0],
+    tanggalJoin: '2024-01-01',
     status: 'aktif' as 'aktif' | 'nonaktif',
   });
 
@@ -219,7 +219,7 @@ export default function AnggotaPage() {
       uangBuku: 0,
       jenisPembayaran: 'tunai',
       telefon: '',
-      tanggalJoin: new Date().toISOString().split('T')[0],
+      tanggalJoin: '2024-01-01',
       status: 'aktif',
     });
     setShowForm(false);
@@ -386,7 +386,7 @@ export default function AnggotaPage() {
                       uangBuku: Number(row.uangBuku || row['Uang Buku'] || row.uang_buku) || 0,
                       jenisPembayaran: row.jenisPembayaran || row['Jenis Pembayaran'] || row.jenis_pembayaran || 'tunai',
                       telefon: row.telefon || row.Telepon || row.noTelepon || '',
-                      tanggalJoin: parseDate(row.tanggalJoin || row['Tanggal Join'] || row.tanggal_join || row['Tgl Masuk'] || row.tgl_masuk || row.tanggalMasuk || row['Tanggal Masuk']) || new Date().toISOString().split('T')[0],
+                      tanggalJoin: parseDate(row.tanggalJoin || row['Tanggal Join'] || row.tanggal_join || row['Tgl Masuk'] || row.tgl_masuk || row.tanggalMasuk || row['Tanggal Masuk']) || '2024-01-01',
                       status: 'aktif',
                     });
                     count++;
@@ -442,7 +442,7 @@ export default function AnggotaPage() {
                         uangBuku: Number(cols[21]) || 0,
                         jenisPembayaran: (cols[22] as any) || 'tunai',
                         telefon: cols[23] || '',
-                        tanggalJoin: cols[24] || cols[25] || cols[26] || new Date().toISOString().split('T')[0],
+                        tanggalJoin: cols[24] || cols[25] || cols[26] || '2024-01-01',
                         status: 'aktif',
                       });
                       count++;

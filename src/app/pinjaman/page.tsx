@@ -33,7 +33,7 @@ export default function PinjamanPage() {
     jumlah: 0,
     bunga: 12,
     tenor: 12,
-    tanggalPinjaman: new Date().toISOString().split('T')[0],
+    tanggalPinjaman: '2024-01-01',
     status: 'aktif' as 'aktif' | 'lunas' | 'macet',
     cicilanPerBulan: 0,
     totalPembayaran: 0,
@@ -112,7 +112,7 @@ export default function PinjamanPage() {
         anggotaId: pinjaman.anggotaId,
         referensiId: pinjaman.id,
         jumlah: jumlahBayar,
-        tanggal: new Date().toISOString().split('T')[0],
+        tanggal: '2024-01-01',
         deskripsi: `Pembayaran cicilan pinjaman`,
       });
       setShowBayar(null);
@@ -146,7 +146,7 @@ export default function PinjamanPage() {
       jumlah: 0,
       bunga: 12,
       tenor: 12,
-      tanggalPinjaman: new Date().toISOString().split('T')[0],
+      tanggalPinjaman: '2024-01-01',
       status: 'aktif',
       cicilanPerBulan: 0,
       totalPembayaran: 0,

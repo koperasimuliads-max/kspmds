@@ -24,10 +24,12 @@ export default function LaporanPage() {
   const totalPembayaran = pinjamans.reduce((sum, p) => sum + p.sudahDibayar, 0);
   const sisaPinjaman = totalPinjamanAktif - (totalPembayaran - (pinjamans.filter(p => p.status === 'lunas').reduce((sum, p) => sum + p.totalPembayaran, 0)));
 
+  const today = '13 April 2026';
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6 text-slate-800">Laporan Keuangan</h1>
-      <p className="text-slate-500 mb-6">KSP Mulia Dana Sejahtera - per {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+      <p className="text-slate-500 mb-6">KSP Mulia Dana Sejahtera - per {today}</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow">

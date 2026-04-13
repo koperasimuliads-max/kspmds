@@ -29,7 +29,7 @@ export default function PengeluaranPage() {
     jenis: 'operasional' as string,
     deskripsi: '',
     jumlah: 0,
-    tanggal: new Date().toISOString().split('T')[0],
+    tanggal: '2024-01-01',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -65,7 +65,7 @@ export default function PengeluaranPage() {
       jenis: 'operasional',
       deskripsi: '',
       jumlah: 0,
-      tanggal: new Date().toISOString().split('T')[0],
+      tanggal: '2024-01-01',
     });
     setShowForm(false);
     setEditingId(null);
