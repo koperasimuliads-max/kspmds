@@ -180,6 +180,9 @@ export default function AnggotaPage() {
     const dataToSubmit = {
       ...formData,
       alamatDomisili: alamatSamaKTP ? formData.alamat : formData.alamatDomisili,
+      simpananPokok: 100000,
+      simpananWajib: 50000,
+      uangBuku: 25000,
     };
     if (editingId) {
       updateAnggota(editingId, dataToSubmit);
@@ -647,9 +650,18 @@ export default function AnggotaPage() {
             <div className="mb-4">
               <h3 className="text-sm font-semibold text-slate-600 mb-2 border-b pb-1">Keanggotaan</h3>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <input type="number" placeholder="Simpanan Pokok" value={formData.simpananPokok || ''} onChange={e => setFormData({ ...formData, simpananPokok: Number(e.target.value) })} className="border p-2 rounded" />
-                <input type="number" placeholder="Simpanan Wajib" value={formData.simpananWajib || ''} onChange={e => setFormData({ ...formData, simpananWajib: Number(e.target.value) })} className="border p-2 rounded" />
-                <input type="number" placeholder="Uang Buku" value={formData.uangBuku || ''} onChange={e => setFormData({ ...formData, uangBuku: Number(e.target.value) })} className="border p-2 rounded" />
+                <div className="border p-2 rounded bg-slate-100">
+                  <label className="text-xs text-slate-500 block">Simpanan Pokok</label>
+                  <span className="font-medium">Rp 100.000</span>
+                </div>
+                <div className="border p-2 rounded bg-slate-100">
+                  <label className="text-xs text-slate-500 block">Simpanan Wajib</label>
+                  <span className="font-medium">Rp 50.000</span>
+                </div>
+                <div className="border p-2 rounded bg-slate-100">
+                  <label className="text-xs text-slate-500 block">Uang Buku</label>
+                  <span className="font-medium">Rp 25.000</span>
+                </div>
                 <select value={formData.jenisPembayaran} onChange={e => setFormData({ ...formData, jenisPembayaran: e.target.value as any })} className="border p-2 rounded">
                   {jenisPembayaranOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
@@ -712,23 +724,7 @@ export default function AnggotaPage() {
                     <td className="p-2">{a.pekerjaan ? getLabel(pekerjaanOptions, a.pekerjaan) : '-'}</td>
                     <td className="p-2 text-right">{formatRupiah(a.simpananPokok)}</td>
                     <td className="p-2 text-right">{formatRupiah(a.simpananWajib)}</td>
-                    <td className="p-2 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <span>{formatRupiah(a.uangBuku)}</span>
-                        <button 
-                          onClick={() => {
-                            const newUangBuku = prompt(`Ubah Uang Buku untuk ${a.nama}:`, String(a.uangBuku || 0));
-                            if (newUangBuku !== null) {
-                              updateAnggota(a.id, { uangBuku: Number(newUangBuku) || 0 });
-                            }
-                          }}
-                          className="text-xs text-blue-600 hover:underline ml-1"
-                          title="Klik untuk ubah"
-                        >
-                          ✏️
-                        </button>
-                      </div>
-                    </td>
+                    <td className="p-2 text-right">{formatRupiah(a.uangBuku)}</td>
                     <td className="p-2 text-center no-print">
                       <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-1">Edit</button>
                       {a.status === 'aktif' && (
@@ -832,9 +828,18 @@ export default function AnggotaPage() {
                 <div className="mb-4">
                   <h3 className="text-sm font-semibold text-slate-600 mb-2 border-b pb-1">Keanggotaan</h3>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <input type="number" placeholder="Simpanan Pokok" value={formData.simpananPokok || ''} onChange={e => setFormData({ ...formData, simpananPokok: Number(e.target.value) })} className="border p-2 rounded" />
-                    <input type="number" placeholder="Simpanan Wajib" value={formData.simpananWajib || ''} onChange={e => setFormData({ ...formData, simpananWajib: Number(e.target.value) })} className="border p-2 rounded" />
-                    <input type="number" placeholder="Uang Buku" value={formData.uangBuku || ''} onChange={e => setFormData({ ...formData, uangBuku: Number(e.target.value) })} className="border p-2 rounded" />
+                    <div className="border p-2 rounded bg-slate-100">
+                      <label className="text-xs text-slate-500 block">Simpanan Pokok</label>
+                      <span className="font-medium">Rp 100.000</span>
+                    </div>
+                    <div className="border p-2 rounded bg-slate-100">
+                      <label className="text-xs text-slate-500 block">Simpanan Wajib</label>
+                      <span className="font-medium">Rp 50.000</span>
+                    </div>
+                    <div className="border p-2 rounded bg-slate-100">
+                      <label className="text-xs text-slate-500 block">Uang Buku</label>
+                      <span className="font-medium">Rp 25.000</span>
+                    </div>
                     <select value={formData.jenisPembayaran} onChange={e => setFormData({ ...formData, jenisPembayaran: e.target.value as any })} className="border p-2 rounded">
                       {jenisPembayaranOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
