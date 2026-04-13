@@ -104,7 +104,7 @@ const referensiOptions = [
 ];
 
 export default function AnggotaPage() {
-  const { anggota, addAnggota, updateAnggota, deleteAnggota, clearAllAnggota, bulkUpdateTanggalJoin, pinjamans, simpanans, updateSimpanan } = useKSP();
+  const { anggota, addAnggota, updateAnggota, deleteAnggota, clearAllAnggota, bulkUpdateTanggalJoin, pinjamans, simpanans, updateSimpanan, addPendapatan } = useKSP();
   const [showForm, setShowForm] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -253,6 +253,8 @@ export default function AnggotaPage() {
     const simpananLain = simpananAktif.filter(s => s.jenis !== 'pokok' && s.jenis !== 'wajib').reduce((sum, s) => sum + s.jumlah, 0);
     const totalSimpanan = simpananPokok + simpananWajib + simpananLain;
     
+    const BIAYA_ADMINISTRASI = 50000;
+    
     let message = `Yakin anggota "${ag.nama}" keluar/mengundurkan diri?\n\n`;
     message += `📋 RINGKASAN ANGGOTA:\n`;
     message += `- Tanggal Masuk: ${ag.tanggalJoin ? new Date(ag.tanggalJoin).toLocaleDateString('id-ID') : '-'}\n`;
@@ -273,6 +275,10 @@ export default function AnggotaPage() {
     message += `- Simpanan Wajib: Rp ${simpananWajib.toLocaleString('id-ID')}\n`;
     message += `- Simpanan Lainnya: Rp ${simpananLain.toLocaleString('id-ID')}\n`;
     message += `- TOTAL: Rp ${totalSimpanan.toLocaleString('id-ID')}\n\n`;
+    
+    message += `📝 BIAYA ADMINISTRASI:\n`;
+    message += `- Biaya Pengunduran Diri: Rp ${BIAYA_ADMINISTRASI.toLocaleString('id-ID')}\n`;
+    message += `(akan menjadi pendapatan administrasi)\n\n`;
     
     message += `Catatan: Semua simpanan akan ditandai "ditarik" dan anggota akan berstatus "nonaktif".`;
     
@@ -295,7 +301,15 @@ export default function AnggotaPage() {
         tanggalKeluar: today,
       });
       
-      alert(`✅ ANGGOTA KELAR!\n\n"${ag.nama}" telah keluar pada ${new Date(today).toLocaleDateString('id-ID')}.\n\nSimpanan yang dikembalikan: Rp ${totalSimpanan.toLocaleString('id-ID')}\n(Data simpanan ditandai "ditarik")`);
+      // Tambah pendapatan administrasi pengunduran diri
+      addPendapatan({
+        jenis: 'administrasi_pengunduran_diri',
+        deskripsi: `Biaya administrasi pengunduran diri - ${ag.nama}`,
+        jumlah: BIAYA_ADMINISTRASI,
+        tanggal: today,
+      });
+      
+      alert(`✅ ANGGOTA KELAR!\n\n"${ag.nama}" telah keluar pada ${new Date(today).toLocaleDateString('id-ID')}.\n\nSimpanan yang dikembalikan: Rp ${totalSimpanan.toLocaleString('id-ID')}\nBiaya Administrasi: Rp ${BIAYA_ADMINISTRASI.toLocaleString('id-ID')}\n(Data simpanan ditandai "ditarik", biaya admin masuk ke pendapatan)`);
     }
   };
 

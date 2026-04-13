@@ -20,16 +20,21 @@ Building a KSP (Kredit Simpanan Pinjaman) financial management application calle
 - [x] Removed add buttons from Pendapatan/Pengeluaran pages - only Edit button remains
 - [x] Added viewMode toggle ('data' vs 'tambah') to separate data view from input form
 - [x] Fixed syntax errors in anggota/page.tsx - corrected JSX fragments and indentation
+- [x] Added print functionality in Anggota page with no-print class for controls
+- [x] Made simpanan pokok (100rb), wajib (25rb), uang buku (25rb) auto-filled and non-editable
+- [x] Added conditional field visibility - nama pasangan & jumlah anak only show when status perkawinan != belum_kawin
+- [x] Added BackButton component for navigation back to previous page
+- [x] Added comprehensive anggota keluar flow: check active loans, show summary, auto-withdraw savings, add pendapatan administrasi (Rp 50.000)
 
 ## Current Focus
 
-Fixing syntax errors in anggota/page.tsx - completed. The application is now fully functional with:
-- Data Anggota with live search and viewMode toggle
-- Simpanan with number formatting
-- Pinjaman with number formatting
-- Pendapatan (income tracking)
-- Pengeluaran (expense tracking)
-- Laporan (simplified to only show actual data)
+All main features are complete. The app now has:
+- Dashboard with navigation
+- Data Anggota with live search, print, viewMode toggle, auto-filled simpanan values
+- Data Simpanan with number formatting and BackButton
+- Data Pinjaman with NPL health indicator and BackButton
+- Pendapatan & Pengeluaran combined view with BackButton
+- Laporan Keuangan (simplified) with BackButton
 
 ## Relevant Files
 
@@ -37,10 +42,11 @@ Fixing syntax errors in anggota/page.tsx - completed. The application is now ful
 |----------------|---------|
 | `src/context/KSPContext.tsx` | All state and functions for data management |
 | `src/app/laporan/page.tsx` | Financial reports - shows only actual data |
-| `src/app/anggota/page.tsx` | Member management with live search |
+| `src/app/anggota/page.tsx` | Member management with live search, print, keluar feature |
 | `src/app/simpanan/page.tsx` | Savings with number formatting |
 | `src/app/pinjaman/page.tsx` | Loans with number formatting |
 | `src/app/pendapatan/page.tsx` | Income/expense tracking |
+| `src/components/BackButton.tsx` | Back navigation component |
 
 ## Key Features Implemented
 
@@ -50,10 +56,12 @@ Fixing syntax errors in anggota/page.tsx - completed. The application is now ful
 4. **Live search** - find members by NBA or name quickly
 5. **View separation** - Data view separate from Tambah form
 6. **Alamat sama KTP** - checkbox to copy KTP address to domisili
-7. **Anggota keluar** - mark members as nonaktif with exit date
+7. **Anggota keluar** - comprehensive flow with loan check, savings auto-withdraw, Rp 50k admin fee to pendapatan
+8. **Back navigation** - BackButton on all pages except dashboard
+9. **Print functionality** - print table with no-print class for controls
 
 ## Session History
 
 | Date | Changes |
 |------|---------|
-| 2026-04-13 | KSP application development - fixed syntax errors in anggota page, completed UI simplification |
+| 2026-04-13 | KSP application development - added anggota keluar with loan check, savings auto-withdraw, admin fee to pendapatan |
