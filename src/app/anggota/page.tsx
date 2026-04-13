@@ -118,6 +118,7 @@ export default function AnggotaPage() {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [viewMode, setViewMode] = useState<'data' | 'tambah'>('data');
   
   const filteredAnggota = filterStatus === 'all' 
     ? anggota 
@@ -295,10 +296,24 @@ export default function AnggotaPage() {
   };
 
   return (
-    <div>
+    <>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-slate-800">Data Anggota</h1>
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2">
+          <div className="flex rounded overflow-hidden border">
+            <button
+              onClick={() => setViewMode('data')}
+              className={`px-4 py-2 text-sm ${viewMode === 'data' ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
+            >
+              📋 Data Anggota
+            </button>
+            <button
+              onClick={() => { setViewMode('tambah'); setShowForm(true); }}
+              className={`px-4 py-2 text-sm ${viewMode === 'tambah' ? 'bg-green-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-100'}`}
+            >
+              ➕ Tambah Baru
+            </button>
+          </div>
           <div className="flex rounded overflow-hidden border">
             <button
               onClick={() => setFilterStatus('all')}
@@ -342,16 +357,12 @@ export default function AnggotaPage() {
           >
             {showTanggalForm ? 'Tutup' : 'Update Tgl Masuk'}
           </button>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            {showForm ? 'Tutup Form' : '+ Tambah Anggota'}
-          </button>
         </div>
       </div>
 
-      <div className="relative flex flex-wrap gap-2 mb-4 items-center search-dropdown">
+      {viewMode === 'data' ? (
+        <>
+          <div className="relative flex flex-wrap gap-2 mb-4 items-center search-dropdown">
         <div className="relative flex-1 min-w-[200px]">
           <input
             type="text"
@@ -785,6 +796,124 @@ export default function AnggotaPage() {
           </table>
         </div>
       </div>
-    </div>
+      </>
+      ) : (
+        <>
+          {showForm && (
+            <div className="bg-white p-4 rounded-lg shadow mb-4 max-h-[70vh] overflow-y-auto">
+              <h2 className="font-semibold mb-3">{editingId ? 'Edit Anggota' : 'Tambah Anggota Baru'}</h2>
+              <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-slate-600 mb-2 border-b pb-1">Data Pribadi</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <input type="text" placeholder="Nama Lengkap" value={formData.nama} onChange={e => setFormData({ ...formData, nama: e.target.value })} className="border p-2 rounded" required />
+                    <input type="text" placeholder="NIK" value={formData.nik} onChange={e => setFormData({ ...formData, nik: e.target.value })} className="border p-2 rounded" required />
+                    <input type="text" placeholder="Nomor NBA" value={formData.nomorNBA} onChange={e => setFormData({ ...formData, nomorNBA: e.target.value })} className="border p-2 rounded" />
+                    <select value={formData.jenisKelamin} onChange={e => setFormData({ ...formData, jenisKelamin: e.target.value as 'L' | 'P' })} className="border p-2 rounded">
+                      <option value="L">Laki-laki</option>
+                      <option value="P">Perempuan</option>
+                    </select>
+                    <input type="text" placeholder="Tempat Lahir" value={formData.tempatLahir} onChange={e => setFormData({ ...formData, tempatLahir: e.target.value })} className="border p-2 rounded" />
+                    <input type="date" value={formData.tanggalLahir} onChange={e => setFormData({ ...formData, tanggalLahir: e.target.value })} className="border p-2 rounded" />
+                    <select value={formData.agama} onChange={e => setFormData({ ...formData, agama: e.target.value })} className="border p-2 rounded">
+                      <option value="">Pilih Agama</option>
+                      {agamaOptions.map(a => <option key={a} value={a}>{a}</option>)}
+                    </select>
+                    <select value={formData.statusPerkawinan} onChange={e => setFormData({ ...formData, statusPerkawinan: e.target.value as any })} className="border p-2 rounded">
+                      {statusPerkawinanOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                    <input type="text" placeholder="Nama Pasangan" value={formData.namaPasangan} onChange={e => setFormData({ ...formData, namaPasangan: e.target.value })} className="border p-2 rounded" />
+                    <select value={formData.jumlahAnak} onChange={e => setFormData({ ...formData, jumlahAnak: e.target.value })} className="border p-2 rounded">
+                      {jumlahAnakOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                    <input type="text" placeholder="Nama Ibu Kandung" value={formData.namaIbuKandung} onChange={e => setFormData({ ...formData, namaIbuKandung: e.target.value })} className="border p-2 rounded" />
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-slate-600 mb-2 border-b pb-1">Alamat</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input type="text" placeholder="Alamat (KTP)" value={formData.alamat} onChange={e => setFormData({ ...formData, alamat: e.target.value })} className="border p-2 rounded" required />
+                    {!alamatSamaKTP ? (
+                      <div className="flex items-center gap-2">
+                        <input type="text" placeholder="Alamat Domisili" value={formData.alamatDomisili} onChange={e => setFormData({ ...formData, alamatDomisili: e.target.value })} className="border p-2 rounded flex-1" />
+                        <button type="button" onClick={() => setAlamatSamaKTP(true)} className="text-xs text-blue-600 hover:underline whitespace-nowrap">Sama dengan KTP</button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 p-2 bg-green-50 rounded border border-green-200">
+                        <span className="text-sm text-green-700">✓ Alamat Domisili sama dengan KTP</span>
+                        <button type="button" onClick={() => setAlamatSamaKTP(false)} className="text-xs text-red-600 hover:underline ml-auto">Ubah</button>
+                      </div>
+                    )}
+                    <input type="tel" placeholder="Nomor Telepon" value={formData.telefon} onChange={e => setFormData({ ...formData, telefon: e.target.value })} className="border p-2 rounded" required />
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-slate-600 mb-2 border-b pb-1">Kontak Darurat</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <input type="text" placeholder="Nama Saudara Tidak Serumah" value={formData.namaSaudara} onChange={e => setFormData({ ...formData, namaSaudara: e.target.value })} className="border p-2 rounded" />
+                    <input type="tel" placeholder="No HP Saudara" value={formData.noHpSaudara} onChange={e => setFormData({ ...formData, noHpSaudara: e.target.value })} className="border p-2 rounded" />
+                    <select value={formData.namaReferensi} onChange={e => setFormData({ ...formData, namaReferensi: e.target.value })} className="border p-2 rounded">
+                      <option value="">Pilih Referensi</option>
+                      {referensiOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-slate-600 mb-2 border-b pb-1">Pekerjaan & Pendapatan</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <select value={formData.pekerjaan} onChange={e => setFormData({ ...formData, pekerjaan: e.target.value })} className="border p-2 rounded">
+                      <option value="">Pilih Pekerjaan</option>
+                      {pekerjaanOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                    <select value={formData.pendapatanPerbulan} onChange={e => setFormData({ ...formData, pendapatanPerbulan: e.target.value })} className="border p-2 rounded">
+                      <option value="">Pilih Pendapatan</option>
+                      {pendapatanOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                    <select value={formData.statusRumah} onChange={e => setFormData({ ...formData, statusRumah: e.target.value as any })} className="border p-2 rounded">
+                      {statusRumahOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-slate-600 mb-2 border-b pb-1">Keanggotaan</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <input type="number" placeholder="Simpanan Pokok" value={formData.simpananPokok || ''} onChange={e => setFormData({ ...formData, simpananPokok: Number(e.target.value) })} className="border p-2 rounded" />
+                    <input type="number" placeholder="Simpanan Wajib" value={formData.simpananWajib || ''} onChange={e => setFormData({ ...formData, simpananWajib: Number(e.target.value) })} className="border p-2 rounded" />
+                    <input type="number" placeholder="Uang Buku" value={formData.uangBuku || ''} onChange={e => setFormData({ ...formData, uangBuku: Number(e.target.value) })} className="border p-2 rounded" />
+                    <select value={formData.jenisPembayaran} onChange={e => setFormData({ ...formData, jenisPembayaran: e.target.value as any })} className="border p-2 rounded">
+                      {jenisPembayaranOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <input type="date" value={formData.tanggalJoin} onChange={e => setFormData({ ...formData, tanggalJoin: e.target.value })} className="border p-2 rounded" required />
+                    <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value as 'aktif' | 'nonaktif' })} className="border p-2 rounded">
+                      <option value="aktif">Aktif</option>
+                      <option value="nonaktif">Nonaktif</option>
+                    </select>
+                    <div className="flex gap-2">
+                      <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">{editingId ? 'Update' : 'Simpan'}</button>
+                      <button type="button" onClick={() => { setViewMode('data'); resetForm(); }} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Batal</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          )}
+          {!showForm && (
+            <div className="bg-white p-8 rounded-lg shadow text-center">
+              <p className="text-slate-500 mb-4">Klik tombol di atas untuk menambah anggota baru</p>
+              <button onClick={() => setShowForm(true)} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Tambah Anggota</button>
+            </div>
+          )}
+        </>
+      )}
+    </>
   );
 }
