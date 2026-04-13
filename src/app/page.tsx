@@ -9,7 +9,7 @@ function formatRupiah(amount: number): string {
 
 export default function Dashboard() {
   const { anggota, pinjamans, simpanans, transactions, getLaporanKeuangan } = useKSP();
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState(() => new Date().getFullYear());
   const laporan = getLaporanKeuangan();
 
   const recentTransactions = [...transactions]
@@ -59,6 +59,7 @@ export default function Dashboard() {
     return new Date().getFullYear();
   }).concat(anggota.filter(a => a.tanggalKeluar).map(a => new Date(a.tanggalKeluar!).getFullYear())))).sort((a, b) => b - a);
 
+  const validSelectedYear = availableYears.length > 0 ? selectedYear : new Date().getFullYear();
   const yearStats = getYearStats(selectedYear);
   const currentYearMasuk = yearStats.reduce((s, m) => s + m.masuk, 0);
   const currentYearKeluar = yearStats.reduce((s, m) => s + m.keluar, 0);
