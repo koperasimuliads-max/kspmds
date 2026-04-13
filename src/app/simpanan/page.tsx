@@ -8,25 +8,36 @@ function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
 }
 
+function formatDate(dateStr: string) {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('id-ID');
+  } catch {
+    return '-';
+  }
+}
+
 const jenisSimpananOptions = [
-  { value: 'pokok', label: 'Simpanan Pokok (SP)', bunga: 0 },
-  { value: 'wajib', label: 'Simpanan Wajib (SW)', bunga: 0 },
-  { value: 'sibuhar', label: 'Simpanan Masa Depan (Sibuhar)', bunga: 3, tenor: 12, premiMin: 100000, premiMax: 1000000 },
-  { value: 'simapan', label: 'Simpanan Masa Depan (Simapan)', bunga: 5, tenor: 12, tenorMax: 120, premiMin: 100000, premiMax: 1000000 },
-  { value: 'sihat', label: 'Simpanan Hari Tua (Sihat)', bunga: 6, tenor: 12, tenorMax: 180, premiMin: 100000, premiMax: 1000000 },
-  { value: 'sihar', label: 'Simpanan Hari Raya (Sihar)', bunga: 0, tenor: 12, tenorMax: 12, premiMin: 100000, premiMax: 1000000 },
+  { value: 'pokok', label: 'SP - Simpanan Pokok', bunga: 0 },
+  { value: 'wajib', label: 'SW - Simpanan Wajib', bunga: 0 },
+  { value: 'sibuhar', label: 'Sibuhar - Masa Depan (3%)', bunga: 3, tenor: 12 },
+  { value: 'simapan', label: 'Simapan - Masa Depan (5%)', bunga: 5, tenor: 12, tenorMax: 120 },
+  { value: 'sihat', label: 'Sihat - Hari Tua (6%)', bunga: 6, tenor: 12, tenorMax: 180 },
+  { value: 'sihar', label: 'Sihar - Hari Raya', bunga: 0, tenor: 12 },
 ];
 
 export default function SimpananPage() {
   const { anggota, simpanans, addSimpanan, updateSimpanan, deleteSimpanan } = useKSP();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [filterJenis, setFilterJenis] = useState<string>('all');
+  const [filterJenis, setFilterJenis] = useState('all');
   const [formData, setFormData] = useState({
     anggotaId: '',
     jumlah: 0,
     jenis: 'wajib' as 'wajib' | 'pokok' | 'sibuhar' | 'simapan' | 'sihat' | 'sihar',
-    tanggalSimpan: new Date().toISOString().split('T')[0],
+    tanggalSimpan: '2024-01-01',
     status: 'aktif' as 'aktif' | 'ditarik' | 'aktif_auto',
     tenor: 12,
     premi: 100000,
@@ -35,7 +46,6 @@ export default function SimpananPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (editingId) {
       updateSimpanan(editingId, formData);
       setEditingId(null);
@@ -71,7 +81,7 @@ export default function SimpananPage() {
       anggotaId: '',
       jumlah: 0,
       jenis: 'wajib',
-      tanggalSimpan: new Date().toISOString().split('T')[0],
+      tanggalSimpan: '2024-01-01',
       status: 'aktif',
       tenor: 12,
       premi: 100000,
@@ -82,6 +92,7 @@ export default function SimpananPage() {
   };
 
   const anggotaAktif = anggota.filter(a => a.status === 'aktif');
+  const filteredSimpanans = filterJenis === 'all' ? simpanans : simpanans.filter(s => s.jenis === filterJenis);
 
   return (
     <div>
@@ -113,18 +124,6 @@ export default function SimpananPage() {
         ))}
       </div>
 
-      <div className="bg-green-50 border border-green-200 p-3 rounded mb-4 text-sm">
-        <p className="text-green-800 font-medium">Jenis Simpanan:</p>
-        <ul className="text-green-700 list-disc list-inside mt-1">
-          <li><strong>SP</strong> - Simpanan Pokok (sekali saat入会)</li>
-          <li><strong>SW</strong> - Simpanan Wajib (per bulan)</li>
-          <li><strong>Sibuhar</strong> - Simpanan Masa Depan, bunga 3%/thn, tenor 12 bln, premi Rp100rb-1jt</li>
-          <li><strong>Simapan</strong> - Simpanan Masa Depan, bunga 5%/thn, tenor 1-10 thn, premi Rp100rb-1jt</li>
-          <li><strong>Sihat</strong> - Simpanan Hari Tua, bunga 6%/thn, tenor 1-15 thn, premi Rp100rb-1jt</li>
-          <li><strong>Sihar</strong> - Simpanan Hari Raya, bunga 0%, tenor 12 bln, premi Rp100rb-1jt</li>
-        </ul>
-      </div>
-
       {showForm && (
         <div className="bg-white p-4 rounded-lg shadow mb-4">
           <h2 className="font-semibold mb-3">{editingId ? 'Edit Simpanan' : 'Tambah Simpanan Baru'}</h2>
@@ -152,12 +151,12 @@ export default function SimpananPage() {
               value={formData.jenis}
               onChange={e => {
                 const opt = jenisSimpananOptions.find(o => o.value === e.target.value);
-                setFormData({ ...formData, jenis: e.target.value as any, bunga: opt?.bunga || 0, tenor: opt?.tenor || 12 });
+                setFormData({ ...formData, jenis: e.target.value as typeof formData.jenis, bunga: opt?.bunga || 0, tenor: opt?.tenor || 12 });
               }}
               className="border p-2 rounded"
             >
               {jenisSimpananOptions.map(o => (
-                <option key={o.value} value={o.value}>{o.label} {o.bunga ? `(${o.bunga}%/thn)` : ''}</option>
+                <option key={o.value} value={o.value}>{o.label}</option>
               ))}
             </select>
             <input
@@ -165,18 +164,17 @@ export default function SimpananPage() {
               value={formData.tanggalSimpan}
               onChange={e => setFormData({ ...formData, tanggalSimpan: e.target.value })}
               className="border p-2 rounded"
-              required
             />
             <select
               value={formData.status}
-              onChange={e => setFormData({ ...formData, status: e.target.value as any })}
+              onChange={e => setFormData({ ...formData, status: e.target.value as typeof formData.status })}
               className="border p-2 rounded"
             >
               <option value="aktif">Aktif</option>
               <option value="aktif_auto">Aktif Auto</option>
               <option value="ditarik">Ditarik</option>
             </select>
-            <div className="flex items-center gap-2">
+            <div className="flex gap-2">
               <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                 {editingId ? 'Update' : 'Simpan'}
               </button>
@@ -191,24 +189,24 @@ export default function SimpananPage() {
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-slate-100">
-<tr>
-                <th className="text-left p-3">Anggota</th>
-                <th className="text-left p-3">Jenis</th>
-                <th className="text-right p-3">Jumlah</th>
-                <th className="text-right p-3">Bunga %</th>
-                <th className="text-right p-3">Tenor</th>
-                <th className="text-left p-3">Tanggal</th>
-                <th className="text-left p-3">Status</th>
-                <th className="text-center p-3">Aksi</th>
-              </tr>
+            <tr>
+              <th className="text-left p-3">Anggota</th>
+              <th className="text-left p-3">Jenis</th>
+              <th className="text-right p-3">Jumlah</th>
+              <th className="text-right p-3">Bunga</th>
+              <th className="text-right p-3">Tenor</th>
+              <th className="text-left p-3">Tanggal</th>
+              <th className="text-left p-3">Status</th>
+              <th className="text-center p-3">Aksi</th>
+            </tr>
           </thead>
           <tbody>
-            {simpanans.length === 0 ? (
+            {filteredSimpanans.length === 0 ? (
               <tr>
                 <td colSpan={8} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
               </tr>
             ) : (
-              simpanans.filter(s => filterJenis === 'all' || s.jenis === filterJenis).map(s => {
+              filteredSimpanans.map(s => {
                 const ag = anggota.find(a => a.id === s.anggotaId);
                 return (
                   <tr key={s.id} className="border-b hover:bg-slate-50">
@@ -217,7 +215,7 @@ export default function SimpananPage() {
                     <td className="p-3 text-right">{formatRupiah(s.jumlah)}</td>
                     <td className="p-3 text-right">{s.bunga || 0}%</td>
                     <td className="p-3 text-right">{s.tenor || '-'} bln</td>
-                    <td className="p-3">{new Date(s.tanggalSimpan).toLocaleDateString('id-ID')}</td>
+                    <td className="p-3">{formatDate(s.tanggalSimpan)}</td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded text-xs ${s.status === 'aktif' ? 'bg-green-100 text-green-800' : s.status === 'aktif_auto' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}`}>
                         {s.status}
