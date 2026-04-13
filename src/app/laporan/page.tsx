@@ -1,6 +1,7 @@
 'use client';
 
 import { useKSP } from '@/context/KSPContext';
+import BackButton from '@/components/BackButton';
 
 function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
@@ -29,7 +30,10 @@ export default function LaporanPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6 text-slate-800">Laporan Keuangan</h1>
+      <div className="flex items-center gap-4 mb-2">
+        <BackButton />
+        <h1 className="text-2xl font-bold text-slate-800">Laporan Keuangan</h1>
+      </div>
       <p className="text-slate-500 mb-6">KSP Mulia Dana Sejahtera - per {today}</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

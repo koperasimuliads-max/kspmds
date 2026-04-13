@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useKSP } from '@/context/KSPContext';
 import { Pengeluaran } from '@/types';
+import BackButton from '@/components/BackButton';
 
 function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
@@ -81,7 +82,10 @@ export default function PengeluaranPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-slate-800">Pengeluaran</h1>
+        <div className="flex items-center gap-4">
+          <BackButton />
+          <h1 className="text-2xl font-bold text-slate-800">Pengeluaran</h1>
+        </div>
         <button
           onClick={() => setShowForm(!showForm)}
           className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"

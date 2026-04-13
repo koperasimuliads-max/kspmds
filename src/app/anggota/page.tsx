@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useKSP } from '@/context/KSPContext';
 import { Anggota } from '@/types';
 import * as XLSX from 'xlsx';
+import BackButton from '@/components/BackButton';
 
 const parseDate = (dateStr: any): string => {
   if (!dateStr && dateStr !== 0) return '';
@@ -301,7 +302,10 @@ export default function AnggotaPage() {
   return (
     <>
       <div className="flex justify-between items-center mb-4 no-print">
-        <h1 className="text-2xl font-bold text-slate-800">Data Anggota</h1>
+        <div className="flex items-center gap-4">
+          <BackButton />
+          <h1 className="text-2xl font-bold text-slate-800">Data Anggota</h1>
+        </div>
         <div className="flex gap-2">
           <button
             onClick={() => setViewMode('data')}

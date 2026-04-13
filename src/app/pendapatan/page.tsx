@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useKSP } from '@/context/KSPContext';
+import BackButton from '@/components/BackButton';
 
 function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
@@ -60,8 +61,11 @@ export default function PendapatanPage() {
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6 text-slate-800">Pendapatan & Pengeluaran</h1>
+      <div>
+        <div className="flex items-center gap-4 mb-6">
+          <BackButton />
+          <h1 className="text-2xl font-bold text-slate-800">Pendapatan & Pengeluaran</h1>
+        </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
