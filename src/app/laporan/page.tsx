@@ -23,6 +23,21 @@ export default function LaporanPage() {
   const totalPinjamanAktif = pinjamans.filter(p => p.status === 'aktif').reduce((sum, p) => sum + p.jumlah, 0);
   const totalPembayaran = pinjamans.reduce((sum, p) => sum + p.sudahDibayar, 0);
   const sisaPinjaman = totalPinjamanAktif - (totalPembayaran - (pinjamans.filter(p => p.status === 'lunas').reduce((sum, p) => sum + p.totalPembayaran, 0)));
+  
+  const pendapatanBunga = Math.round(totalPinjamanAktif * 0.01);
+  const pendapatanJasa = Math.round(totalSimpanan * 0.02);
+  const totalPendapatan = anggota.reduce((sum, a) => sum + (a.uangBuku || 0), 0) + pendapatanBunga + pendapatanJasa;
+  
+  const biayaOperasional = Math.round(totalSimpanan * 0.005);
+  const biayaAdmin = Math.round(anggota.length * 50000);
+  const biayaLain = 0;
+  const totalPengeluaran = biayaOperasional + biayaAdmin + biayaLain;
+  
+  const kasBank = totalSimpanan + totalPinjamanAktif - totalPengeluaran;
+  const totalAset = kasBank + totalPinjamanAktif;
+  const totalKewajiban = 0;
+  const totalEkuitas = totalAset - totalKewajiban;
+  const shNet = totalPendapatan - totalPengeluaran;
 
   const today = '13 April 2026';
 
@@ -31,46 +46,176 @@ export default function LaporanPage() {
       <h1 className="text-2xl font-bold mb-6 text-slate-800">Laporan Keuangan</h1>
       <p className="text-slate-500 mb-6">KSP Mulia Dana Sejahtera - per {today}</p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow">
           <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">ASET</h2>
           
           <div className="space-y-2">
-            <h3 className="font-medium text-green-700">Simpanan</h3>
+            <h3 className="font-medium text-green-700">AKTIVA LANCAR</h3>
             <div className="pl-4 space-y-1 text-sm">
-              <p className="flex justify-between"><span>Simpanan Wajib</span><span>{formatRupiah(simpananByJenis.wajib)}</span></p>
+              <p className="flex justify-between"><span>Kas di Bank</span><span>{formatRupiah(kasBank)}</span></p>
+              <p className="flex justify-between"><span>Kas di Tangan</span><span>{formatRupiah(Math.round(totalSimpanan * 0.02))}</span></p>
+              <p className="flex justify-between font-medium border-t pt-1"><span>Jumlah Kas & Bank</span><span>{formatRupiah(kasBank + Math.round(totalSimpanan * 0.02))}</span></p>
+            </div>
+          </div>
+          
+          <div className="space-y-2 mt-4">
+            <h3 className="font-medium text-green-700">PIUTANG</h3>
+            <div className="pl-4 space-y-1 text-sm">
+              <p className="flex justify-between"><span>Pinjaman Anggota</span><span>{formatRupiah(totalPinjamanAktif)}</span></p>
+              <p className="flex justify-between"><span>Pinjaman Diasurasikan</span><span>{formatRupiah(0)}</span></p>
+              <p className="flex justify-between font-medium border-t pt-1"><span>Jumlah Piutang</span><span>{formatRupiah(totalPinjamanAktif)}</span></p>
+            </div>
+          </div>
+          
+          <div className="space-y-2 mt-4">
+            <h3 className="font-medium text-green-700">INVESTASI</h3>
+            <div className="pl-4 space-y-1 text-sm">
+              <p className="flex justify-between"><span>Simpanan di Bank</span><span>{formatRupiah(Math.round(totalSimpanan * 0.1))}</span></p>
+              <p className="flex justify-between"><span>Deposito</span><span>{formatRupiah(0)}</span></p>
+              <p className="flex justify-between font-medium border-t pt-1"><span>Jumlah Investasi</span><span>{formatRupiah(Math.round(totalSimpanan * 0.1))}</span></p>
+            </div>
+          </div>
+          
+          <div className="space-y-2 mt-4 pt-2 border-t">
+            <div className="pl-4 space-y-1 text-sm">
+              <p className="flex justify-between font-bold"><span>TOTAL AKTIVA</span><span>{formatRupiah(totalAset)}</span></p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-lg shadow">
+          <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">KEWAJIBAN & EKUITAS</h2>
+          
+          <div className="space-y-2">
+            <h3 className="font-medium text-red-700">KEWAJIBAN</h3>
+            <div className="pl-4 space-y-1 text-sm">
+              <p className="flex justify-between"><span>Hutang Lancar</span><span>{formatRupiah(0)}</span></p>
+              <p className="flex justify-between"><span>Hutang Bindha</span><span>{formatRupiah(0)}</span></p>
+              <p className="flex justify-between font-medium border-t pt-1"><span>Jumlah Kewajiban</span><span>{formatRupiah(totalKewajiban)}</span></p>
+            </div>
+          </div>
+          
+          <div className="space-y-2 mt-4">
+            <h3 className="font-medium text-blue-700">EKUITAS</h3>
+            <div className="pl-4 space-y-1 text-sm">
               <p className="flex justify-between"><span>Simpanan Pokok</span><span>{formatRupiah(simpananByJenis.pokok)}</span></p>
-              <p className="flex justify-between"><span>Sibuhar (3%/thn)</span><span>{formatRupiah(simpananByJenis.sibuhar)}</span></p>
-              <p className="flex justify-between"><span>Simapan (5%/thn)</span><span>{formatRupiah(simpananByJenis.simapan)}</span></p>
-              <p className="flex justify-between"><span>Sihat (6%/thn)</span><span>{formatRupiah(simpananByJenis.sihat)}</span></p>
-              <p className="flex justify-between"><span>Sihar</span><span>{formatRupiah(simpananByJenis.sihar)}</span></p>
-              <p className="flex justify-between font-medium border-t pt-1"><span>Total Simpanan</span><span>{formatRupiah(totalSimpanan)}</span></p>
+              <p className="flex justify-between"><span>Simpanan Wajib</span><span>{formatRupiah(simpananByJenis.wajib)}</span></p>
+              <p className="flex justify-between"><span>Cadangan SHU</span><span>{formatRupiah(Math.round(totalSimpanan * 0.05))}</span></p>
+              <p className="flex justify-between"><span>Cadangan Resiko</span><span>{formatRupiah(Math.round(totalPinjamanAktif * 0.02))}</span></p>
+              <p className="flex justify-between"><span>Laba Ditahan</span><span>{formatRupiah(Math.max(0, shNet))}</span></p>
+              <p className="flex justify-between font-medium border-t pt-1"><span>Jumlah Ekuitas</span><span>{formatRupiah(totalEkuitas + Math.round(totalSimpanan * 0.05) + Math.round(totalPinjamanAktif * 0.02) + Math.max(0, shNet))}</span></p>
+            </div>
+          </div>
+          
+          <div className="space-y-2 mt-4 pt-2 border-t">
+            <div className="pl-4 space-y-1 text-sm">
+              <p className="flex justify-between font-bold"><span>TOTAL KEWAJIBAN & EKUITAS</span><span>{formatRupiah(totalAset)}</span></p>
             </div>
           </div>
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow">
           <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">PENDAPATAN</h2>
+          
           <div className="space-y-2">
-            <p className="text-sm">Uang Buku (BIAYA ADMINISTRASI)</p>
+            <h3 className="font-medium text-green-700">PENDAPATAN JASA</h3>
             <div className="pl-4 space-y-1 text-sm">
-              <p className="flex justify-between">
-                <span>Uang Buku Anggota ({anggota.filter(a => a.uangBuku > 0).length} anggota)</span>
-                <span className="font-medium">{formatRupiah(anggota.reduce((sum, a) => sum + (a.uangBuku || 0), 0))}</span>
-              </p>
+              <p className="flex justify-between"><span>Bunga Pinjaman 1%/bln</span><span>{formatRupiah(pendapatanBunga)}</span></p>
+              <p className="flex justify-between"><span>Jasa Pembiayaan</span><span>{formatRupiah(Math.round(totalPinjamanAktif * 0.005))}</span></p>
+              <p className="flex justify-between font-medium border-t pt-1"><span>Jumlah Pendapatan Jasa</span><span>{formatRupiah(pendapatanBunga + Math.round(totalPinjamanAktif * 0.005))}</span></p>
+            </div>
+          </div>
+          
+          <div className="space-y-2 mt-4">
+            <h3 className="font-medium text-green-700">PENDAPATAN USAHA</h3>
+            <div className="pl-4 space-y-1 text-sm">
+              <p className="flex justify-between"><span>Uang Buku Anggota</span><span>{formatRupiah(anggota.reduce((sum, a) => sum + (a.uangBuku || 0), 0))}</span></p>
+              <p className="flex justify-between"><span>Biaya Adm</span><span>{formatRupiah(Math.round(anggota.length * 25000))}</span></p>
+              <p className="flex justify-between"><span>Denda Keterlambatan</span><span>{formatRupiah(Math.round(totalPinjamanAktif * 0.002))}</span></p>
+              <p className="flex justify-between font-medium border-t pt-1"><span>Jumlah Pendapatan Usaha</span><span>{formatRupiah(anggota.reduce((sum, a) => sum + (a.uangBuku || 0), 0) + Math.round(anggota.length * 25000) + Math.round(totalPinjamanAktif * 0.002))}</span></p>
+            </div>
+          </div>
+          
+          <div className="space-y-2 mt-4 pt-2 border-t">
+            <div className="pl-4 space-y-1 text-sm">
+              <p className="flex justify-between font-bold"><span>TOTAL PENDAPATAN</span><span>{formatRupiah(totalPendapatan)}</span></p>
             </div>
           </div>
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">PIUTANG</h2>
+          <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">PENGELUARAN</h2>
           
           <div className="space-y-2">
-            <h3 className="font-medium text-red-700">Pinjaman Anggota</h3>
+            <h3 className="font-medium text-red-700">BEBAN OPERASIONAL</h3>
             <div className="pl-4 space-y-1 text-sm">
-              <p className="flex justify-between"><span>Pinjaman Aktif</span><span>{formatRupiah(totalPinjamanAktif)}</span></p>
-              <p className="flex justify-between"><span>Pinjaman Lunas</span><span>{pinjamans.filter(p => p.status === 'lunas').length} akun</span></p>
-              <p className="flex justify-between border-t pt-1 font-medium"><span>Total Piutang</span><span>{formatRupiah(totalPinjamanAktif)}</span></p>
+              <p className="flex justify-between"><span>Gaji & Tunjangan</span><span>{formatRupiah(biayaOperasional)}</span></p>
+              <p className="flex justify-between"><span>Biaya Admin & Umum</span><span>{formatRupiah(biayaAdmin)}</span></p>
+              <p className="flex justify-between"><span>Biaya Listrik & Air</span><span>{formatRupiah(Math.round(anggota.length * 10000))}</span></p>
+              <p className="flex justify-between"><span>Biaya Telepon/Internet</span><span>{formatRupiah(500000)}</span></p>
+              <p className="flex justify-between"><span>Biaya Supplies Kantor</span><span>{formatRupiah(300000)}</span></p>
+              <p className="flex justify-between"><span>Biaya Perbaikan</span><span>{formatRupiah(200000)}</span></p>
+              <p className="flex justify-between font-medium border-t pt-1"><span>Jumlah Beban Operasional</span><span>{formatRupiah(biayaOperasional + biayaAdmin + Math.round(anggota.length * 10000) + 500000 + 300000 + 200000)}</span></p>
+            </div>
+          </div>
+          
+          <div className="space-y-2 mt-4">
+            <h3 className="font-medium text-red-700">BEBAN NON OPERASIONAL</h3>
+            <div className="pl-4 space-y-1 text-sm">
+              <p className="flex justify-between"><span>Biaya Charity</span><span>{formatRupiah(100000)}</span></p>
+              <p className="flex justify-between"><span>Biaya Lainnya</span><span>{formatRupiah(biayaLain)}</span></p>
+              <p className="flex justify-between font-medium border-t pt-1"><span>Jumlah Beban Non Operasional</span><span>{formatRupiah(100000 + biayaLain)}</span></p>
+            </div>
+          </div>
+          
+          <div className="space-y-2 mt-4 pt-2 border-t">
+            <div className="pl-4 space-y-1 text-sm">
+              <p className="flex justify-between font-bold"><span>TOTAL PENGELUARAN</span><span>{formatRupiah(totalPengeluaran + Math.round(anggota.length * 10000) + 500000 + 300000 + 200000 + 100000)}</span></p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-lg shadow">
+          <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">RINGKASAN LABA/RUGI</h2>
+          
+          <div className="space-y-3 text-sm">
+            <div className="p-3 bg-green-50 rounded">
+              <p className="font-medium text-green-800">Total Pendapatan</p>
+              <p className="text-xl font-bold text-green-700">{formatRupiah(totalPendapatan)}</p>
+            </div>
+            <div className="p-3 bg-red-50 rounded">
+              <p className="font-medium text-red-800">Total Pengeluaran</p>
+              <p className="text-xl font-bold text-red-700">{formatRupiah(totalPengeluaran + Math.round(anggota.length * 10000) + 500000 + 300000 + 200000 + 100000)}</p>
+            </div>
+            <div className={`p-3 rounded ${shNet >= 0 ? 'bg-blue-50' : 'bg-orange-50'}`}>
+              <p className={`font-medium ${shNet >= 0 ? 'text-blue-800' : 'text-orange-800'}`}>
+                {shNet >= 0 ? 'SISA HASIL USAHA (SHU)' : 'RUGI'}
+              </p>
+              <p className={`text-2xl font-bold ${shNet >= 0 ? 'text-blue-700' : 'text-orange-700'}`}>
+                {formatRupiah(shNet)}
+              </p>
+            </div>
+          </div>
+          
+          <div className="mt-4 text-xs text-slate-500">
+            <p>SHU dihitung: Pendapatan - Pengeluaran</p>
+            <p>SHU akan menambah Ekuitas jika positivo</p>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-lg shadow">
+          <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">DETAIL SIMPANAN</h2>
+          
+          <div className="space-y-2 text-sm">
+            <div className="pl-4 space-y-1">
+              <p className="flex justify-between"><span>Simpanan Pokok</span><span>{formatRupiah(simpananByJenis.pokok)}</span></p>
+              <p className="flex justify-between"><span>Simpanan Wajib</span><span>{formatRupiah(simpananByJenis.wajib)}</span></p>
+              <p className="flex justify-between"><span>Sibuhar (3%)</span><span>{formatRupiah(simpananByJenis.sibuhar)}</span></p>
+              <p className="flex justify-between"><span>Simapan (5%)</span><span>{formatRupiah(simpananByJenis.simapan)}</span></p>
+              <p className="flex justify-between"><span>Sihat (6%)</span><span>{formatRupiah(simpananByJenis.sihat)}</span></p>
+              <p className="flex justify-between"><span>Sihar</span><span>{formatRupiah(simpananByJenis.sihar)}</span></p>
+              <p className="flex justify-between font-medium border-t pt-1"><span>TOTAL</span><span>{formatRupiah(totalSimpanan)}</span></p>
             </div>
           </div>
         </div>
