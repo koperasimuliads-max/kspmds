@@ -574,10 +574,14 @@ export default function AnggotaPage() {
                 <select value={formData.statusPerkawinan} onChange={e => setFormData({ ...formData, statusPerkawinan: e.target.value as any })} className="border p-2 rounded">
                   {statusPerkawinanOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
-                <input type="text" placeholder="Nama Pasangan" value={formData.namaPasangan} onChange={e => setFormData({ ...formData, namaPasangan: e.target.value })} className="border p-2 rounded" />
-                <select value={formData.jumlahAnak} onChange={e => setFormData({ ...formData, jumlahAnak: e.target.value })} className="border p-2 rounded">
-                  {jumlahAnakOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
+                {formData.statusPerkawinan !== 'belum_kawin' && (
+                  <>
+                    <input type="text" placeholder="Nama Pasangan" value={formData.namaPasangan} onChange={e => setFormData({ ...formData, namaPasangan: e.target.value })} className="border p-2 rounded" />
+                    <select value={formData.jumlahAnak} onChange={e => setFormData({ ...formData, jumlahAnak: e.target.value })} className="border p-2 rounded">
+                      {jumlahAnakOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                  </>
+                )}
                 <input type="text" placeholder="Nama Ibu Kandung" value={formData.namaIbuKandung} onChange={e => setFormData({ ...formData, namaIbuKandung: e.target.value })} className="border p-2 rounded" />
               </div>
             </div>
@@ -759,10 +763,14 @@ export default function AnggotaPage() {
                     <select value={formData.statusPerkawinan} onChange={e => setFormData({ ...formData, statusPerkawinan: e.target.value as any })} className="border p-2 rounded">
                       {statusPerkawinanOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
-                    <input type="text" placeholder="Nama Pasangan" value={formData.namaPasangan} onChange={e => setFormData({ ...formData, namaPasangan: e.target.value })} className="border p-2 rounded" />
-                    <select value={formData.jumlahAnak} onChange={e => setFormData({ ...formData, jumlahAnak: e.target.value })} className="border p-2 rounded">
-                      {jumlahAnakOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                    </select>
+                    {formData.statusPerkawinan !== 'belum_kawin' && (
+                      <>
+                        <input type="text" placeholder="Nama Pasangan" value={formData.namaPasangan} onChange={e => setFormData({ ...formData, namaPasangan: e.target.value })} className="border p-2 rounded" />
+                        <select value={formData.jumlahAnak} onChange={e => setFormData({ ...formData, jumlahAnak: e.target.value })} className="border p-2 rounded">
+                          {jumlahAnakOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                        </select>
+                      </>
+                    )}
                     <input type="text" placeholder="Nama Ibu Kandung" value={formData.namaIbuKandung} onChange={e => setFormData({ ...formData, namaIbuKandung: e.target.value })} className="border p-2 rounded" />
                   </div>
                 </div>
