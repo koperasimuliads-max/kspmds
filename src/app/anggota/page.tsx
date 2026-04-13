@@ -104,7 +104,7 @@ const referensiOptions = [
 ];
 
 export default function AnggotaPage() {
-  const { anggota, addAnggota, updateAnggota, deleteAnggota, clearAllAnggota, bulkUpdateTanggalJoin } = useKSP();
+  const { anggota, addAnggota, updateAnggota, deleteAnggota, clearAllAnggota, bulkUpdateTanggalJoin, pinjamans, simpanans, updateSimpanan } = useKSP();
   const [showForm, setShowForm] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -239,21 +239,63 @@ export default function AnggotaPage() {
     if (!ag) return;
     
     const today = new Date().toISOString().split('T')[0];
-    const confirmKeluar = confirm(
-      `Yakin anggota "${ag.nama}" keluar/mengundurkan diri?\n\n` +
-      `Simpanan yang dikembalikan:\n` +
-      `- Simpanan Pokok: Rp ${ag.simpananPokok?.toLocaleString('id-ID') || 0}\n` +
-      `- Simpanan Wajib: Rp ${ag.simpananWajib?.toLocaleString('id-ID') || 0}\n` +
-      `- Total: Rp ${((ag.simpananPokok || 0) + (ag.simpananWajib || 0)).toLocaleString('id-ID')}\n\n` +
-      `Status akan diubah menjadi "nonaktif" dan data simpanan tetap tersimpan.`
-    );
+    
+    // Cek pinjaman aktif
+    const pinjamanAktif = pinjamans.filter(p => p.anggotaId === id && p.status === 'aktif');
+    const totalPinjamanAktif = pinjamanAktif.reduce((sum, p) => sum + p.jumlah, 0);
+    const totalDibayar = pinjamanAktif.reduce((sum, p) => sum + (p.sudahDibayar || 0), 0);
+    const sisaPinjaman = totalPinjamanAktif - totalDibayar;
+    
+    // Get simpanan aktif untuk anggota ini
+    const simpananAktif = simpanans.filter(s => s.anggotaId === id && s.status === 'aktif');
+    const simpananPokok = simpananAktif.filter(s => s.jenis === 'pokok').reduce((sum, s) => sum + s.jumlah, 0);
+    const simpananWajib = simpananAktif.filter(s => s.jenis === 'wajib').reduce((sum, s) => sum + s.jumlah, 0);
+    const simpananLain = simpananAktif.filter(s => s.jenis !== 'pokok' && s.jenis !== 'wajib').reduce((sum, s) => sum + s.jumlah, 0);
+    const totalSimpanan = simpananPokok + simpananWajib + simpananLain;
+    
+    let message = `Yakin anggota "${ag.nama}" keluar/mengundurkan diri?\n\n`;
+    message += `📋 RINGKASAN ANGGOTA:\n`;
+    message += `- Tanggal Masuk: ${ag.tanggalJoin ? new Date(ag.tanggalJoin).toLocaleDateString('id-ID') : '-'}\n`;
+    message += `- Status: ${ag.status}\n\n`;
+    
+    if (pinjamanAktif.length > 0) {
+      message += `⚠️ PINJAMAN AKTIF (${pinjamanAktif.length} akun):\n`;
+      message += `- Total Pinjaman: Rp ${totalPinjamanAktif.toLocaleString('id-ID')}\n`;
+      message += `- Sudah Dibayar: Rp ${totalDibayar.toLocaleString('id-ID')}\n`;
+      message += `- Sisa Pinjaman: Rp ${sisaPinjaman.toLocaleString('id-ID')}\n`;
+      message += `⚠️ PINJAMAN HARUS LUNAS TERLEBIH DAHULU!\n\n`;
+    } else {
+      message += `✅ Tidak ada pinjaman aktif\n\n`;
+    }
+    
+    message += `💰 SIMPANAN YANG DIKEMBALIKAN:\n`;
+    message += `- Simpanan Pokok: Rp ${simpananPokok.toLocaleString('id-ID')}\n`;
+    message += `- Simpanan Wajib: Rp ${simpananWajib.toLocaleString('id-ID')}\n`;
+    message += `- Simpanan Lainnya: Rp ${simpananLain.toLocaleString('id-ID')}\n`;
+    message += `- TOTAL: Rp ${totalSimpanan.toLocaleString('id-ID')}\n\n`;
+    
+    message += `Catatan: Semua simpanan akan ditandai "ditarik" dan anggota akan berstatus "nonaktif".`;
+    
+    if (pinjamanAktif.length > 0) {
+      alert(`⚠️ GAGAL!\n\nAnggota "${ag.nama}" masih memiliki ${pinjamanAktif.length} pinjaman aktif totaling Rp ${sisaPinjaman.toLocaleString('id-ID')}.\n\nSilakan lunasi pinjaman terlebih dahulu sebelum anggota keluar.`);
+      return;
+    }
+    
+    const confirmKeluar = confirm(message);
     
     if (confirmKeluar) {
+      // Tandai semua simpanan sebagai ditarik
+      simpananAktif.forEach(s => {
+        updateSimpanan(s.id, { status: 'ditarik' });
+      });
+      
+      // Update status anggota
       updateAnggota(id, {
         status: 'nonaktif',
         tanggalKeluar: today,
       });
-      alert(`Anggota "${ag.nama}" telah keluar pada ${today}`);
+      
+      alert(`✅ ANGGOTA KELAR!\n\n"${ag.nama}" telah keluar pada ${new Date(today).toLocaleDateString('id-ID')}.\n\nSimpanan yang dikembalikan: Rp ${totalSimpanan.toLocaleString('id-ID')}\n(Data simpanan ditandai "ditarik")`);
     }
   };
 
