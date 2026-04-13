@@ -8,6 +8,16 @@ function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
 }
 
+function formatRupiahInput(value: string): string {
+  const numbers = value.replace(/\D/g, '');
+  if (!numbers) return '';
+  return parseInt(numbers).toLocaleString('id-ID');
+}
+
+function parseRupiah(value: string): number {
+  return parseInt(value.replace(/\D/g, '')) || 0;
+}
+
 function formatDate(dateStr: string) {
   if (!dateStr) return '-';
   try {
@@ -33,6 +43,7 @@ export default function SimpananPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filterJenis, setFilterJenis] = useState('all');
+  const [jumlahDisplay, setJumlahDisplay] = useState('');
   const [formData, setFormData] = useState({
     anggotaId: '',
     jumlah: 0,
@@ -86,6 +97,7 @@ export default function SimpananPage() {
       premi: data.premi || 100000,
       bunga: data.bunga || 0,
     });
+    setJumlahDisplay(formatRupiahInput(String(data.jumlah)));
     setEditingId(data.id);
     setShowForm(true);
   };
@@ -107,6 +119,7 @@ export default function SimpananPage() {
       premi: 100000,
       bunga: 0,
     });
+    setJumlahDisplay('');
     setShowForm(false);
     setEditingId(null);
   };
@@ -171,10 +184,14 @@ export default function SimpananPage() {
               ))}
             </select>
             <input
-              type="number"
-              placeholder="Jumlah Simpanan"
-              value={formData.jumlah || ''}
-              onChange={e => setFormData({ ...formData, jumlah: Number(e.target.value) })}
+              type="text"
+              placeholder="Jumlah (contoh: 500.000)"
+              value={jumlahDisplay}
+              onChange={e => {
+                const num = parseRupiah(e.target.value);
+                setJumlahDisplay(formatRupiahInput(e.target.value));
+                setFormData({ ...formData, jumlah: num });
+              }}
               className="border p-2 rounded"
               required
             />

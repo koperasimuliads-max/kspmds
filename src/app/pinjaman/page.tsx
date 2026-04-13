@@ -8,6 +8,16 @@ function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
 }
 
+function formatRupiahInput(value: string): string {
+  const numbers = value.replace(/\D/g, '');
+  if (!numbers) return '';
+  return parseInt(numbers).toLocaleString('id-ID');
+}
+
+function parseRupiah(value: string): number {
+  return parseInt(value.replace(/\D/g, '')) || 0;
+}
+
 function formatDate(dateStr: string) {
   if (!dateStr) return '-';
   try {
@@ -55,6 +65,7 @@ export default function PinjamanPage() {
   });
   const [jumlahBayar, setJumlahBayar] = useState(0);
   const [hariTerlambatInput, setHariTerlambatInput] = useState(0);
+  const [jumlahDisplay, setJumlahDisplay] = useState('');
 
   const hitungCicilan = (jumlah: number, bunga: number, tenor: number) => {
     const bungaPerBulan = bunga / 100 / 12;
@@ -116,6 +127,7 @@ export default function PinjamanPage() {
       kolektibilitas: data.kolektibilitas || 'lancar',
       kategoriKesehatan: data.kategoriKesehatan || 'sehat',
     });
+    setJumlahDisplay(formatRupiahInput(String(data.jumlah)));
     setEditingId(data.id);
     setShowForm(true);
   };
@@ -176,6 +188,7 @@ export default function PinjamanPage() {
       kolektibilitas: 'lancar',
       kategoriKesehatan: 'sehat',
     });
+    setJumlahDisplay('');
     setShowForm(false);
     setEditingId(null);
   };
@@ -235,10 +248,14 @@ export default function PinjamanPage() {
                 ))}
               </select>
               <input
-                type="number"
-                placeholder="Jumlah Pinjaman"
-                value={formData.jumlah || ''}
-                onChange={e => setFormData({ ...formData, jumlah: Number(e.target.value) })}
+                type="text"
+                placeholder="Jumlah Pinjaman (contoh: 10.000.000)"
+                value={jumlahDisplay}
+                onChange={e => {
+                  const num = parseRupiah(e.target.value);
+                  setJumlahDisplay(formatRupiahInput(e.target.value));
+                  setFormData({ ...formData, jumlah: num });
+                }}
                 className="border p-2 rounded"
                 required
               />
