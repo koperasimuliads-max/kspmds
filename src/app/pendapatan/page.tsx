@@ -20,10 +20,12 @@ function formatDate(dateStr: string) {
 }
 
 export default function PendapatanPage() {
-  const { anggota, pendapatans, pengeluarans, updatePendapatan, updatePengeluaran } = useKSP();
+  const { anggota, pendapatans, pengeluarans, updatePendapatan, updatePengeluaran, addPendapatan } = useKSP();
   const [editingPendapatan, setEditingPendapatan] = useState<string | null>(null);
   const [editingPengeluaran, setEditingPengeluaran] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ jumlah: 0, deskripsi: '' });
+  const [showTambah, setShowTambah] = useState(false);
+  const [tambahForm, setTambahForm] = useState({ jenis: 'uang_buku', deskripsi: '', jumlah: 0, tanggal: '2024-01-01' });
 
   const uangBukuTotal = anggota.reduce((sum, a) => sum + (a.uangBuku || 0), 0);
   const anggotaWithUangBuku = anggota.filter(a => a.uangBuku > 0);
@@ -62,10 +64,79 @@ export default function PendapatanPage() {
 
   return (
       <div>
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-6 no-print">
           <BackButton />
           <h1 className="text-2xl font-bold text-slate-800">Pendapatan & Pengeluaran</h1>
         </div>
+
+        <div className="flex gap-2 mb-4 no-print">
+          <button
+            onClick={() => setShowTambah(!showTambah)}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            {showTambah ? 'Tutup' : '+ Tambah Pendapatan'}
+          </button>
+        </div>
+
+        {showTambah && (
+          <div className="bg-white p-4 rounded-lg shadow mb-4 no-print">
+            <h3 className="font-semibold mb-3">Tambah Pendapatan</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <select
+                value={tambahForm.jenis}
+                onChange={e => setTambahForm({ ...tambahForm, jenis: e.target.value })}
+                className="border p-2 rounded"
+              >
+                <option value="uang_buku">Uang Buku</option>
+                <option value="administrasi_pengunduran_diri">Admin Pengunduran Diri</option>
+                <option value="bunga_pinjaman">Bunga Pinjaman</option>
+                <option value="lainnya">Lainnya</option>
+              </select>
+              <input
+                type="text"
+                placeholder="Deskripsi"
+                value={tambahForm.deskripsi}
+                onChange={e => setTambahForm({ ...tambahForm, deskripsi: e.target.value })}
+                className="border p-2 rounded"
+              />
+              <input
+                type="number"
+                placeholder="Jumlah"
+                value={tambahForm.jumlah || ''}
+                onChange={e => setTambahForm({ ...tambahForm, jumlah: Number(e.target.value) })}
+                className="border p-2 rounded"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    if (tambahForm.jumlah <= 0) {
+                      alert('Jumlah harus lebih dari 0');
+                      return;
+                    }
+                    addPendapatan({
+                      jenis: tambahForm.jenis,
+                      deskripsi: tambahForm.deskripsi || `${tambahForm.jenis.replace('_', ' ')} - ${tambahForm.tanggal}`,
+                      jumlah: tambahForm.jumlah,
+                      tanggal: tambahForm.tanggal,
+                    });
+                    setTambahForm({ jenis: 'uang_buku', deskripsi: '', jumlah: 0, tanggal: '2024-01-01' });
+                    setShowTambah(false);
+                    alert('Pendapatan berhasil ditambahkan!');
+                  }}
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                >
+                  Simpan
+                </button>
+                <input
+                  type="date"
+                  value={tambahForm.tanggal}
+                  onChange={e => setTambahForm({ ...tambahForm, tanggal: e.target.value })}
+                  className="border p-2 rounded"
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
