@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { useKSP } from '@/context/KSPContext';
 import BackButton from '@/components/BackButton';
 
@@ -14,8 +14,13 @@ const dummyPendapatans = [
   { id: 'dummy-2025', jenis: 'uang_buku', deskripsi: 'Pendapatan tahun 2025', jumlah: 3000000, tanggal: '2025-12-31' },
 ];
 
+function useHydrated() {
+  return useSyncExternalStore(() => () => {}, () => true, () => false);
+}
+
 export default function SHUPerAnggotaPage() {
   const { anggota, pinjamans, simpanans, pendapatans, pengeluarans } = useKSP();
+  const hydrated = useHydrated();
   const [expandedYears, setExpandedYears] = useState<number[]>([2023, 2024, 2025, 2026]);
 
   const toggleYear = (tahun: number) => {
@@ -25,12 +30,7 @@ export default function SHUPerAnggotaPage() {
   const pendapatanData = pendapatans.length > 0 ? pendapatans : dummyPendapatans;
   const isUsingDummy = pendapatans.length === 0;
 
-  const tahunList = [...new Set([
-    ...pendapatanData.map((p: any) => new Date(p.tanggal).getFullYear()),
-    ...pengeluarans.map(p => new Date(p.tanggal).getFullYear()),
-  ])].sort();
-
-  const allTahun = tahunList.length > 0 ? tahunList : [2023, 2024, 2025, 2026];
+  const allTahun = [2023, 2024, 2025, 2026];
 
   const hitungSHUPerTahun = (tahun: number) => {
     const pendapatanTahun = pendapatanData.filter((p: any) => new Date(p.tanggal).getFullYear() === tahun).reduce((sum, p: any) => sum + p.jumlah, 0);
@@ -80,7 +80,13 @@ export default function SHUPerAnggotaPage() {
         <h1 className="text-2xl font-bold text-slate-800">SHU Per Anggota</h1>
       </div>
 
-      <div className="bg-blue-50 p-4 rounded-lg mb-4">
+      {!hydrated ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="text-slate-500">Loading...</div>
+        </div>
+      ) : (
+        <>
+          <div className="bg-blue-50 p-4 rounded-lg mb-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-blue-800">📊 RINGKASAN DATA KSP</h3>
           {isUsingDummy && <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">⚠️ Data Sample</span>}
@@ -170,6 +176,8 @@ export default function SHUPerAnggotaPage() {
           </div>
         );
       })}
+        </>
+      )}
     </div>
   );
 }
