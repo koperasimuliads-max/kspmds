@@ -152,30 +152,57 @@ export default function SHUPerAnggotaPage() {
         <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">
           📦 PEMBAGIAN SHU (Total: {formatRupiah(shNet)})
         </h2>
-        <div className="grid grid-cols-3 md:grid-cols-5 gap-3 text-sm">
-          <div className="p-2 bg-green-50 rounded text-center">
-            <p className="text-green-700 text-xs">Jasa Modal (55%)</p>
-            <p className="font-bold">{formatRupiah(distribution.jasa_modal)}</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-4">
+          <div className="p-3 bg-green-50 rounded">
+            <p className="text-green-700 text-xs font-medium">Jasa Modal (55%)</p>
+            <p className="font-bold text-lg">{formatRupiah(distribution.jasa_modal)}</p>
+            <p className="text-xs text-green-600">Untuk anggota</p>
           </div>
-          <div className="p-2 bg-blue-50 rounded text-center">
-            <p className="text-blue-700 text-xs">Jasa Transaksi (20%)</p>
-            <p className="font-bold">{formatRupiah(distribution.jasa_transaksi)}</p>
+          <div className="p-3 bg-blue-50 rounded">
+            <p className="text-blue-700 text-xs font-medium">Jasa Transaksi (20%)</p>
+            <p className="font-bold text-lg">{formatRupiah(distribution.jasa_transaksi)}</p>
+            <p className="text-xs text-blue-600">Untuk anggota</p>
           </div>
-          <div className="p-2 bg-slate-50 rounded text-center">
-            <p className="text-slate-600 text-xs">Dana Cadangan (10%)</p>
-            <p className="font-bold">{formatRupiah(distribution.dana_cadangan_umum + distribution.dana_cadangan_resiko)}</p>
+          <div className="p-3 bg-slate-100 rounded">
+            <p className="text-slate-700 text-xs font-medium">Dana Cadangan (10%)</p>
+            <p className="font-bold text-lg">{formatRupiah(distribution.dana_cadangan_umum + distribution.dana_cadangan_resiko)}</p>
+            <p className="text-xs text-slate-500">5% umum + 5% risiko</p>
           </div>
-          <div className="p-2 bg-yellow-50 rounded text-center">
-            <p className="text-yellow-700 text-xs">Dana Pengurus (5%)</p>
-            <p className="font-bold">{formatRupiah(distribution.dana_pengurus_pengawas)}</p>
-          </div>
-          <div className="p-2 bg-orange-50 rounded text-center">
-            <p className="text-orange-700 text-xs">Lainnya (10%)</p>
-            <p className="font-bold">{formatRupiah(distribution.dana_kesejahteraan_karyawan + distribution.dana_pendidikan + distribution.dana_sosial + distribution.daerah_pembangunan_daerah_kerja)}</p>
+          <div className="p-3 bg-yellow-50 rounded">
+            <p className="text-yellow-700 text-xs font-medium">Dana Pengurus (5%)</p>
+            <p className="font-bold text-lg">{formatRupiah(distribution.dana_pengurus_pengawas)}</p>
+            <p className="text-xs text-yellow-600">Untuk pengurus & pengawas</p>
           </div>
         </div>
-        <p className="text-xs text-slate-500 mt-2">
-          ✓ Jasa Modal didasarkan proporsi simpanan (pokok+wajib+table) | ✓ Jasa Transaksi didasarkan proporsi pinjaman aktif
+        
+        {/* Lainnya 10% breakdown */}
+        <div className="border-t pt-4">
+          <p className="text-sm font-semibold text-slate-700 mb-2">📋 LAINNYA (10%)</p>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
+            <div className="p-2 bg-purple-50 rounded">
+              <p className="text-purple-700 text-xs">Kesejahteraan Karyawan (5%)</p>
+              <p className="font-bold">{formatRupiah(distribution.dana_kesejahteraan_karyawan)}</p>
+            </div>
+            <div className="p-2 bg-orange-50 rounded">
+              <p className="text-orange-700 text-xs">Pendidikan (2%)</p>
+              <p className="font-bold">{formatRupiah(distribution.dana_pendidikan)}</p>
+            </div>
+            <div className="p-2 bg-red-50 rounded">
+              <p className="text-red-700 text-xs">Sosial (2%)</p>
+              <p className="font-bold">{formatRupiah(distribution.dana_sosial)}</p>
+            </div>
+            <div className="p-2 bg-teal-50 rounded">
+              <p className="text-teal-700 text-xs">Pembangunan Daerah (1%)</p>
+              <p className="font-bold">{formatRupiah(distribution.daerah_pembangunan_daerah_kerja)}</p>
+            </div>
+            <div className="p-2 bg-gray-50 rounded flex items-center justify-center">
+              <p className="text-slate-600 font-bold">Total: {formatRupiah(distribution.dana_kesejahteraan_karyawan + distribution.dana_pendidikan + distribution.dana_sosial + distribution.daerah_pembangunan_daerah_kerja)}</p>
+            </div>
+          </div>
+        </div>
+        
+        <p className="text-xs text-slate-500 mt-3 border-t pt-2">
+          ✓ Total: {formatRupiah(distribution.jasa_modal + distribution.jasa_transaksi + distribution.dana_cadangan_umum + distribution.dana_cadangan_resiko + distribution.dana_pengurus_pengawas + distribution.dana_kesejahteraan_karyawan + distribution.dana_pendidikan + distribution.dana_sosial + distribution.daerah_pembangunan_daerah_kerja)}
         </p>
       </div>
 
