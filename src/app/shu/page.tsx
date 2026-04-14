@@ -8,7 +8,7 @@ function formatRupiah(amount: number): string {
 }
 
 export default function SHUPerAnggotaPage() {
-  const { anggota, pinjamans, simpanans, pendapatans, pengeluarans } = useKSP();
+  const { anggota, pinjamans, simpanans, pendapatans, pengeluarans, addPendapatan } = useKSP();
 
   // Hitung total
   const totalPendapatan = pendapatans.reduce((sum, p) => sum + p.jumlah, 0);
@@ -127,6 +127,25 @@ export default function SHUPerAnggotaPage() {
         <div className="mt-2 text-xs text-slate-500">
           📋 count: anggota={anggota.length} | simpanans={simpanans.length} | pinjamans={pinjamans.length} | pendapatans={pendapatans.length} | pengeluarans={pengeluarans.length}
         </div>
+        {pendapatans.length === 0 && (
+          <div className="mt-2 p-2 bg-red-50 text-red-700 rounded text-sm">
+            ⚠️ BELUM ADA DATA PENDAPATAN! 
+            <button 
+              onClick={() => {
+                addPendapatan({
+                  jenis: 'uang_buku',
+                  deskripsi: 'Pendapatan tahun 2023-2026',
+                  jumlah: 9000000,
+                  tanggal: '2024-01-01',
+                });
+                alert('Pendapatan Rp 9.000.000 berhasil ditambahkan!');
+              }}
+              className="ml-2 bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
+            >
+              + Tambah Pendapatan 9JT
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="bg-white p-4 rounded-lg shadow mb-6">
