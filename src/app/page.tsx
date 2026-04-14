@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useKSP } from '@/context/KSPContext';
 
 function formatRupiah(amount: number): string {
@@ -10,6 +10,12 @@ function formatRupiah(amount: number): string {
 export default function Dashboard() {
   const { anggota, pinjamans, simpanans, transactions, getLaporanKeuangan } = useKSP();
   const [selectedYear, setSelectedYear] = useState(2024);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const laporan = getLaporanKeuangan();
 
   const recentTransactions = [...transactions]
@@ -63,7 +69,11 @@ export default function Dashboard() {
   const currentYearMasuk = yearStats.reduce((s, m) => s + m.masuk, 0);
   const currentYearKeluar = yearStats.reduce((s, m) => s + m.keluar, 0);
 
-  return (
+  return !mounted ? (
+    <div className="flex items-center justify-center h-64">
+      <div className="text-slate-500">Loading...</div>
+    </div>
+  ) : (
     <div>
       <h1 className="text-2xl font-bold mb-6 text-slate-800">Dashboard</h1>
       
