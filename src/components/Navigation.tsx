@@ -11,6 +11,7 @@ const navItems = [
   { href: '/pinjaman', label: 'Pinjaman', icon: '💰' },
   { href: '/pendapatan', label: 'Pendapatan', icon: '💹' },
   { href: '/pengeluaran', label: 'Pengeluaran', icon: '📤' },
+  { href: '/shu', label: 'SHU Anggota', icon: '🎁' },
   { href: '/laporan', label: 'Laporan', icon: '📈' },
 ];
 
