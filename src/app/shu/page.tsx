@@ -16,7 +16,7 @@ const dummyPendapatans = [
 
 export default function SHUPerAnggotaPage() {
   const { anggota, pinjamans, simpanans, pendapatans, pengeluarans } = useKSP();
-  const [expandedYears, setExpandedYears] = useState<number[]>([2025]);
+  const [expandedYears, setExpandedYears] = useState<number[]>([2023, 2024, 2025, 2026]);
 
   const toggleYear = (tahun: number) => {
     setExpandedYears(prev => prev.includes(tahun) ? prev.filter(t => t !== tahun) : [...prev, tahun]);
