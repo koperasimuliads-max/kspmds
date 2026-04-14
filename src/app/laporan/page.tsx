@@ -26,7 +26,19 @@ export default function LaporanPage() {
   const totalPengeluaran = pengeluarans.reduce((sum, p) => sum + p.jumlah, 0);
   const shNet = totalPendapatan - totalPengeluaran;
 
-  const today = '13 April 2026';
+  const shuDistribution = shNet > 0 ? {
+    dana_cadangan_umum: shNet * 0.05,
+    dana_cadangan_resiko: shNet * 0.05,
+    jasa_modal: shNet * 0.55,
+    jasa_transaksi: shNet * 0.20,
+    dana_pengurus_pengawas: shNet * 0.05,
+    dana_kesejahteraan_karyawan: shNet * 0.05,
+    dana_pendidikan: shNet * 0.02,
+    dana_sosial: shNet * 0.02,
+    daerah_pembangunan_daerah_kerja: shNet * 0.01,
+  } : null;
+
+  const today = '14 April 2026';
 
   return (
     <div>
@@ -119,6 +131,54 @@ export default function LaporanPage() {
           </div>
         </div>
       </div>
+
+      {shuDistribution && (
+        <div className="bg-white p-4 rounded-lg shadow mb-6">
+          <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">PEMBAGIAN SHU (SISA HASIL USAHA)</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+            <div className="p-3 bg-slate-50 rounded">
+              <p className="text-slate-500 text-xs">Dana Cadangan Umum (5%)</p>
+              <p className="font-bold">{formatRupiah(shuDistribution.dana_cadangan_umum)}</p>
+            </div>
+            <div className="p-3 bg-slate-50 rounded">
+              <p className="text-slate-500 text-xs">Dana Cadangan Resiko (5%)</p>
+              <p className="font-bold">{formatRupiah(shuDistribution.dana_cadangan_resiko)}</p>
+            </div>
+            <div className="p-3 bg-green-50 rounded">
+              <p className="text-green-700 text-xs">Jasa Modal (55%)</p>
+              <p className="font-bold text-green-700">{formatRupiah(shuDistribution.jasa_modal)}</p>
+            </div>
+            <div className="p-3 bg-blue-50 rounded">
+              <p className="text-blue-700 text-xs">Jasa Transaksi (20%)</p>
+              <p className="font-bold text-blue-700">{formatRupiah(shuDistribution.jasa_transaksi)}</p>
+            </div>
+            <div className="p-3 bg-yellow-50 rounded">
+              <p className="text-yellow-700 text-xs">Dana Pengurus/Pengawas (5%)</p>
+              <p className="font-bold text-yellow-700">{formatRupiah(shuDistribution.dana_pengurus_pengawas)}</p>
+            </div>
+            <div className="p-3 bg-purple-50 rounded">
+              <p className="text-purple-700 text-xs">Dana Kesejahteraan Karyawan (5%)</p>
+              <p className="font-bold text-purple-700">{formatRupiah(shuDistribution.dana_kesejahteraan_karyawan)}</p>
+            </div>
+            <div className="p-3 bg-orange-50 rounded">
+              <p className="text-orange-700 text-xs">Dana Pendidikan (2%)</p>
+              <p className="font-bold text-orange-700">{formatRupiah(shuDistribution.dana_pendidikan)}</p>
+            </div>
+            <div className="p-3 bg-red-50 rounded">
+              <p className="text-red-700 text-xs">Dana Sosial (2%)</p>
+              <p className="font-bold text-red-700">{formatRupiah(shuDistribution.dana_sosial)}</p>
+            </div>
+            <div className="p-3 bg-teal-50 rounded">
+              <p className="text-teal-700 text-xs">Daerah Pembangunan Daerah Kerja (1%)</p>
+              <p className="font-bold text-teal-700">{formatRupiah(shuDistribution.daerah_pembangunan_daerah_kerja)}</p>
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t text-center">
+            <p className="text-slate-600">Total Pembagian SHU</p>
+            <p className="text-xl font-bold text-slate-800">{formatRupiah(shNet)}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
