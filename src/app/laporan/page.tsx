@@ -38,6 +38,51 @@ export default function LaporanPage() {
     daerah_pembangunan_daerah_kerja: shNet * 0.01,
   } : null;
 
+  const anggotaAktif = anggota.filter(a => a.status === 'aktif');
+  
+  const hitungSHUAnggota = () => {
+    if (!shuDistribution || shuDistribution.jasa_modal === 0 || shuDistribution.jasa_transaksi === 0) return [];
+    
+    const totalSimpananSemua = simpanans
+      .filter(s => s.status === 'aktif')
+      .reduce((sum, s) => sum + s.jumlah, 0);
+    
+    const totalPinjamanSemua = pinjamans
+      .filter(p => p.status === 'aktif')
+      .reduce((sum, p) => sum + p.jumlah, 0);
+    
+    return anggotaAktif.map(ag => {
+      const simpananAnggota = simpanans
+        .filter(s => s.anggotaId === ag.id && s.status === 'aktif')
+        .reduce((sum, s) => sum + s.jumlah, 0);
+      
+      const pinjamanAnggota = pinjamans
+        .filter(p => p.anggotaId === ag.id && p.status === 'aktif')
+        .reduce((sum, p) => sum + p.jumlah, 0);
+      
+      const jasaModal = totalSimpananSemua > 0 
+        ? (simpananAnggota / totalSimpananSemua) * shuDistribution.jasa_modal 
+        : 0;
+      
+      const jasaTransaksi = totalPinjamanSemua > 0 
+        ? (pinjamanAnggota / totalPinjamanSemua) * shuDistribution.jasa_transaksi 
+        : 0;
+      
+      return {
+        id: ag.id,
+        nama: ag.nama,
+        nomorNBA: ag.nomorNBA,
+        simpanan: simpananAnggota,
+        pinjaman: pinjamanAnggota,
+        jasaModal,
+        jasaTransaksi,
+        totalSHU: jasaModal + jasaTransaksi,
+      };
+    }).filter(a => a.totalSHU > 0).sort((a, b) => b.totalSHU - a.totalSHU);
+  };
+
+  const shuPerAnggota = hitungSHUAnggota();
+
   const today = '14 April 2026';
 
   return (
@@ -176,6 +221,55 @@ export default function LaporanPage() {
           <div className="mt-4 pt-3 border-t text-center">
             <p className="text-slate-600">Total Pembagian SHU</p>
             <p className="text-xl font-bold text-slate-800">{formatRupiah(shNet)}</p>
+          </div>
+        </div>
+      )}
+
+      {shuPerAnggota.length > 0 && (
+        <div className="bg-white p-4 rounded-lg shadow mb-6">
+          <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">SHU PER ANGGOTA</h2>
+          <p className="text-sm text-slate-500 mb-3">
+            Berdasarkan proporsi simpanan (Jasa Modal) dan pinjaman (Jasa Transaksi)
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-100">
+                <tr>
+                  <th className="text-center p-2 w-12">No</th>
+                  <th className="text-left p-2">Nama Anggota</th>
+                  <th className="text-left p-2">NBA</th>
+                  <th className="text-right p-2">Simpanan</th>
+                  <th className="text-right p-2">Pinjaman</th>
+                  <th className="text-right p-2">Jasa Modal</th>
+                  <th className="text-right p-2">Jasa Transaksi</th>
+                  <th className="text-right p-2 font-bold">Total SHU</th>
+                </tr>
+              </thead>
+              <tbody>
+                {shuPerAnggota.map((a, index) => (
+                  <tr key={a.id} className="border-b hover:bg-slate-50">
+                    <td className="p-2 text-center text-slate-500">{index + 1}</td>
+                    <td className="p-2 font-medium">{a.nama}</td>
+                    <td className="p-2">{a.nomorNBA || '-'}</td>
+                    <td className="p-2 text-right">{formatRupiah(a.simpanan)}</td>
+                    <td className="p-2 text-right">{formatRupiah(a.pinjaman)}</td>
+                    <td className="p-2 text-right text-green-600">{formatRupiah(a.jasaModal)}</td>
+                    <td className="p-2 text-right text-blue-600">{formatRupiah(a.jasaTransaksi)}</td>
+                    <td className="p-2 text-right font-bold text-green-700">{formatRupiah(a.totalSHU)}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot className="bg-slate-50 font-bold">
+                <tr>
+                  <td colSpan={4} className="p-2 text-right">TOTAL</td>
+                  <td className="p-2 text-right">{formatRupiah(shuPerAnggota.reduce((s, a) => s + a.simpanan, 0))}</td>
+                  <td className="p-2 text-right">{formatRupiah(shuPerAnggota.reduce((s, a) => s + a.pinjaman, 0))}</td>
+                  <td className="p-2 text-right">{formatRupiah(shuPerAnggota.reduce((s, a) => s + a.jasaModal, 0))}</td>
+                  <td className="p-2 text-right">{formatRupiah(shuPerAnggota.reduce((s, a) => s + a.jasaTransaksi, 0))}</td>
+                  <td className="p-2 text-right text-green-700">{formatRupiah(shuPerAnggota.reduce((s, a) => s + a.totalSHU, 0))}</td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
         </div>
       )}
