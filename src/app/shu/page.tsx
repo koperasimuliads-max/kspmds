@@ -78,6 +78,22 @@ export default function SHUPerAnggotaPage() {
       <div className="flex items-center gap-4 mb-4">
         <BackButton />
         <h1 className="text-2xl font-bold text-slate-800">SHU Per Anggota</h1>
+        <button
+          onClick={() => {
+            if (confirm('Yakin ingin menghapus semua data anggota, simpanan, dan pinjaman? Data tidak bisa dikembalikan!')) {
+              localStorage.removeItem('ksp_anggota');
+              localStorage.removeItem('ksp_simpanans');
+              localStorage.removeItem('ksp_pinjamans');
+              localStorage.removeItem('ksp_pendapatans');
+              localStorage.removeItem('ksp_pengeluarans');
+              localStorage.removeItem('ksp_transactions');
+              window.location.reload();
+            }
+          }}
+          className="ml-auto bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm"
+        >
+          🗑️ Reset Semua Data
+        </button>
       </div>
 
       {!hydrated ? (
