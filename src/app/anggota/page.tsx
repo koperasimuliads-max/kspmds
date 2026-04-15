@@ -420,6 +420,51 @@ export default function AnggotaPage() {
             >
               📥 Import
             </button>
+            <button
+              onClick={() => {
+                const data = anggota.map(a => ({
+                  nama: a.nama,
+                  nik: a.nik,
+                  nomorNBA: a.nomorNBA,
+                  jenisKelamin: a.jenisKelamin,
+                  tempatLahir: a.tempatLahir,
+                  tanggalLahir: a.tanggalLahir,
+                  agama: a.agama,
+                  alamat: a.alamat,
+                  alamatDomisili: a.alamatDomisili,
+                  statusPerkawinan: a.statusPerkawinan,
+                  namaPasangan: a.namaPasangan,
+                  jumlahAnak: a.jumlahAnak,
+                  namaIbuKandung: a.namaIbuKandung,
+                  namaSaudara: a.namaSaudara,
+                  noHpSaudara: a.noHpSaudara,
+                  pekerjaan: a.pekerjaan,
+                  pendapatanPerbulan: a.pendapatanPerbulan,
+                  statusRumah: a.statusRumah,
+                  namaReferensi: a.namaReferensi,
+                  simpananPokok: a.simpananPokok,
+                  simpananWajib: a.simpananWajib,
+                  uangBuku: a.uangBuku,
+                  jenisPembayaran: a.jenisPembayaran,
+                  telefon: a.telefon,
+                  tanggalJoin: a.tanggalJoin,
+                  status: a.status,
+                  tanggalKeluar: a.tanggalKeluar || '',
+                }));
+                const json = JSON.stringify(data, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `anggota_backup_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              disabled={anggota.length === 0}
+            >
+              📤 Export
+            </button>
           </div>
           {searchQuery && (
             <span className="text-sm text-slate-500">
@@ -500,6 +545,52 @@ export default function AnggotaPage() {
                   const data = await file.arrayBuffer();
                   const workbook = XLSX.read(data);
                   const sheetName = workbook.SheetNames[0];
+                  
+                  if (file.name.endsWith('.json')) {
+                    const text = await file.text();
+                    const jsonData = JSON.parse(text);
+                    if (Array.isArray(jsonData)) {
+                      const confirmImport = confirm(`Ditemukan ${jsonData.length} data dari backup. Lanjutkan import?`);
+                      if (!confirmImport) return;
+                      let count = 0;
+                      jsonData.forEach((row: any) => {
+                        if (!row.nama) return;
+                        addAnggota({
+                          nama: row.nama || '',
+                          nik: row.nik || '',
+                          nomorNBA: row.nomorNBA || '',
+                          jenisKelamin: (row.jenisKelamin || 'L') as 'L' | 'P',
+                          tempatLahir: row.tempatLahir || '',
+                          tanggalLahir: row.tanggalLahir || '',
+                          agama: row.agama || '',
+                          alamat: row.alamat || '',
+                          alamatDomisili: row.alamatDomisili || '',
+                          statusPerkawinan: row.statusPerkawinan || 'belum_kawin',
+                          namaPasangan: row.namaPasangan || '',
+                          jumlahAnak: String(row.jumlahAnak || '0'),
+                          namaIbuKandung: row.namaIbuKandung || '',
+                          namaSaudara: row.namaSaudara || '',
+                          noHpSaudara: row.noHpSaudara || '',
+                          pekerjaan: row.pekerjaan || '',
+                          pendapatanPerbulan: row.pendapatanPerbulan || '',
+                          statusRumah: row.statusRumah || 'rumah_sendiri',
+                          namaReferensi: row.namaReferensi || '',
+                          simpananPokok: Number(row.simpananPokok) || 0,
+                          simpananWajib: Number(row.simpananWajib) || 0,
+                          uangBuku: Number(row.uangBuku) || 0,
+                          jenisPembayaran: row.jenisPembayaran || 'tunai',
+                          telefon: row.telefon || '',
+                          tanggalJoin: row.tanggalJoin || '2024-01-01',
+                          status: row.status === 'nonaktif' ? 'nonaktif' : 'aktif',
+                        });
+                        count++;
+                      });
+                      alert(`Berhasil import ${count} anggota dari backup`);
+                      setShowImport(false);
+                      return;
+                    }
+                  }
+                  
                   const worksheet = workbook.Sheets[sheetName];
                   const jsonData = XLSX.utils.sheet_to_json(worksheet) as any[];
                   
