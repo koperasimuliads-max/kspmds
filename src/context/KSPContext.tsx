@@ -94,177 +94,108 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('ksp_pendapatans', JSON.stringify(pendapatans));
   }, [pendapatans]);
 
-  const addAnggota = (data: Omit<Anggota, 'id'>) => {
-    const newAnggota: Anggota = { ...data, id: generateId() };
-    setAnggota(prev => [...prev, newAnggota]);
-    
-    const anggotaId = newAnggota.id;
-    const today = new Date().toISOString().split('T')[0];
-    const tanggalJoin = data.tanggalJoin || today;
-    
-    if (data.simpananPokok > 0) {
-      const newSimpanan: Simpanan = {
-        id: generateId(),
-        anggotaId,
-        jumlah: data.simpananPokok,
-        jenis: 'pokok',
-        tanggalSimpan: tanggalJoin,
-        status: 'aktif'
-      };
-      setSimpanans(prev => [...prev, newSimpanan]);
-      setTransactions(prev => [...prev, {
-        id: generateId(),
-        jenis: 'simpanan',
-        anggotaId,
-        referensiId: newSimpanan.id,
-        jumlah: data.simpananPokok,
-        tanggal: tanggalJoin,
-        deskripsi: `Simpanan Pokok - ${data.nama}`
-      }]);
-    }
-    
-    if (data.simpananWajib > 0) {
-      const newSimpanan: Simpanan = {
-        id: generateId(),
-        anggotaId,
-        jumlah: data.simpananWajib,
-        jenis: 'wajib',
-        tanggalSimpan: tanggalJoin,
-        status: 'aktif'
-      };
-      setSimpanans(prev => [...prev, newSimpanan]);
-      setTransactions(prev => [...prev, {
-        id: generateId(),
-        jenis: 'simpanan',
-        anggotaId,
-        referensiId: newSimpanan.id,
-        jumlah: data.simpananWajib,
-        tanggal: tanggalJoin,
-        deskripsi: `Simpanan Wajib - ${data.nama}`
-      }]);
-    }
-    
-    if (data.uangBuku > 0) {
-      setTransactions(prev => [...prev, {
-        id: generateId(),
-        jenis: 'pendapatan',
-        anggotaId,
-        referensiId: '',
-        jumlah: data.uangBuku,
-        tanggal: tanggalJoin,
-        deskripsi: `Uang Buku (Admin) - ${data.nama}`
-      }]);
-    }
-  };
+  const addAnggota = useCallback((data: Omit<Anggota, 'id'>) => {
+    setAnggota(prev => [...prev, { ...data, id: generateId() }]);
+  }, []);
 
-  const updateAnggota = (id: string, data: Partial<Anggota>) => {
+  const updateAnggota = useCallback((id: string, data: Partial<Anggota>) => {
     setAnggota(prev => prev.map(a => a.id === id ? { ...a, ...data } : a));
-  };
+  }, []);
 
-  const deleteAnggota = (id: string) => {
+  const deleteAnggota = useCallback((id: string) => {
     setAnggota(prev => prev.filter(a => a.id !== id));
-    setPinjamans(prev => prev.filter(p => p.anggotaId !== id));
     setSimpanans(prev => prev.filter(s => s.anggotaId !== id));
-  };
+    setPinjamans(prev => prev.filter(p => p.anggotaId !== id));
+  }, []);
 
-  const clearAllAnggota = () => {
+  const clearAllAnggota = useCallback(() => {
     setAnggota([]);
-    setPinjamans([]);
     setSimpanans([]);
-    setTransactions([]);
-  };
+    setPinjamans([]);
+    localStorage.removeItem('ksp_anggota');
+    localStorage.removeItem('ksp_simpanans');
+    localStorage.removeItem('ksp_pinjamans');
+  }, []);
 
-  const addPinjaman = (data: Omit<Pinjaman, 'id'>) => {
-    const newPinjaman: Pinjaman = { ...data, id: generateId() };
-    setPinjamans(prev => [...prev, newPinjaman]);
-    
-    const foundAnggota = anggota.find(a => a.id === data.anggotaId);
-    setTransactions(prev => [...prev, {
-      id: generateId(),
-      jenis: 'pinjaman',
-      anggotaId: data.anggotaId,
-      referensiId: newPinjaman.id,
-      jumlah: data.jumlah,
-      tanggal: data.tanggalPinjaman,
-      deskripsi: `Pinjaman untuk ${foundAnggota?.nama}`
-    }]);
-  };
+  const addPinjaman = useCallback((data: Omit<Pinjaman, 'id'>) => {
+    setPinjamans(prev => [...prev, { ...data, id: generateId() }]);
+  }, []);
 
-  const updatePinjaman = (id: string, data: Partial<Pinjaman>) => {
+  const updatePinjaman = useCallback((id: string, data: Partial<Pinjaman>) => {
     setPinjamans(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
-  };
+  }, []);
 
-  const deletePinjaman = (id: string) => {
+  const deletePinjaman = useCallback((id: string) => {
     setPinjamans(prev => prev.filter(p => p.id !== id));
-  };
+  }, []);
 
-  const addSimpanan = (data: Omit<Simpanan, 'id'>) => {
-    const newSimpanan: Simpanan = { ...data, id: generateId() };
-    setSimpanans(prev => [...prev, newSimpanan]);
-    
-    const foundAnggota = anggota.find(a => a.id === data.anggotaId);
-    setTransactions(prev => [...prev, {
-      id: generateId(),
-      jenis: 'simpanan',
-      anggotaId: data.anggotaId,
-      referensiId: newSimpanan.id,
-      jumlah: data.jumlah,
-      tanggal: data.tanggalSimpan,
-      deskripsi: `Simpanan ${data.jenis} - ${foundAnggota?.nama}`
-    }]);
-  };
+  const addSimpanan = useCallback((data: Omit<Simpanan, 'id'>) => {
+    setSimpanans(prev => [...prev, { ...data, id: generateId() }]);
+  }, []);
 
-  const updateSimpanan = (id: string, data: Partial<Simpanan>) => {
+  const updateSimpanan = useCallback((id: string, data: Partial<Simpanan>) => {
     setSimpanans(prev => prev.map(s => s.id === id ? { ...s, ...data } : s));
-  };
+  }, []);
 
-  const deleteSimpanan = (id: string) => {
+  const deleteSimpanan = useCallback((id: string) => {
     setSimpanans(prev => prev.filter(s => s.id !== id));
-  };
+  }, []);
 
-  const addTransaksi = (data: Omit<Transaksi, 'id'>) => {
+  const addTransaksi = useCallback((data: Omit<Transaksi, 'id'>) => {
     setTransactions(prev => [...prev, { ...data, id: generateId() }]);
-    
-    if (data.jenis === 'pembayaran') {
-      setPinjamans(prev => prev.map(p => {
-        if (p.id === data.referensiId) {
-          const baru = p.sudahDibayar + data.jumlah;
-          const lunas = baru >= p.totalPembayaran;
-          return {
-            ...p,
-            sudahDibayar: baru,
-            status: lunas ? 'lunas' : p.status
-          };
-        }
-        return p;
-      }));
-    }
-  };
+  }, []);
 
-  const deleteTransaksi = (id: string) => {
+  const deleteTransaksi = useCallback((id: string) => {
     setTransactions(prev => prev.filter(t => t.id !== id));
-  };
+  }, []);
 
-  const getLaporanKeuangan = (): LaporanKeuangan => {
-    const anggotaAktif = anggota.filter(a => a.status === 'aktif');
-    const pinjamansAktif = pinjamans.filter(p => p.status === 'aktif');
-    const simpanansAktif = simpanans.filter(s => s.status === 'aktif');
+  const addPengeluaran = useCallback((data: Omit<Pengeluaran, 'id'>) => {
+    setPengeluarans(prev => [...prev, { ...data, id: generateId() }]);
+  }, []);
+
+  const updatePengeluaran = useCallback((id: string, data: Partial<Pengeluaran>) => {
+    setPengeluarans(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
+  }, []);
+
+  const deletePengeluaran = useCallback((id: string) => {
+    setPengeluarans(prev => prev.filter(p => p.id !== id));
+  }, []);
+
+  const addPendapatan = useCallback((data: Omit<Pendapatan, 'id'>) => {
+    setPendapatans(prev => [...prev, { ...data, id: generateId() }]);
+  }, []);
+
+  const updatePendapatan = useCallback((id: string, data: Partial<Pendapatan>) => {
+    setPendapatans(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
+  }, []);
+
+  const deletePendapatan = useCallback((id: string) => {
+    setPendapatans(prev => prev.filter(p => p.id !== id));
+  }, []);
+
+  const getLaporanKeuangan = useCallback((): LaporanKeuangan => {
+    const totalSimpanan = simpanans.filter(s => s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
+    const totalPinjamanAktif = pinjamans.filter(p => p.status === 'aktif').reduce((sum, p) => sum + p.jumlah, 0);
+    const totalPinjamanLunas = pinjamans.filter(p => p.status === 'lunas').length;
+    const totalPembayaran = pinjamans.reduce((sum, p) => sum + (p.sudahDibayar || 0), 0);
 
     return {
-      totalSimpanan: simpanansAktif.reduce((sum, s) => sum + s.jumlah, 0),
-      totalPinjaman: pinjamans.reduce((sum, p) => sum + p.jumlah, 0),
-      totalPinjamanAktif: pinjamansAktif.reduce((sum, p) => sum + p.jumlah, 0),
-      totalPinjamanLunas: pinjamans.filter(p => p.status === 'lunas').length,
-      totalPembayaranPinjaman: pinjamans.reduce((sum, p) => sum + p.sudahDibayar, 0),
-      jumlahAnggotaAktif: anggotaAktif.length,
-      jumlahPinjamanAktif: pinjamansAktif.length,
-      jumlahSimpananAktif: simpanansAktif.length,
+      totalSimpanan,
+      totalPinjaman: totalPinjamanAktif,
+      totalPinjamanAktif,
+      totalPinjamanLunas,
+      totalPembayaranPinjaman: totalPembayaran,
+      jumlahAnggotaAktif: anggota.filter(a => a.status === 'aktif').length,
+      jumlahPinjamanAktif: pinjamans.filter(p => p.status === 'aktif').length,
+      jumlahSimpananAktif: simpanans.filter(s => s.status === 'aktif').length,
     };
-  };
+  }, [anggota, pinjamans, simpanans]);
 
-  const getAnggotaById = (id: string) => anggota.find(a => a.id === id);
+  const getAnggotaById = useCallback((id: string) => {
+    return anggota.find(a => a.id === id);
+  }, [anggota]);
 
-  const bulkUpdateTanggalJoin = (startNBA: number, endNBA: number, tanggal: string) => {
+  const bulkUpdateTanggalJoin = useCallback((startNBA: number, endNBA: number, tanggal: string) => {
     setAnggota(prev => prev.map(a => {
       const nbaNum = parseInt(a.nomorNBA);
       if (!isNaN(nbaNum) && nbaNum >= startNBA && nbaNum <= endNBA) {
@@ -272,33 +203,9 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       }
       return a;
     }));
-  };
+  }, []);
 
-  const addPengeluaran = (data: Omit<Pengeluaran, 'id'>) => {
-    setPengeluarans(prev => [...prev, { ...data, id: generateId() }]);
-  };
-
-  const updatePengeluaran = (id: string, data: Partial<Pengeluaran>) => {
-    setPengeluarans(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
-  };
-
-  const deletePengeluaran = (id: string) => {
-    setPengeluarans(prev => prev.filter(p => p.id !== id));
-  };
-
-  const addPendapatan = (data: Omit<Pendapatan, 'id'>) => {
-    setPendapatans(prev => [...prev, { ...data, id: generateId() }]);
-  };
-
-  const updatePendapatan = (id: string, data: Partial<Pendapatan>) => {
-    setPendapatans(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
-  };
-
-  const deletePendapatan = (id: string) => {
-    setPendapatans(prev => prev.filter(p => p.id !== id));
-  };
-
-  const bulkUpdateUangBuku = (startNBA: number, endNBA: number, jumlah: number) => {
+  const bulkUpdateUangBuku = useCallback((startNBA: number, endNBA: number, jumlah: number) => {
     setAnggota(prev => prev.map(a => {
       const nbaNum = parseInt(a.nomorNBA);
       if (!isNaN(nbaNum) && nbaNum >= startNBA && nbaNum <= endNBA) {
@@ -306,9 +213,9 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       }
       return a;
     }));
-  };
+  }, []);
 
-  const fixSimpananTanggal = () => {
+  const fixSimpananTanggal = useCallback(() => {
     setSimpanans(prev => prev.map(s => {
       const ag = anggota.find(a => a.id === s.anggotaId);
       if (ag && ag.tanggalJoin && (s.jenis === 'pokok' || s.jenis === 'wajib')) {
@@ -316,7 +223,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       }
       return s;
     }));
-  };
+  }, [anggota]);
 
   return (
     <KSPContext.Provider value={{
@@ -358,7 +265,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
 export function useKSP() {
   const context = useContext(KSPContext);
   if (!context) {
-    throw new Error('useKSP must be used within KSPProvider');
+    throw new Error('useKSP must be used within a KSPProvider');
   }
   return context;
 }
