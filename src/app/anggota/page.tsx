@@ -529,7 +529,76 @@ export default function AnggotaPage() {
               <div>tanggalJoin</div><div>tglMasuk</div><div>tanggalMasuk</div>
             </div>
             <p className="text-blue-600 mt-2 text-xs">Kolom bisa menggunakan huruf besar/kecil campuran (contoh: Nama, nama, NAMA)</p>
-            <a href="/contoh_import_anggota.csv" download className="inline-block mt-2 text-blue-700 underline text-xs">Download contoh CSV (format: dd-mm-yyyy)</a>
+            <div className="flex gap-4 mt-2">
+              <a href="/contoh_import_anggota.csv" download className="text-blue-700 underline text-xs">📄 Download contoh CSV</a>
+              <button 
+                onClick={() => {
+                  const contohData = [
+                    {
+                      nama: 'Budi Santoso',
+                      nik: '1234567890123456',
+                      nomorNBA: '1',
+                      jenisKelamin: 'L',
+                      tempatLahir: 'Jakarta',
+                      tanggalLahir: '15-03-1985',
+                      agama: 'Islam',
+                      alamat: 'Jl. Merdeka No. 10',
+                      alamatDomisili: 'Jl. Merdeka No. 10',
+                      statusPerkawinan: 'kawin',
+                      namaPasangan: 'Siti Rahayu',
+                      jumlahAnak: '2',
+                      namaIbuKandung: 'Ratna',
+                      namaSaudara: 'Sudrajat',
+                      noHpSaudara: '081234567890',
+                      pekerjaan: 'karyawan_swasta',
+                      pendapatanPerbulan: '5jt_10jt',
+                      statusRumah: 'rumah_sendiri',
+                      namaReferensi: 'Samudera Ginting S.H',
+                      simpananPokok: 100000,
+                      simpananWajib: 50000,
+                      uangBuku: 25000,
+                      jenisPembayaran: 'tunai',
+                      telefon: '0812345678',
+                      tanggalJoin: '09-11-2023',
+                    },
+                    {
+                      nama: 'Ani Wijaya',
+                      nik: '2345678901234567',
+                      nomorNBA: '2',
+                      jenisKelamin: 'P',
+                      tempatLahir: 'Bandung',
+                      tanggalLahir: '22-07-1990',
+                      agama: 'Islam',
+                      alamat: 'Jl. Asia Afrika No. 5',
+                      alamatDomisili: 'Jl. Asia Afrika No. 5',
+                      statusPerkawinan: 'kawin',
+                      namaPasangan: 'Ahmad Fauzi',
+                      jumlahAnak: '1',
+                      namaIbuKandung: 'Siti Aminah',
+                      namaSaudara: 'Tono',
+                      noHpSaudara: '081234567891',
+                      pekerjaan: 'pns',
+                      pendapatanPerbulan: '5jt_10jt',
+                      statusRumah: 'rumah_sendiri',
+                      namaReferensi: 'Ahmad Dahlan Surbakti A.md',
+                      simpananPokok: 100000,
+                      simpananWajib: 50000,
+                      uangBuku: 25000,
+                      jenisPembayaran: 'tunai',
+                      telefon: '0812345679',
+                      tanggalJoin: '09-11-2023',
+                    },
+                  ];
+                  const ws = XLSX.utils.json_to_sheet(contohData);
+                  const wb = XLSX.utils.book_new();
+                  XLSX.utils.book_append_sheet(wb, ws, 'Anggota');
+                  XLSX.writeFile(wb, 'contoh_import_anggota.xlsx');
+                }}
+                className="text-blue-700 underline text-xs bg-transparent border-none cursor-pointer"
+              >
+                📊 Download contoh Excel
+              </button>
+            </div>
           </div>
 
           <div className="mb-4">
