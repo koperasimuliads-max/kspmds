@@ -112,6 +112,10 @@ export default function AnggotaPage() {
   const [showTanggalForm, setShowTanggalForm] = useState(false);
   const [tanggalForm, setTanggalForm] = useState({ startNBA: 1, endNBA: 25, tanggal: '2023-11-09' });
   const [filterStatus, setFilterStatus] = useState<'all' | 'aktif' | 'nonaktif'>('all');
+  const [filterJenisKelamin, setFilterJenisKelamin] = useState<'all' | 'L' | 'P'>('all');
+  const [filterPekerjaan, setFilterPekerjaan] = useState('all');
+  const [filterTanggalFrom, setFilterTanggalFrom] = useState('');
+  const [filterTanggalTo, setFilterTanggalTo] = useState('');
   
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
   
@@ -121,9 +125,18 @@ export default function AnggotaPage() {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [viewMode, setViewMode] = useState<'data' | 'tambah'>('data');
   
-  const filteredAnggota = filterStatus === 'all' 
-    ? anggota 
-    : anggota.filter(a => a.status === filterStatus);
+  const filteredAnggota = anggota.filter(a => {
+    if (filterStatus !== 'all' && a.status !== filterStatus) return false;
+    if (filterJenisKelamin !== 'all' && a.jenisKelamin !== filterJenisKelamin) return false;
+    if (filterPekerjaan !== 'all' && a.pekerjaan !== filterPekerjaan) return false;
+    if (filterTanggalFrom && a.tanggalJoin) {
+      if (new Date(a.tanggalJoin) < new Date(filterTanggalFrom)) return false;
+    }
+    if (filterTanggalTo && a.tanggalJoin) {
+      if (new Date(a.tanggalJoin) > new Date(filterTanggalTo)) return false;
+    }
+    return true;
+  });
   
   const displayAnggota = searchQuery.trim() 
     ? filteredAnggota.filter(a => {
@@ -410,10 +423,43 @@ export default function AnggotaPage() {
               onChange={e => setFilterStatus(e.target.value as any)}
               className="border p-2 rounded"
             >
-              <option value="all">Semua</option>
+              <option value="all">Semua Status</option>
               <option value="aktif">Aktif</option>
               <option value="nonaktif">Keluar</option>
             </select>
+            <select
+              value={filterJenisKelamin}
+              onChange={e => setFilterJenisKelamin(e.target.value as any)}
+              className="border p-2 rounded"
+            >
+              <option value="all">Semua JK</option>
+              <option value="L">Laki-laki</option>
+              <option value="P">Perempuan</option>
+            </select>
+            <select
+              value={filterPekerjaan}
+              onChange={e => setFilterPekerjaan(e.target.value)}
+              className="border p-2 rounded"
+            >
+              <option value="all">Semua Pekerjaan</option>
+              {pekerjaanOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <input
+              type="date"
+              value={filterTanggalFrom}
+              onChange={e => setFilterTanggalFrom(e.target.value)}
+              className="border p-2 rounded"
+              placeholder="Dari tgl"
+            />
+            <input
+              type="date"
+              value={filterTanggalTo}
+              onChange={e => setFilterTanggalTo(e.target.value)}
+              className="border p-2 rounded"
+              placeholder="Sampai tgl"
+            />
             <button
               onClick={() => setShowImport(!showImport)}
               className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
