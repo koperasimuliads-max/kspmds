@@ -77,6 +77,7 @@ const pekerjaanOptions = [
   { value: 'nelayan', label: 'Nelayan' },
   { value: 'tukang', label: 'Tukang' },
   { value: 'sopir', label: 'Sopir' },
+  { value: 'ibu_rumah_tangga', label: 'Ibu Rumah Tangga' },
   { value: 'lainnya', label: 'Lainnya' },
 ];
 
