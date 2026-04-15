@@ -99,28 +99,34 @@ export function KSPProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (!isHydrated) return;
     localStorage.setItem('ksp_anggota', JSON.stringify(anggota));
-  }, [anggota]);
+  }, [anggota, isHydrated]);
 
   useEffect(() => {
+    if (!isHydrated) return;
     localStorage.setItem('ksp_pinjamans', JSON.stringify(pinjamans));
-  }, [pinjamans]);
+  }, [pinjamans, isHydrated]);
 
   useEffect(() => {
+    if (!isHydrated) return;
     localStorage.setItem('ksp_simpanans', JSON.stringify(simpanans));
-  }, [simpanans]);
+  }, [simpanans, isHydrated]);
 
   useEffect(() => {
+    if (!isHydrated) return;
     localStorage.setItem('ksp_transactions', JSON.stringify(transactions));
-  }, [transactions]);
+  }, [transactions, isHydrated]);
 
   useEffect(() => {
+    if (!isHydrated) return;
     localStorage.setItem('ksp_pengeluarans', JSON.stringify(pengeluarans));
-  }, [pengeluarans]);
+  }, [pengeluarans, isHydrated]);
 
   useEffect(() => {
+    if (!isHydrated) return;
     localStorage.setItem('ksp_pendapatans', JSON.stringify(pendapatans));
-  }, [pendapatans]);
+  }, [pendapatans, isHydrated]);
 
   const addAnggota = useCallback((data: Omit<Anggota, 'id'>) => {
     setAnggota(prev => [...prev, { ...data, id: generateId() }]);
