@@ -26,11 +26,20 @@ export default function PendapatanPage() {
   const [editForm, setEditForm] = useState({ jumlah: 0, deskripsi: '' });
   const [showTambah, setShowTambah] = useState(false);
   const [tambahForm, setTambahForm] = useState({ jenis: 'uang_buku', deskripsi: '', jumlah: 0, tanggal: '2024-01-01' });
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+
+  const allTahun = Array.from(new Set([
+    ...pendapatans.map(p => new Date(p.tanggal).getFullYear()),
+    ...pengeluarans.map(p => new Date(p.tanggal).getFullYear()),
+  ])).sort((a, b) => b - a);
+
+  const filteredPendapatans = selectedYear ? pendapatans.filter(p => new Date(p.tanggal).getFullYear() === selectedYear) : pendapatans;
+  const filteredPengeluarans = selectedYear ? pengeluarans.filter(p => new Date(p.tanggal).getFullYear() === selectedYear) : pengeluarans;
 
   const uangBukuTotal = anggota.reduce((sum, a) => sum + (a.uangBuku || 0), 0);
   const anggotaWithUangBuku = anggota.filter(a => a.uangBuku > 0);
-  const totalPendapatan = pendapatans.reduce((sum, p) => sum + p.jumlah, 0);
-  const totalPengeluaran = pengeluarans.reduce((sum, p) => sum + p.jumlah, 0);
+  const totalPendapatan = filteredPendapatans.reduce((sum, p) => sum + p.jumlah, 0);
+  const totalPengeluaran = filteredPengeluarans.reduce((sum, p) => sum + p.jumlah, 0);
 
   const handleEditStart = (id: string, currentJumlah: number, currentDeskripsi: string, type: 'pendapatan' | 'pengeluaran') => {
     setEditForm({ jumlah: currentJumlah, deskripsi: currentDeskripsi || '' });
@@ -67,6 +76,17 @@ export default function PendapatanPage() {
         <div className="flex items-center gap-4 mb-6 no-print">
           <BackButton />
           <h1 className="text-2xl font-bold text-slate-800">Pendapatan & Pengeluaran</h1>
+          {allTahun.length > 0 && (
+            <select
+              value={selectedYear}
+              onChange={e => setSelectedYear(Number(e.target.value))}
+              className="ml-auto border p-2 rounded"
+            >
+              {allTahun.map(t => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          )}
         </div>
 
         <div className="flex gap-2 mb-4 no-print">
@@ -146,15 +166,15 @@ export default function PendapatanPage() {
         </div>
         
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-          <p className="text-sm text-slate-500">Total Pendapatan</p>
+          <p className="text-sm text-slate-500">Total Pendapatan {selectedYear ? `(${selectedYear})` : ''}</p>
           <p className="text-2xl font-bold text-blue-600">{formatRupiah(totalPendapatan)}</p>
-          <p className="text-sm text-slate-500">{pendapatans.length} transaksi</p>
+          <p className="text-sm text-slate-500">{filteredPendapatans.length} transaksi</p>
         </div>
         
         <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
-          <p className="text-sm text-slate-500">Total Pengeluaran</p>
+          <p className="text-sm text-slate-500">Total Pengeluaran {selectedYear ? `(${selectedYear})` : ''}</p>
           <p className="text-2xl font-bold text-red-600">{formatRupiah(totalPengeluaran)}</p>
-          <p className="text-sm text-slate-500">{pengeluarans.length} transaksi</p>
+          <p className="text-sm text-slate-500">{filteredPengeluarans.length} transaksi</p>
         </div>
       </div>
 
@@ -174,10 +194,10 @@ export default function PendapatanPage() {
                 </tr>
               </thead>
               <tbody>
-                {pendapatans.length === 0 ? (
+                {filteredPendapatans.length === 0 ? (
                   <tr><td colSpan={6} className="text-center p-4 text-slate-500">Belum ada pendapatan</td></tr>
                 ) : (
-                  pendapatans.map((p, index) => (
+                  filteredPendapatans.map((p, index) => (
                     <tr key={p.id} className="border-b hover:bg-slate-50">
                       <td className="p-2 text-center text-slate-500">{index + 1}</td>
                       <td className="p-2">{formatDate(p.tanggal)}</td>
@@ -239,10 +259,10 @@ export default function PendapatanPage() {
                 </tr>
               </thead>
               <tbody>
-                {pengeluarans.length === 0 ? (
+                {filteredPengeluarans.length === 0 ? (
                   <tr><td colSpan={6} className="text-center p-4 text-slate-500">Belum ada pengeluaran</td></tr>
                 ) : (
-                  pengeluarans.map((p, index) => (
+                  filteredPengeluarans.map((p, index) => (
                     <tr key={p.id} className="border-b hover:bg-slate-50">
                       <td className="p-2 text-center text-slate-500">{index + 1}</td>
                       <td className="p-2">{formatDate(p.tanggal)}</td>

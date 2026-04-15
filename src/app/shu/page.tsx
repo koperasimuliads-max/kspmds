@@ -15,14 +15,14 @@ function useHydrated() {
 export default function SHUPerAnggotaPage() {
   const { anggota, pinjamans, simpanans, pendapatans, pengeluarans } = useKSP();
   const hydrated = useHydrated();
-  const [expandedYears, setExpandedYears] = useState<number[]>([2023, 2024, 2025, 2026]);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
-  const toggleYear = (tahun: number) => {
-    setExpandedYears(prev => prev.includes(tahun) ? prev.filter(t => t !== tahun) : [...prev, tahun]);
-  };
+  const allTahun = Array.from(new Set([
+    ...pendapatans.map(p => new Date(p.tanggal).getFullYear()),
+    ...pengeluarans.map(p => new Date(p.tanggal).getFullYear()),
+  ])).sort((a, b) => b - a);
 
-  const allTahun = [2023, 2024, 2025, 2026];
+  const availableTahun = allTahun.length > 0 ? allTahun : [2023, 2024, 2025, 2026];
 
   const hitungSHUPerTahun = (tahun: number) => {
     const pendapatanTahun = pendapatans.filter((p: any) => new Date(p.tanggal).getFullYear() === tahun).reduce((sum: number, p: any) => sum + p.jumlah, 0);
@@ -77,7 +77,7 @@ export default function SHUPerAnggotaPage() {
           onChange={e => setSelectedYear(Number(e.target.value))}
           className="ml-auto border p-2 rounded"
         >
-          {allTahun.map(t => (
+          {availableTahun.map(t => (
             <option key={t} value={t}>{t}</option>
           ))}
         </select>
