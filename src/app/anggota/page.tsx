@@ -187,16 +187,14 @@ export default function AnggotaPage() {
           updateAnggota(a.id, { pekerjaan: 'wiraswasta' });
           countPekerjaan++;
         }
-        if (a.simpananWajib === 50000) {
+        const simpananWajib = Number(a.simpananWajib);
+        if (simpananWajib >= 50000) {
           updateAnggota(a.id, { simpananWajib: 25000 });
           countSimpanan++;
         }
       });
-      if (countPekerjaan > 0) {
-        console.log(`Berhasil mengubah ${countPekerjaan} anggota dari pedagang ke wiraswasta`);
-      }
-      if (countSimpanan > 0) {
-        console.log(`Berhasil mengubah ${countSimpanan} anggota simpanan wajib dari 50000 ke 25000`);
+      if (countPekerjaan > 0 || countSimpanan > 0) {
+        alert(`Data diperbaiki:\n- Pekerjaan pedagang→wiraswasta: ${countPekerjaan}\n- Simpanan wajib 50rb→25rb: ${countSimpanan}`);
       }
     };
     if (anggota.length > 0) {
