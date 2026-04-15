@@ -880,22 +880,30 @@ export default function AnggotaPage() {
           <p className="text-sm text-slate-500 mb-4">
             Ubah pekerjaan semua anggota dari pekerjaan lama ke pekerjaan baru secara sekaligus.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Pekerjaan Lama (Dari)</label>
-              <select
-                value={bulkFromPekerjaan}
-                onChange={e => setBulkFromPekerjaan(e.target.value)}
-                className="border p-2 rounded w-full"
-              >
-                <option value="">Pilih Pekerjaan Lama</option>
-                {pekerjaanOptions.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Pekerjaan Lama (Dari)</label>
+              <div className="flex flex-wrap gap-2">
+                {Array.from(new Set(anggota.map(a => a.pekerjaan).filter(Boolean))).map(job => {
+                  const count = anggota.filter(a => a.pekerjaan === job).length;
+                  const isSelected = bulkFromPekerjaan === job;
+                  return (
+                    <button
+                      key={job}
+                      onClick={() => setBulkFromPekerjaan(isSelected ? '' : job)}
+                      className={`px-3 py-1 rounded-full text-sm border ${isSelected ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'}`}
+                    >
+                      {getLabel(pekerjaanOptions, job) || job} ({count})
+                    </button>
+                  );
+                })}
+              </div>
+              {bulkFromPekerjaan && (
+                <p className="text-xs text-purple-600 mt-1">Terpilih: {getLabel(pekerjaanOptions, bulkFromPekerjaan)}</p>
+              )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Pekerjaan Baru (Menjadi)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Pekerjaan Baru (Menjadi)</label>
               <select
                 value={bulkToPekerjaan}
                 onChange={e => setBulkToPekerjaan(e.target.value)}
@@ -907,8 +915,9 @@ export default function AnggotaPage() {
                 ))}
               </select>
             </div>
-            <div className="flex items-end gap-2">
-              <button
+          </div>
+          <div className="mt-4 flex gap-2">
+            <button
                 onClick={() => {
                   if (!bulkFromPekerjaan || !bulkToPekerjaan) {
                     alert('Mohon pilih pekerjaan lama dan pekerjaan baru!');
@@ -945,7 +954,6 @@ export default function AnggotaPage() {
               >
                 Batal
               </button>
-            </div>
           </div>
           <p className="text-xs text-slate-500 mt-3">
             Contoh: Ubah semua &quot;Ibu Rumah Tangga&quot; → &quot;Mengurus Rumah Tangga&quot;
