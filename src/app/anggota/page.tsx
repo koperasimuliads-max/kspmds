@@ -144,6 +144,9 @@ export default function AnggotaPage() {
   const [filterPekerjaan, setFilterPekerjaan] = useState('all');
   const [filterTanggalFrom, setFilterTanggalFrom] = useState('');
   const [filterTanggalTo, setFilterTanggalTo] = useState('');
+  const [showBulkUpdate, setShowBulkUpdate] = useState(false);
+  const [bulkFromPekerjaan, setBulkFromPekerjaan] = useState('');
+  const [bulkToPekerjaan, setBulkToPekerjaan] = useState('');
   
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
   
@@ -493,6 +496,12 @@ export default function AnggotaPage() {
               className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
             >
               📥 Import
+            </button>
+            <button
+              onClick={() => setShowBulkUpdate(!showBulkUpdate)}
+              className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+            >
+              🔄 Ubah Pekerjaan Massal
             </button>
             <button
               onClick={() => {
@@ -862,6 +871,85 @@ export default function AnggotaPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {showBulkUpdate && (
+        <div className="bg-white p-4 rounded-lg shadow mb-4 border-l-4 border-purple-500">
+          <h2 className="font-semibold mb-3">🔄 Ubah Pekerjaan Massal</h2>
+          <p className="text-sm text-slate-500 mb-4">
+            Ubah pekerjaan semua anggota dari pekerjaan lama ke pekerjaan baru secara sekaligus.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Pekerjaan Lama (Dari)</label>
+              <select
+                value={bulkFromPekerjaan}
+                onChange={e => setBulkFromPekerjaan(e.target.value)}
+                className="border p-2 rounded w-full"
+              >
+                <option value="">Pilih Pekerjaan Lama</option>
+                {pekerjaanOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Pekerjaan Baru (Menjadi)</label>
+              <select
+                value={bulkToPekerjaan}
+                onChange={e => setBulkToPekerjaan(e.target.value)}
+                className="border p-2 rounded w-full"
+              >
+                <option value="">Pilih Pekerjaan Baru</option>
+                {pekerjaanOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-end gap-2">
+              <button
+                onClick={() => {
+                  if (!bulkFromPekerjaan || !bulkToPekerjaan) {
+                    alert('Mohon pilih pekerjaan lama dan pekerjaan baru!');
+                    return;
+                  }
+                  const count = anggota.filter(a => a.pekerjaan === bulkFromPekerjaan).length;
+                  if (count === 0) {
+                    alert('Tidak ada anggota dengan pekerjaan tersebut!');
+                    return;
+                  }
+                  if (confirm(`Yakin ingin mengubah ${count} anggota dari "${getLabel(pekerjaanOptions, bulkFromPekerjaan)}" menjadi "${getLabel(pekerjaanOptions, bulkToPekerjaan)}"?`)) {
+                    anggota.forEach(a => {
+                      if (a.pekerjaan === bulkFromPekerjaan) {
+                        updateAnggota(a.id, { pekerjaan: bulkToPekerjaan });
+                      }
+                    });
+                    alert(`Berhasil mengubah ${count} anggota!`);
+                    setShowBulkUpdate(false);
+                    setBulkFromPekerjaan('');
+                    setBulkToPekerjaan('');
+                  }
+                }}
+                className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+              >
+                🔄 Jalankan Perubahan
+              </button>
+              <button
+                onClick={() => {
+                  setShowBulkUpdate(false);
+                  setBulkFromPekerjaan('');
+                  setBulkToPekerjaan('');
+                }}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+          <p className="text-xs text-slate-500 mt-3">
+            Contoh: Ubah semua &quot;Ibu Rumah Tangga&quot; → &quot;Mengurus Rumah Tangga&quot;
+          </p>
         </div>
       )}
 
