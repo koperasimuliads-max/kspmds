@@ -73,7 +73,7 @@ const pekerjaanOptions = [
   { value: 'karyawan_swasta', label: 'Karyawan Swasta' },
   { value: 'karyawan_negeri', label: 'Karyawan Negeri' },
   { value: 'wiraswasta', label: 'Wiraswasta' },
-  { value: 'petani', label: 'Petani' },
+  { value: 'petani', label: 'Petani/Pekebun' },
   { value: 'nelayan', label: 'Nelayan' },
   { value: 'tukang', label: 'Tukang' },
   { value: 'sopir', label: 'Sopir' },
