@@ -16,6 +16,7 @@ export default function SHUPerAnggotaPage() {
   const { anggota, pinjamans, simpanans, pendapatans, pengeluarans } = useKSP();
   const hydrated = useHydrated();
   const [expandedYears, setExpandedYears] = useState<number[]>([2023, 2024, 2025, 2026]);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
   const toggleYear = (tahun: number) => {
     setExpandedYears(prev => prev.includes(tahun) ? prev.filter(t => t !== tahun) : [...prev, tahun]);
@@ -60,15 +61,22 @@ export default function SHUPerAnggotaPage() {
     }).sort((a, b) => b.totalSHU - a.totalSHU);
   };
 
-  const totalPendapatan = pendapatans.reduce((sum: number, p: any) => sum + p.jumlah, 0);
-  const totalPengeluaran = pengeluarans.reduce((sum: number, p) => sum + p.jumlah, 0);
-  const totalSHU = totalPendapatan - totalPengeluaran;
+  const { pendapatan: pendPerTahun, pengeluaran: pengPerTahun, shu: shuPerTahun } = hitungSHUPerTahun(selectedYear);
 
   return (
     <div>
       <div className="flex items-center gap-4 mb-4">
         <BackButton />
         <h1 className="text-2xl font-bold text-slate-800">SHU Per Anggota</h1>
+        <select
+          value={selectedYear}
+          onChange={e => setSelectedYear(Number(e.target.value))}
+          className="ml-auto border p-2 rounded"
+        >
+          {allTahun.map(t => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
         <button
           onClick={() => {
             if (confirm('Yakin ingin menghapus semua data anggota, simpanan, dan pinjaman? Data tidak bisa dikembalikan!')) {
@@ -81,7 +89,7 @@ export default function SHUPerAnggotaPage() {
               window.location.reload();
             }
           }}
-          className="ml-auto bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm"
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm"
         >
           🗑️ Reset Semua Data
         </button>
@@ -95,13 +103,13 @@ export default function SHUPerAnggotaPage() {
         <>
           <div className="bg-blue-50 p-4 rounded-lg mb-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-blue-800">📊 RINGKASAN DATA KSP</h3>
+          <h3 className="font-semibold text-blue-800">📊 RINGKASAN DATA KSP - TAHUN {selectedYear}</h3>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div className="bg-white p-3 rounded"><p className="text-slate-500 text-xs">Total Anggota</p><p className="text-xl font-bold">{anggota.length}</p></div>
-          <div className="bg-white p-3 rounded"><p className="text-slate-500 text-xs">Total Pendapatan</p><p className="text-xl font-bold text-green-600">{formatRupiah(totalPendapatan)}</p></div>
-          <div className="bg-white p-3 rounded"><p className="text-slate-500 text-xs">Total Pengeluaran</p><p className="text-xl font-bold text-red-600">{formatRupiah(totalPengeluaran)}</p></div>
-          <div className="bg-white p-3 rounded"><p className="text-slate-500 text-xs">Total SHU</p><p className="text-xl font-bold text-blue-600">{formatRupiah(totalSHU)}</p></div>
+          <div className="bg-white p-3 rounded"><p className="text-slate-500 text-xs">Total Anggota Aktif</p><p className="text-xl font-bold">{anggota.filter(a => a.status === 'aktif').length}</p></div>
+          <div className="bg-white p-3 rounded"><p className="text-slate-500 text-xs">Pendapatan</p><p className="text-xl font-bold text-green-600">{formatRupiah(pendPerTahun)}</p></div>
+          <div className="bg-white p-3 rounded"><p className="text-slate-500 text-xs">Pengeluaran</p><p className="text-xl font-bold text-red-600">{formatRupiah(pengPerTahun)}</p></div>
+          <div className="bg-white p-3 rounded"><p className="text-slate-500 text-xs">SHU Tahun {selectedYear}</p><p className="text-xl font-bold text-blue-600">{formatRupiah(shuPerTahun)}</p></div>
         </div>
       </div>
 
