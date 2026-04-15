@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useKSP } from '@/context/KSPContext';
 import BackButton from '@/components/BackButton';
 
@@ -9,6 +10,7 @@ function formatRupiah(amount: number): string {
 
 export default function LaporanPage() {
   const { anggota, pinjamans, simpanans, pendapatans, pengeluarans, getLaporanKeuangan } = useKSP();
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const laporan = getLaporanKeuangan();
 
   const simpananByJenis = {
@@ -22,9 +24,16 @@ export default function LaporanPage() {
 
   const totalSimpanan = Object.values(simpananByJenis).reduce((a, b) => a + b, 0);
   const totalPinjamanAktif = pinjamans.filter(p => p.status === 'aktif').reduce((sum, p) => sum + p.jumlah, 0);
+  const totalPinjamanLunas = pinjamans.filter(p => p.status === 'lunas').reduce((sum, p) => sum + p.jumlah, 0);
+  const totalPinjamanMacet = pinjamans.filter(p => p.status === 'macet').reduce((sum, p) => sum + p.jumlah, 0);
+
   const totalPendapatan = pendapatans.reduce((sum, p) => sum + p.jumlah, 0);
   const totalPengeluaran = pengeluarans.reduce((sum, p) => sum + p.jumlah, 0);
   const shNet = totalPendapatan - totalPengeluaran;
+
+  const pendapatanPerTahun = pendapatans.filter(p => new Date(p.tanggal).getFullYear() === selectedYear).reduce((sum, p) => sum + p.jumlah, 0);
+  const pengeluaranPerTahun = pengeluarans.filter(p => new Date(p.tanggal).getFullYear() === selectedYear).reduce((sum, p) => sum + p.jumlah, 0);
+  const shNetPerTahun = pendapatanPerTahun - pengeluaranPerTahun;
 
   const shuDistribution = shNet > 0 ? {
     dana_cadangan_umum: shNet * 0.05,
@@ -83,15 +92,55 @@ export default function LaporanPage() {
 
   const shuPerAnggota = hitungSHUAnggota();
 
-  const today = '14 April 2026';
+  const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  const tahunOptions = Array.from(new Set([
+    ...anggota.map(a => a.tanggalJoin ? new Date(a.tanggalJoin).getFullYear() : 2024),
+    ...pendapatans.map(p => new Date(p.tanggal).getFullYear()),
+    ...pengeluarans.map(p => new Date(p.tanggal).getFullYear()),
+  ])).sort((a, b) => b - a);
 
   return (
     <div>
       <div className="flex items-center gap-4 mb-2">
         <BackButton />
         <h1 className="text-2xl font-bold text-slate-800">Laporan Keuangan</h1>
+        <select
+          value={selectedYear}
+          onChange={e => setSelectedYear(Number(e.target.value))}
+          className="ml-auto border p-2 rounded"
+        >
+          {tahunOptions.map(t => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
       </div>
-      <p className="text-slate-500 mb-6">KSP Mulia Dana Sejahtera - per {today}</p>
+      <p className="text-slate-500 mb-4">KSP Mulia Dana Sejahtera - per {today}</p>
+
+      <div className="bg-white p-4 rounded-lg shadow mb-6">
+        <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">📊 NERACA PER TAHUN {selectedYear}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-3 bg-blue-50 rounded">
+            <p className="text-blue-700 text-sm font-medium">Pendapatan Tahun {selectedYear}</p>
+            <p className="text-xl font-bold text-blue-800">{formatRupiah(pendapatanPerTahun)}</p>
+            <p className="text-xs text-blue-600 mt-1">{pendapatans.filter(p => new Date(p.tanggal).getFullYear() === selectedYear).length} transaksi</p>
+          </div>
+          <div className="p-3 bg-red-50 rounded">
+            <p className="text-red-700 text-sm font-medium">Pengeluaran Tahun {selectedYear}</p>
+            <p className="text-xl font-bold text-red-800">{formatRupiah(pengeluaranPerTahun)}</p>
+            <p className="text-xs text-red-600 mt-1">{pengeluarans.filter(p => new Date(p.tanggal).getFullYear() === selectedYear).length} transaksi</p>
+          </div>
+          <div className={`p-3 rounded ${shNetPerTahun >= 0 ? 'bg-green-50' : 'bg-orange-50'}`}>
+            <p className={`text-sm font-medium ${shNetPerTahun >= 0 ? 'text-green-700' : 'text-orange-700'}`}>SHU Tahun {selectedYear}</p>
+            <p className={`text-xl font-bold ${shNetPerTahun >= 0 ? 'text-green-800' : 'text-orange-800'}`}>{formatRupiah(shNetPerTahun)}</p>
+          </div>
+          <div className="p-3 bg-purple-50 rounded">
+            <p className="text-purple-700 text-sm font-medium">Total Semua Pendapatan</p>
+            <p className="text-xl font-bold text-purple-800">{formatRupiah(totalPendapatan)}</p>
+            <p className="text-xs text-purple-600 mt-1">Semua tahun</p>
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow">
@@ -110,9 +159,10 @@ export default function LaporanPage() {
         <div className="bg-white p-4 rounded-lg shadow">
           <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">PIUTANG</h2>
           <div className="space-y-1 text-sm">
-            <p className="flex justify-between"><span>Pinjaman Aktif</span><span>{formatRupiah(totalPinjamanAktif)}</span></p>
-            <p className="flex justify-between"><span>Pinjaman Lunas</span><span>{pinjamans.filter(p => p.status === 'lunas').length} akun</span></p>
-            <p className="flex justify-between font-bold border-t pt-1"><span>TOTAL</span><span>{formatRupiah(totalPinjamanAktif)}</span></p>
+            <p className="flex justify-between"><span>Pinjaman Aktif</span><span className="text-blue-600">{formatRupiah(totalPinjamanAktif)}</span></p>
+            <p className="flex justify-between text-slate-500"><span>Pinjaman Lunas</span><span>{pinjamans.filter(p => p.status === 'lunas').length} akun</span></p>
+            <p className="flex justify-between text-slate-500"><span>Pinjaman Macet</span><span>{pinjamans.filter(p => p.status === 'macet').length} akun</span></p>
+            <p className="flex justify-between font-bold border-t pt-1"><span>TOTAL PIUTANG</span><span>{formatRupiah(totalPinjamanAktif + totalPinjamanLunas + totalPinjamanMacet)}</span></p>
           </div>
         </div>
 
