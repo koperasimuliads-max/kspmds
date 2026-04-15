@@ -75,7 +75,6 @@ const pekerjaanOptions = [
   { value: 'wiraswasta', label: 'Wiraswasta' },
   { value: 'petani', label: 'Petani' },
   { value: 'nelayan', label: 'Nelayan' },
-  { value: 'pedagang', label: 'Pedagang' },
   { value: 'tukang', label: 'Tukang' },
   { value: 'sopir', label: 'Sopir' },
   { value: 'lainnya', label: 'Lainnya' },
