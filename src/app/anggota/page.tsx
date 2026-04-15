@@ -179,20 +179,28 @@ export default function AnggotaPage() {
     : filteredAnggota;
     
   useEffect(() => {
-    const fixPekerjaan = () => {
-      let count = 0;
+    const fixData = () => {
+      let countPekerjaan = 0;
+      let countSimpanan = 0;
       anggota.forEach(a => {
         if (a.pekerjaan === 'pedagang') {
           updateAnggota(a.id, { pekerjaan: 'wiraswasta' });
-          count++;
+          countPekerjaan++;
+        }
+        if (a.simpananWajib === 50000) {
+          updateAnggota(a.id, { simpananWajib: 25000 });
+          countSimpanan++;
         }
       });
-      if (count > 0) {
-        console.log(`Berhasil mengubah ${count} anggota dari pedagang ke wiraswasta`);
+      if (countPekerjaan > 0) {
+        console.log(`Berhasil mengubah ${countPekerjaan} anggota dari pedagang ke wiraswasta`);
+      }
+      if (countSimpanan > 0) {
+        console.log(`Berhasil mengubah ${countSimpanan} anggota simpanan wajib dari 50000 ke 25000`);
       }
     };
     if (anggota.length > 0) {
-      fixPekerjaan();
+      fixData();
     }
   }, [anggota, updateAnggota]);
 
@@ -656,7 +664,7 @@ export default function AnggotaPage() {
                       statusRumah: 'rumah_sendiri',
                       namaReferensi: 'Samudera Ginting S.H',
                       simpananPokok: 100000,
-                      simpananWajib: 50000,
+                      simpananWajib: 25000,
                       uangBuku: 25000,
                       jenisPembayaran: 'tunai',
                       telefon: '0812345678',
@@ -683,7 +691,7 @@ export default function AnggotaPage() {
                       statusRumah: 'rumah_sendiri',
                       namaReferensi: 'Ahmad Dahlan Surbakti A.md',
                       simpananPokok: 100000,
-                      simpananWajib: 50000,
+                      simpananWajib: 25000,
                       uangBuku: 25000,
                       jenisPembayaran: 'tunai',
                       telefon: '0812345679',
