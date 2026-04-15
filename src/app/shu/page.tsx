@@ -8,12 +8,6 @@ function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
 }
 
-const dummyPendapatans = [
-  { id: 'dummy-2023', jenis: 'uang_buku', deskripsi: 'Pendapatan tahun 2023', jumlah: 3000000, tanggal: '2023-12-31' },
-  { id: 'dummy-2024', jenis: 'uang_buku', deskripsi: 'Pendapatan tahun 2024', jumlah: 3000000, tanggal: '2024-12-31' },
-  { id: 'dummy-2025', jenis: 'uang_buku', deskripsi: 'Pendapatan tahun 2025', jumlah: 3000000, tanggal: '2025-12-31' },
-];
-
 function useHydrated() {
   return useSyncExternalStore(() => () => {}, () => true, () => false);
 }
@@ -27,14 +21,11 @@ export default function SHUPerAnggotaPage() {
     setExpandedYears(prev => prev.includes(tahun) ? prev.filter(t => t !== tahun) : [...prev, tahun]);
   };
 
-  const pendapatanData = pendapatans.length > 0 ? pendapatans : dummyPendapatans;
-  const isUsingDummy = pendapatans.length === 0;
-
   const allTahun = [2023, 2024, 2025, 2026];
 
   const hitungSHUPerTahun = (tahun: number) => {
-    const pendapatanTahun = pendapatanData.filter((p: any) => new Date(p.tanggal).getFullYear() === tahun).reduce((sum, p: any) => sum + p.jumlah, 0);
-    const pengeluaranTahun = pengeluarans.filter(p => new Date(p.tanggal).getFullYear() === tahun).reduce((sum, p) => sum + p.jumlah, 0);
+    const pendapatanTahun = pendapatans.filter((p: any) => new Date(p.tanggal).getFullYear() === tahun).reduce((sum: number, p: any) => sum + p.jumlah, 0);
+    const pengeluaranTahun = pengeluarans.filter(p => new Date(p.tanggal).getFullYear() === tahun).reduce((sum: number, p) => sum + p.jumlah, 0);
     return { pendapatan: pendapatanTahun, pengeluaran: pengeluaranTahun, shu: pendapatanTahun - pengeluaranTahun };
   };
 
@@ -69,8 +60,8 @@ export default function SHUPerAnggotaPage() {
     }).sort((a, b) => b.totalSHU - a.totalSHU);
   };
 
-  const totalPendapatan = pendapatanData.reduce((sum: number, p: any) => sum + p.jumlah, 0);
-  const totalPengeluaran = pengeluarans.reduce((sum, p) => sum + p.jumlah, 0);
+  const totalPendapatan = pendapatans.reduce((sum: number, p: any) => sum + p.jumlah, 0);
+  const totalPengeluaran = pengeluarans.reduce((sum: number, p) => sum + p.jumlah, 0);
   const totalSHU = totalPendapatan - totalPengeluaran;
 
   return (
@@ -105,7 +96,6 @@ export default function SHUPerAnggotaPage() {
           <div className="bg-blue-50 p-4 rounded-lg mb-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-blue-800">📊 RINGKASAN DATA KSP</h3>
-          {isUsingDummy && <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">⚠️ Data Sample</span>}
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div className="bg-white p-3 rounded"><p className="text-slate-500 text-xs">Total Anggota</p><p className="text-xl font-bold">{anggota.length}</p></div>
