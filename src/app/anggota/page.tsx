@@ -179,6 +179,24 @@ export default function AnggotaPage() {
     : filteredAnggota;
     
   useEffect(() => {
+    const fixPekerjaan = () => {
+      let count = 0;
+      anggota.forEach(a => {
+        if (a.pekerjaan === 'pedagang') {
+          updateAnggota(a.id, { pekerjaan: 'wiraswasta' });
+          count++;
+        }
+      });
+      if (count > 0) {
+        console.log(`Berhasil mengubah ${count} anggota dari pedagang ke wiraswasta`);
+      }
+    };
+    if (anggota.length > 0) {
+      fixPekerjaan();
+    }
+  }, [anggota, updateAnggota]);
+
+  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!target.closest('.search-dropdown')) {
