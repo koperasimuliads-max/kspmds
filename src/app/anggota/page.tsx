@@ -104,7 +104,7 @@ const referensiOptions = [
 ];
 
 export default function AnggotaPage() {
-  const { anggota, addAnggota, updateAnggota, deleteAnggota, clearAllAnggota, bulkUpdateTanggalJoin, pinjamans, simpanans, updateSimpanan, addPendapatan } = useKSP();
+  const { anggota, addAnggota, updateAnggota, deleteAnggota, clearAllAnggota, bulkUpdateTanggalJoin, pinjamans, simpanans, updateSimpanan, addPendapatan, isHydrated } = useKSP();
   const [showForm, setShowForm] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -354,6 +354,17 @@ export default function AnggotaPage() {
     setShowForm(false);
     setEditingId(null);
   };
+
+  if (!isHydrated) {
+    return (
+      <div className="flex justify-between items-center mb-4 no-print">
+        <div className="flex items-center gap-4">
+          <BackButton />
+          <h1 className="text-2xl font-bold text-slate-800">Data Anggota</h1>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

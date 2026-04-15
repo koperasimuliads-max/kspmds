@@ -9,7 +9,7 @@ const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
   return stored ? JSON.parse(stored) : defaultValue;
 };
 
-const createInitialState = () => {
+const getInitialState = () => {
   if (typeof window === 'undefined') {
     return { anggota: [], pinjamans: [], simpanans: [], transactions: [], pengeluarans: [], pendapatans: [] };
   }
@@ -30,6 +30,7 @@ interface KSPContextType {
   transactions: Transaksi[];
   pengeluarans: Pengeluaran[];
   pendapatans: Pendapatan[];
+  isHydrated: boolean;
   addAnggota: (anggota: Omit<Anggota, 'id'>) => void;
   updateAnggota: (id: string, anggota: Partial<Anggota>) => void;
   deleteAnggota: (id: string) => void;
@@ -62,13 +63,25 @@ function generateId(): string {
 }
 
 export function KSPProvider({ children }: { children: ReactNode }) {
-  const initialState = createInitialState();
-  const [anggota, setAnggota] = useState<Anggota[]>(initialState.anggota);
-  const [pinjamans, setPinjamans] = useState<Pinjaman[]>(initialState.pinjamans);
-  const [simpanans, setSimpanans] = useState<Simpanan[]>(initialState.simpanans);
-  const [transactions, setTransactions] = useState<Transaksi[]>(initialState.transactions);
-  const [pengeluarans, setPengeluarans] = useState<Pengeluaran[]>(initialState.pengeluarans);
-  const [pendapatans, setPendapatans] = useState<Pendapatan[]>(initialState.pendapatans);
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [anggota, setAnggota] = useState<Anggota[]>([]);
+  const [pinjamans, setPinjamans] = useState<Pinjaman[]>([]);
+  const [simpanans, setSimpanans] = useState<Simpanan[]>([]);
+  const [transactions, setTransactions] = useState<Transaksi[]>([]);
+  const [pengeluarans, setPengeluarans] = useState<Pengeluaran[]>([]);
+  const [pendapatans, setPendapatans] = useState<Pendapatan[]>([]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsHydrated(true);
+      setAnggota(loadFromStorage<Anggota[]>('ksp_anggota', []));
+      setPinjamans(loadFromStorage<Pinjaman[]>('ksp_pinjamans', []));
+      setSimpanans(loadFromStorage<Simpanan[]>('ksp_simpanans', []));
+      setTransactions(loadFromStorage<Transaksi[]>('ksp_transactions', []));
+      setPengeluarans(loadFromStorage<Pengeluaran[]>('ksp_pengeluarans', []));
+      setPendapatans(loadFromStorage<Pendapatan[]>('ksp_pendapatans', []));
+    }, 0);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('ksp_anggota', JSON.stringify(anggota));
@@ -233,6 +246,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       transactions,
       pengeluarans,
       pendapatans,
+      isHydrated,
       addAnggota,
       updateAnggota,
       deleteAnggota,
