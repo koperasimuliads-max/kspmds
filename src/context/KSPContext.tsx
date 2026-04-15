@@ -72,15 +72,30 @@ export function KSPProvider({ children }: { children: ReactNode }) {
   const [pendapatans, setPendapatans] = useState<Pendapatan[]>([]);
 
   useEffect(() => {
-    setTimeout(() => {
+    const loadData = () => {
+      try {
+        const storedAnggota = localStorage.getItem('ksp_anggota');
+        const storedPinjamans = localStorage.getItem('ksp_pinjamans');
+        const storedSimpanans = localStorage.getItem('ksp_simpanans');
+        const storedTransactions = localStorage.getItem('ksp_transactions');
+        const storedPengeluarans = localStorage.getItem('ksp_pengeluarans');
+        const storedPendapatans = localStorage.getItem('ksp_pendapatans');
+
+        if (storedAnggota) setAnggota(JSON.parse(storedAnggota));
+        if (storedPinjamans) setPinjamans(JSON.parse(storedPinjamans));
+        if (storedSimpanans) setSimpanans(JSON.parse(storedSimpanans));
+        if (storedTransactions) setTransactions(JSON.parse(storedTransactions));
+        if (storedPengeluarans) setPengeluarans(JSON.parse(storedPengeluarans));
+        if (storedPendapatans) setPendapatans(JSON.parse(storedPendapatans));
+      } catch (e) {
+        console.error('Error loading from localStorage:', e);
+      }
       setIsHydrated(true);
-      setAnggota(loadFromStorage<Anggota[]>('ksp_anggota', []));
-      setPinjamans(loadFromStorage<Pinjaman[]>('ksp_pinjamans', []));
-      setSimpanans(loadFromStorage<Simpanan[]>('ksp_simpanans', []));
-      setTransactions(loadFromStorage<Transaksi[]>('ksp_transactions', []));
-      setPengeluarans(loadFromStorage<Pengeluaran[]>('ksp_pengeluarans', []));
-      setPendapatans(loadFromStorage<Pendapatan[]>('ksp_pendapatans', []));
-    }, 0);
+    };
+
+    if (typeof window !== 'undefined') {
+      loadData();
+    }
   }, []);
 
   useEffect(() => {
