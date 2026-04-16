@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useKSP } from '@/context/KSPContext';
 import BackButton from '@/components/BackButton';
 
@@ -9,9 +10,21 @@ function formatRupiah(amount: number): string {
 }
 
 export default function LaporanPage() {
+  const searchParams = useSearchParams();
   const { anggota, pinjamans, simpanans, pendapatans, pengeluarans } = useKSP();
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-  const [activeTab, setActiveTab] = useState<'neraca' | 'shu' | 'ekuitas'>('neraca');
+  
+  const tabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState<'neraca' | 'shu' | 'ekuitas'>(
+    tabParam === 'shu' ? 'shu' : tabParam === 'ekuitas' ? 'ekuitas' : 'neraca'
+  );
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'shu') setActiveTab('shu');
+    else if (tab === 'ekuitas') setActiveTab('ekuitas');
+    else setActiveTab('neraca');
+  }, [searchParams]);
 
   const tahunOptions = Array.from(new Set([
     ...anggota.map(a => a.tanggalJoin ? new Date(a.tanggalJoin).getFullYear() : 2024),

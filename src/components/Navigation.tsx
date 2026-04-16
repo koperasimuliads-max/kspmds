@@ -12,13 +12,18 @@ const navItems = [
   { href: '/pendapatan', label: 'Pendapatan', icon: '💹' },
   { href: '/pengeluaran', label: 'Pengeluaran', icon: '📤' },
   { href: '/shu', label: 'SHU Anggota', icon: '🎁' },
-  { href: '/laporan', label: 'Laporan', icon: '📈' },
-  { href: '/kartu-simpanan', label: 'Kartu Simpanan', icon: '📖' },
+];
+
+const laporanItems = [
+  { href: '/laporan', label: 'Neraca', icon: '📊' },
+  { href: '/laporan?tab=shu', label: 'SHU (Laba/Rugi)', icon: '📈' },
+  { href: '/laporan?tab=ekuitas', label: 'Perubahan Ekuitas', icon: '📋' },
 ];
 
 export default function Navigation() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [laporanExpanded, setLaporanExpanded] = useState(pathname.startsWith('/laporan'));
 
   return (
     <>
@@ -36,7 +41,7 @@ export default function Navigation() {
       </button>
 
       <div className={`fixed inset-y-0 left-0 z-40 w-64 bg-slate-800 text-white transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static md:block`}>
-        <div className="p-4 h-full flex flex-col">
+        <div className="p-4 h-full flex flex-col overflow-y-auto">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-lg font-bold text-yellow-400">KSP Mulia Dana Sejahtera</h1>
             <button onClick={() => setIsOpen(false)} className="md:hidden text-slate-400 hover:text-white">
@@ -47,7 +52,7 @@ export default function Navigation() {
           </div>
           
           <nav className="flex-1">
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {navItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
@@ -67,6 +72,61 @@ export default function Navigation() {
                   </li>
                 );
               })}
+
+              {/* Laporan dengan Sub-menu */}
+              <li>
+                <button
+                  onClick={() => setLaporanExpanded(!laporanExpanded)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
+                    pathname.startsWith('/laporan')
+                      ? 'bg-yellow-500 text-slate-900 font-semibold'
+                      : 'hover:bg-slate-700'
+                  }`}
+                >
+                  <span><span className="mr-2">📈</span>Laporan</span>
+                  <svg className={`w-4 h-4 transition-transform ${laporanExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {laporanExpanded && (
+                  <ul className="ml-4 mt-1 space-y-1">
+                    {laporanItems.map((item) => {
+                      const isActive = pathname === item.href;
+                      return (
+                        <li key={item.href}>
+                          <Link
+                            href={item.href}
+                            onClick={() => setIsOpen(false)}
+                            className={`block px-4 py-2 rounded-lg transition-colors text-sm ${
+                              isActive
+                                ? 'bg-yellow-400 text-slate-900 font-semibold'
+                                : 'hover:bg-slate-600'
+                            }`}
+                          >
+                            <span className="mr-2">{item.icon}</span>
+                            {item.label}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </li>
+
+              <li>
+                <Link
+                  href="/kartu-simpanan"
+                  onClick={() => setIsOpen(false)}
+                  className={`block px-4 py-3 rounded-lg transition-colors ${
+                    pathname === '/kartu-simpanan'
+                      ? 'bg-yellow-500 text-slate-900 font-semibold'
+                      : 'hover:bg-slate-700'
+                  }`}
+                >
+                  <span className="mr-2">📖</span>
+                  Kartu Simpanan
+                </Link>
+              </li>
             </ul>
           </nav>
 
