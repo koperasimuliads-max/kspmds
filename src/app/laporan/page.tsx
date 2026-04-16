@@ -610,7 +610,7 @@ export default function LaporanPage() {
                 <tbody>
                   <tr className="border-b">
                     <td className="p-2 pl-4">V.1.1</td>
-                    <td className="p-2">Beban Bunga Simpanan Harian</td>
+                    <td className="p-2">Beban Bunga Simpanan Harian (Sibuhar)</td>
                     <td className="p-2 text-slate-500">Biaya Bunga</td>
                     <td className="p-2 text-right">{formatRupiah(bebanBungaSimpananHarian)}</td>
                   </tr>
