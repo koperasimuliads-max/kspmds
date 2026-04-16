@@ -177,12 +177,6 @@ export default function PendapatanPage() {
           <p className="text-2xl font-bold text-blue-600">{formatRupiah(totalPendapatan)}</p>
           <p className="text-sm text-slate-500">{sortedPendapatans.length} transaksi</p>
         </div>
-        
-        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
-          <p className="text-sm text-slate-500">Total Pengeluaran {selectedYear ? `(${selectedYear})` : ''}</p>
-          <p className="text-2xl font-bold text-red-600">{formatRupiah(totalPengeluaran)}</p>
-          <p className="text-sm text-slate-500">{sortedPengeluarans.length} transaksi</p>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
