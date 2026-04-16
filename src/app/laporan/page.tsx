@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useKSP } from '@/context/KSPContext';
 import BackButton from '@/components/BackButton';
@@ -9,7 +9,18 @@ function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
 }
 
-export default function LaporanPage() {
+function LoadingFallback() {
+  return (
+    <div className="flex items-center justify-center p-12">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-slate-500">Memuat Laporan...</p>
+      </div>
+    </div>
+  );
+}
+
+function LaporanContent() {
   const searchParams = useSearchParams();
   const { anggota, pinjamans, simpanans, pendapatans, pengeluarans } = useKSP();
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
@@ -1028,5 +1039,13 @@ export default function LaporanPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function LaporanPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <LaporanContent />
+    </Suspense>
   );
 }
