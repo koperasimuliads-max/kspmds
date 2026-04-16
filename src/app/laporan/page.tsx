@@ -176,23 +176,42 @@ function LaporanContent() {
     .filter(p => p.jenis === 'gaji_karyawan' && new Date(p.tanggal).getFullYear() === selectedYear)
     .reduce((sum, p) => sum + p.jumlah, 0);
     
+  const bebanKaryawan = pengeluarans
+    .filter(p => ['insentif_anggota_baru', 'insentif_deposan', 'insentif_penanggung_jawab'].includes(p.jenis) && new Date(p.tanggal).getFullYear() === selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+    
+  const bebanPerkoperasian = pengeluarans
+    .filter(p => ['biaya_rat', 'biaya_sosialisasi', 'biaya_akta', 'biaya_hut', 'biaya_sosial'].includes(p.jenis) && new Date(p.tanggal).getFullYear() === selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+    
+  const bebanPembinaan = pengeluarans
+    .filter(p => ['biaya_transport_marketing', 'biaya_iptw'].includes(p.jenis) && new Date(p.tanggal).getFullYear() === selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+    
   const bebanAdminUmum = pengeluarans
-    .filter(p => ['operasional', 'kantor', 'listrik', 'internet', 'atk', 'perawatan', 'pajak', 'bank', 'lainnya'].includes(p.jenis) && new Date(p.tanggal).getFullYear() === selectedYear)
+    .filter(p => ['perlengkapan_kantor', 'atk_koperasi', 'listrik_air_wifi', 'materai', 'kebersihan'].includes(p.jenis) && new Date(p.tanggal).getFullYear() === selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+    
+  const bebanLain = pengeluarans
+    .filter(p => ['admin_bank', 'entertainment', 'konsumsi_koperasi', 'spanduk', 'biaya_lain', 'operasional'].includes(p.jenis) && new Date(p.tanggal).getFullYear() === selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+    
+  const bebanKerugian = pengeluarans
+    .filter(p => p.jenis === 'kerugian_tahun_lalu' && new Date(p.tanggal).getFullYear() === selectedYear)
     .reduce((sum, p) => sum + p.jumlah, 0);
     
   const bebanPenyusutan = 0;
   const bebanUsahaLain = 0;
-  const totalBeban = bebanBungaSimpananHarian + bebanBungaSukarelaBerjangka + bebanBungaMasaDepan + bebanBungaHariTua + bebanBungaHariRaya + bebanBungaSimpananProgram + bebanBungaSijakop + bebanBungaPinjaman + bebanGaji + bebanAdminUmum + bebanPenyusutan + bebanUsahaLain;
+  const totalBeban = bebanBungaSimpananHarian + bebanBungaSukarelaBerjangka + bebanBungaMasaDepan + bebanBungaHariTua + bebanBungaHariRaya + bebanBungaSimpananProgram + bebanBungaSijakop + bebanBungaPinjaman + bebanGaji + bebanKaryawan + bebanPerkoperasian + bebanPembinaan + bebanAdminUmum + bebanLain + bebanKerugian + bebanPenyusutan + bebanUsahaLain;
 
   // Pos Lain-Lain
   const hasilInvestasi = 0;
-  const bebanPerkoperasian = 0;
   const pendapatanLainNonOps = 0;
   const bebanLainNonOps = 0;
   const bebanPajak = 0;
   const pengKomprehensifLain = 0;
 
-  const shuKotor = totalPendapatan - totalBeban + hasilInvestasi - bebanPerkoperasian + pendapatanLainNonOps - bebanLainNonOps - bebanPajak;
+  const shuKotor = totalPendapatan - totalBeban + hasilInvestasi + pendapatanLainNonOps - bebanLainNonOps - bebanPajak;
   
   // SHU Distribution
   const shuDistribution = shuKotor > 0 ? {
