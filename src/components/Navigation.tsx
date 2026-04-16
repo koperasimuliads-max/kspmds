@@ -12,6 +12,7 @@ const navItems = [
   { href: '/pendapatan', label: 'Pendapatan', icon: '💹' },
   { href: '/pengeluaran', label: 'Pengeluaran', icon: '📤' },
   { href: '/shu', label: 'SHU Anggota', icon: '🎁' },
+  { href: '/autodebit', label: 'Autodebit', icon: '🔄' },
 ];
 
 const laporanItems = [
