@@ -60,6 +60,8 @@ export default function SimpananPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
+  const [importJenis, setImportJenis] = useState<string>('wajib');
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const parseDate = (dateStr: string): string => {
     if (!dateStr) return '';
@@ -81,7 +83,7 @@ export default function SimpananPage() {
     return trimmed;
   };
 
-  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -100,31 +102,14 @@ export default function SimpananPage() {
       for (const row of json) {
         const noNBA = String(row['No. NBA'] || row['noNBA'] || '').trim();
         const nama = String(row['Nama Anggota'] || row['nama'] || '').trim();
-        const jumlah = Number(row['Nilai Simpanan'] || row['jumlah'] || row['Jumlah'] || 0);
-        
-        const jenisRaw = String(row['Jenis Simpanan'] || row['jenis'] || row['Jenis'] || '').toLowerCase();
-        let jenis: 'pokok' | 'wajib' | 'sibuhar' | 'simapan' | 'sihat' | 'sihar' = 'wajib';
-        if (jenisRaw.includes('pokok') || jenisRaw === 'sp') {
-          jenis = 'pokok';
-        } else if (jenisRaw.includes('wajib') || jenisRaw === 'sw') {
-          jenis = 'wajib';
-        } else if (jenisRaw.includes('sibuhar')) {
-          jenis = 'sibuhar';
-        } else if (jenisRaw.includes('simapan')) {
-          jenis = 'simapan';
-        } else if (jenisRaw.includes('sihat')) {
-          jenis = 'sihat';
-        } else if (jenisRaw.includes('sihar')) {
-          jenis = 'sihar';
-        }
-        
-        const tanggalStr = String(row['Tanggal Transaksi'] || row['tanggal'] || row['Tanggal'] || '').trim();
+        const jumlah = Number(row['Nilai Simpanan'] || row['Jumlah'] || row['jumlah'] || 0);
+        const tanggalStr = String(row['Tanggal Transaksi'] || row['Tanggal'] || row['tanggal'] || '').trim();
         
         const statusRaw = String(row['Status'] || row['status'] || '').toLowerCase();
         let status: 'aktif' | 'ditarik' | 'aktif_auto' = 'aktif';
-        if (statusRaw.includes('ditarik') || statusRaw === 'ditarik') {
+        if (statusRaw.includes('ditarik')) {
           status = 'ditarik';
-        } else if (statusRaw.includes('auto') || statusRaw === 'aktif_auto') {
+        } else if (statusRaw.includes('auto')) {
           status = 'aktif_auto';
         }
 
@@ -145,7 +130,7 @@ export default function SimpananPage() {
 
         addSimpanan({
           anggotaId: ag.id,
-          jenis: jenis,
+          jenis: importJenis as 'pokok' | 'wajib' | 'sibuhar' | 'simapan' | 'sihat' | 'sihar',
           jumlah: jumlah,
           tanggalSimpan: tanggal,
           status: status,
@@ -153,11 +138,13 @@ export default function SimpananPage() {
         count++;
       }
 
+      const jenisLabel = jenisSimpananOptions.find(j => j.value === importJenis)?.label || importJenis;
       if (errorCount > 0) {
         alert(`Berhasil import: ${count}\nGagal: ${errorCount}\n\n${errors.slice(0, 5).join('\n')}${errors.length > 5 ? '\n...' : ''}`);
       } else {
-        alert(`Berhasil import ${count} data simpanan wajib!`);
+        alert(`Berhasil import ${count} data ${jenisLabel}!`);
       }
+      setShowImportModal(false);
     } catch (err) {
       alert('Gagal import: ' + (err instanceof Error ? err.message : 'Error tidak diketahui'));
     } finally {
@@ -247,19 +234,11 @@ export default function SimpananPage() {
           <h1 className="text-2xl font-bold text-slate-800">Data Simpanan</h1>
         </div>
         <div className="flex gap-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".xlsx,.xls,.csv"
-            onChange={handleImportExcel}
-            className="hidden"
-          />
           <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={importing}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
+            onClick={() => setShowImportModal(true)}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
           >
-            {importing ? 'Mengimport...' : '📥 Import Excel'}
+            📥 Import Excel
           </button>
           <button
             onClick={() => setShowForm(!showForm)}
@@ -269,6 +248,51 @@ export default function SimpananPage() {
           </button>
         </div>
       </div>
+
+      {showImportModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="font-semibold text-lg mb-4">Import Data Simpanan</h2>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Pilih Jenis Simpanan</label>
+              <select
+                value={importJenis}
+                onChange={e => setImportJenis(e.target.value)}
+                className="border p-2 rounded w-full"
+              >
+                {jenisSimpananOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-4">
+              <p className="text-sm text-slate-600 mb-2">Format Kolom Excel:</p>
+              <ul className="text-xs text-slate-500 space-y-1 bg-slate-50 p-2 rounded">
+                <li>- No. NBA (atau noNBA)</li>
+                <li>- Nama Anggota (atau nama)</li>
+                <li>- Nilai Simpanan (atau Jumlah)</li>
+                <li>- Tanggal Transaksi (atau Tanggal)</li>
+                <li>- Status (opsional: aktif, ditarik, aktif_auto)</li>
+              </ul>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={handleImportExcel}
+              className="border p-2 rounded w-full mb-4"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowImportModal(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-2 mb-4 overflow-x-auto">
         <button
