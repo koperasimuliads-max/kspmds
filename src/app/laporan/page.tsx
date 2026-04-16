@@ -118,6 +118,23 @@ export default function LaporanPage() {
   const totalPendapatan = pendapatanBunga + pendapatanUsahaLain + pendapatanAdmin + pendapatanProvisi + pendapatanDenda + pendapatanPinalty + pendapatanLain;
 
   const bebanBungaSimpananHarian = Math.round(simpananHarian * 0.03);
+  
+  const bebanBungaSukarelaBerjangka = simpanans
+    .filter(s => s.jenis === 'sibuhar' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() === selectedYear)
+    .reduce((sum, s) => sum + s.jumlah * 0.06 / 12, 0);
+  
+  const bebanBungaMasaDepan = simpanans
+    .filter(s => s.jenis === 'simapan' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() === selectedYear)
+    .reduce((sum, s) => sum + s.jumlah * 0.06 / 12, 0);
+  
+  const bebanBungaHariTua = simpanans
+    .filter(s => s.jenis === 'sihat' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() === selectedYear)
+    .reduce((sum, s) => sum + s.jumlah * 0.06 / 12, 0);
+  
+  const bebanBungaHariRaya = simpanans
+    .filter(s => s.jenis === 'sihar' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() === selectedYear)
+    .reduce((sum, s) => sum + s.jumlah * 0.06 / 12, 0);
+  
   const bebanBungaSimpananProgram = 0;
   const bebanBungaSijakop = 0;
   const bebanBungaPinjaman = 0;
@@ -132,7 +149,7 @@ export default function LaporanPage() {
     
   const bebanPenyusutan = 0;
   const bebanUsahaLain = 0;
-  const totalBeban = bebanBungaSimpananHarian + bebanBungaSimpananProgram + bebanBungaSijakop + bebanBungaPinjaman + bebanGaji + bebanAdminUmum + bebanPenyusutan + bebanUsahaLain;
+  const totalBeban = bebanBungaSimpananHarian + bebanBungaSukarelaBerjangka + bebanBungaMasaDepan + bebanBungaHariTua + bebanBungaHariRaya + bebanBungaSimpananProgram + bebanBungaSijakop + bebanBungaPinjaman + bebanGaji + bebanAdminUmum + bebanPenyusutan + bebanUsahaLain;
 
   // Pos Lain-Lain
   const hasilInvestasi = 0;
@@ -616,42 +633,66 @@ export default function LaporanPage() {
                   </tr>
                   <tr className="border-b">
                     <td className="p-2 pl-4">V.1.2</td>
+                    <td className="p-2">Beban Bunga Simpanan Sukarela Berjangka (Sisujang)</td>
+                    <td className="p-2 text-slate-500">Biaya Bunga</td>
+                    <td className="p-2 text-right">{formatRupiah(bebanBungaSukarelaBerjangka)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-4">V.1.3</td>
+                    <td className="p-2">Beban Bunga Simpanan Masa Depan (Simapan)</td>
+                    <td className="p-2 text-slate-500">Biaya Bunga</td>
+                    <td className="p-2 text-right">{formatRupiah(bebanBungaMasaDepan)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-4">V.1.4</td>
+                    <td className="p-2">Beban Bunga Simpanan Hari Tua (Sihat)</td>
+                    <td className="p-2 text-slate-500">Biaya Bunga</td>
+                    <td className="p-2 text-right">{formatRupiah(bebanBungaHariTua)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-4">V.1.5</td>
+                    <td className="p-2">Beban Bunga Simpanan Hari Raya (Sihar)</td>
+                    <td className="p-2 text-slate-500">Biaya Bunga</td>
+                    <td className="p-2 text-right">{formatRupiah(bebanBungaHariRaya)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-4">V.1.6</td>
                     <td className="p-2">Beban Bunga Simpanan Program</td>
                     <td className="p-2 text-slate-500">Biaya Bunga</td>
                     <td className="p-2 text-right">{formatRupiah(bebanBungaSimpananProgram)}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 pl-4">V.1.3</td>
+                    <td className="p-2 pl-4">V.1.7</td>
                     <td className="p-2">Beban Bunga Sijakop</td>
                     <td className="p-2 text-slate-500">Biaya Bunga</td>
                     <td className="p-2 text-right">{formatRupiah(bebanBungaSijakop)}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 pl-4">V.1.4</td>
+                    <td className="p-2 pl-4">V.1.8</td>
                     <td className="p-2">Beban Bunga Pinjaman</td>
                     <td className="p-2 text-slate-500">Biaya Bunga</td>
                     <td className="p-2 text-right">{formatRupiah(bebanBungaPinjaman)}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 pl-4">V.1.5</td>
+                    <td className="p-2 pl-4">V.1.9</td>
                     <td className="p-2">Beban Kepegawaian</td>
                     <td className="p-2 text-slate-500">Gaji & Tunjangan</td>
                     <td className="p-2 text-right">{formatRupiah(bebanGaji)}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 pl-4">V.1.6</td>
+                    <td className="p-2 pl-4">V.1.10</td>
                     <td className="p-2">Beban Administrasi dan Umum</td>
                     <td className="p-2 text-slate-500">ATK, Listrik, dll</td>
                     <td className="p-2 text-right">{formatRupiah(bebanAdminUmum)}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 pl-4">V.1.7</td>
+                    <td className="p-2 pl-4">V.1.11</td>
                     <td className="p-2">Beban Penyusutan dan Amortisasi</td>
                     <td className="p-2 text-slate-500">Penyusutan Aset</td>
                     <td className="p-2 text-right">{formatRupiah(bebanPenyusutan)}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 pl-4">V.1.8</td>
+                    <td className="p-2 pl-4">V.1.12</td>
                     <td className="p-2">Beban Usaha Lain</td>
                     <td className="p-2 text-slate-500">Biaya Lainnya</td>
                     <td className="p-2 text-right">{formatRupiah(bebanUsahaLain)}</td>
