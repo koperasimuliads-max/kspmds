@@ -133,7 +133,7 @@ const referensiOptions = [
 
 export default function AnggotaPage() {
   const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
-  const { anggota, addAnggota, updateAnggota, deleteAnggota, clearAllAnggota, bulkUpdateTanggalJoin, pinjamans, simpanans, addSimpanan, updateSimpanan, addPendapatan, isHydrated } = useKSP();
+  const { anggota, addAnggota, updateAnggota, deleteAnggota, clearAllAnggota, bulkUpdateTanggalJoin, pinjamans, simpanans, addSimpanan, updateSimpanan, addPendapatan, pendapatans, isHydrated } = useKSP();
   const [showForm, setShowForm] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -202,6 +202,47 @@ export default function AnggotaPage() {
       fixData();
     }
   }, [anggota, updateAnggota]);
+
+  useEffect(() => {
+    const syncDataToTables = () => {
+      const existingPokok = new Set(simpanans.filter(s => s.jenis === 'pokok').map(s => s.anggotaId));
+      const existingWajib = new Set(simpanans.filter(s => s.jenis === 'wajib').map(s => s.anggotaId));
+      const existingUangBuku = new Set(pendapatans.filter(p => p.jenis === 'uang_buku').map(p => p.deskripsi));
+      
+      anggota.forEach(a => {
+        if (a.simpananPokok > 0 && !existingPokok.has(a.id)) {
+          addSimpanan({
+            anggotaId: a.id,
+            jenis: 'pokok',
+            jumlah: a.simpananPokok,
+            tanggalSimpan: a.tanggalJoin || '2024-01-01',
+            status: 'aktif',
+          });
+        }
+        if (a.simpananWajib > 0 && !existingWajib.has(a.id)) {
+          addSimpanan({
+            anggotaId: a.id,
+            jenis: 'wajib',
+            jumlah: a.simpananWajib,
+            tanggalSimpan: a.tanggalJoin || '2024-01-01',
+            status: 'aktif',
+          });
+        }
+        const uangBukuDeskripsi = `Uang Buku - ${a.nama}`;
+        if (a.uangBuku > 0 && !existingUangBuku.has(uangBukuDeskripsi)) {
+          addPendapatan({
+            jenis: 'uang_buku',
+            deskripsi: uangBukuDeskripsi,
+            jumlah: a.uangBuku,
+            tanggal: a.tanggalJoin || '2024-01-01',
+          });
+        }
+      });
+    };
+    if (anggota.length > 0 && isHydrated && simpanans.length >= 0) {
+      syncDataToTables();
+    }
+  }, [anggota, simpanans, pendapatans, isHydrated, addSimpanan, addPendapatan]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
