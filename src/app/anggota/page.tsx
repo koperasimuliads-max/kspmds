@@ -1147,30 +1147,9 @@ export default function AnggotaPage() {
                     <td className="p-2"><span className={`px-2 py-1 rounded text-xs ${a.status === 'aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{a.status}</span></td>
                     <td className="p-2 text-slate-500">{a.tanggalKeluar ? new Date(a.tanggalKeluar).toLocaleDateString('id-ID') : '-'}</td>
                     <td className="p-2">{a.pekerjaan ? getLabel(pekerjaanOptions, a.pekerjaan) : '-'}</td>
-                    <td className="p-2 text-right">
-                      <input
-                        type="number"
-                        value={a.simpananPokok}
-                        onChange={e => updateAnggota(a.id, { simpananPokok: Number(e.target.value) })}
-                        className="w-20 border p-1 rounded text-right text-sm"
-                      />
-                    </td>
-                    <td className="p-2 text-right">
-                      <input
-                        type="number"
-                        value={a.simpananWajib}
-                        onChange={e => updateAnggota(a.id, { simpananWajib: Number(e.target.value) })}
-                        className="w-20 border p-1 rounded text-right text-sm"
-                      />
-                    </td>
-                    <td className="p-2 text-right">
-                      <input
-                        type="number"
-                        value={a.uangBuku}
-                        onChange={e => updateAnggota(a.id, { uangBuku: Number(e.target.value) })}
-                        className="w-20 border p-1 rounded text-right text-sm"
-                      />
-                    </td>
+                    <td className="p-2 text-right">{formatRupiah(a.simpananPokok)}</td>
+                    <td className="p-2 text-right">{formatRupiah(a.simpananWajib)}</td>
+                    <td className="p-2 text-right">{formatRupiah(a.uangBuku)}</td>
                     <td className="p-2 text-center no-print">
                       <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-1">Edit</button>
                       {a.status === 'aktif' && (
