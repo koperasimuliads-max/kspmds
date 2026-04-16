@@ -67,6 +67,8 @@ export default function PinjamanPage() {
   const [jumlahBayar, setJumlahBayar] = useState(0);
   const [hariTerlambatInput, setHariTerlambatInput] = useState(0);
   const [jumlahDisplay, setJumlahDisplay] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 25;
 
   const hitungCicilan = (jumlah: number, bunga: number, tenor: number) => {
     const bungaPerBulan = bunga / 100 / 12;
@@ -356,12 +358,15 @@ export default function PinjamanPage() {
                 <td colSpan={11} className="text-center p-4 text-slate-500">Belum ada pinjaman</td>
               </tr>
             ) : (
-              pinjamans.map((p, index) => {
-                const ag = anggota.find(a => a.id === p.anggotaId);
-                const kolekLabel = p.kolektibilitas === 'lancar' ? 'Lancar' : p.kolektibilitas === 'kurang_lancar' ? 'Kurang Lancar' : p.kolektibilitas === 'diragukan' ? 'Diragukan' : 'Macet';
-                return (
-                  <tr key={p.id} className="border-b hover:bg-slate-50">
-                    <td className="p-2 text-center text-slate-500">{index + 1}</td>
+              pinjamans
+                .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                .map((p, index) => {
+                  const ag = anggota.find(a => a.id === p.anggotaId);
+                  const kolekLabel = p.kolektibilitas === 'lancar' ? 'Lancar' : p.kolektibilitas === 'kurang_lancar' ? 'Kurang Lancar' : p.kolektibilitas === 'diragukan' ? 'Diragukan' : 'Macet';
+                  const pageIndex = (currentPage - 1) * itemsPerPage + index + 1;
+                  return (
+                    <tr key={p.id} className="border-b hover:bg-slate-50">
+                      <td className="p-2 text-center text-slate-500">{pageIndex}</td>
                     <td className="p-2">{formatDate(p.tanggalPinjaman)}</td>
                     <td className="p-2 font-medium">{ag?.nama || '-'}</td>
                     <td className="p-2 text-right">{formatRupiah(p.jumlah)}</td>
@@ -399,6 +404,27 @@ export default function PinjamanPage() {
             )}
           </tbody>
         </table>
+        {pinjamans.length > itemsPerPage && (
+          <div className="flex justify-center items-center gap-2 p-4 border-t">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+            >
+              &lt;
+            </button>
+            <span className="text-sm text-slate-600">
+              Halaman {currentPage} dari {Math.ceil(pinjamans.length / itemsPerPage)}
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(Math.ceil(pinjamans.length / itemsPerPage), p + 1))}
+              disabled={currentPage >= Math.ceil(pinjamans.length / itemsPerPage)}
+              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+            >
+              &gt;
+            </button>
+          </div>
+        )}
       </div>
 
       {showBayar && (

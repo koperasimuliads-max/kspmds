@@ -26,6 +26,8 @@ export default function PengeluaranPage() {
   const { pengeluarans, addPengeluaran, updatePengeluaran, deletePengeluaran } = useKSP();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 25;
   const [formData, setFormData] = useState({
     jenis: 'operasional' as string,
     deskripsi: '',
@@ -180,6 +182,7 @@ export default function PengeluaranPage() {
             ) : (
               [...pengeluarans]
                 .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime())
+                .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
                 .map(p => (
                   <tr key={p.id} className="border-b hover:bg-slate-50">
                     <td className="p-2">{new Date(p.tanggal).toLocaleDateString('id-ID')}</td>
@@ -195,6 +198,27 @@ export default function PengeluaranPage() {
             )}
           </tbody>
         </table>
+        {pengeluarans.length > itemsPerPage && (
+          <div className="flex justify-center items-center gap-2 p-4 border-t">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+            >
+              &lt;
+            </button>
+            <span className="text-sm text-slate-600">
+              Halaman {currentPage} dari {Math.ceil(pengeluarans.length / itemsPerPage)}
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(Math.ceil(pengeluarans.length / itemsPerPage), p + 1))}
+              disabled={currentPage >= Math.ceil(pengeluarans.length / itemsPerPage)}
+              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+            >
+              &gt;
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

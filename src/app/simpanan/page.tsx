@@ -45,6 +45,8 @@ export default function SimpananPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filterJenis, setFilterJenis] = useState('all');
   const [jumlahDisplay, setJumlahDisplay] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 25;
   const [formData, setFormData] = useState({
     anggotaId: '',
     jumlah: 0,
@@ -263,12 +265,15 @@ export default function SimpananPage() {
                 <td colSpan={9} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
               </tr>
             ) : (
-              filteredSimpanans.map((s, index) => {
-                const ag = anggota.find(a => a.id === s.anggotaId);
-                const showBungaTenor = s.jenis === 'sibuhar' || s.jenis === 'simapan' || s.jenis === 'sihat' || s.jenis === 'sihar';
-                return (
-                  <tr key={s.id} className="border-b hover:bg-slate-50">
-                    <td className="p-3 text-center text-slate-500">{index + 1}</td>
+              filteredSimpanans
+                .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                .map((s, index) => {
+                  const ag = anggota.find(a => a.id === s.anggotaId);
+                  const showBungaTenor = s.jenis === 'sibuhar' || s.jenis === 'simapan' || s.jenis === 'sihat' || s.jenis === 'sihar';
+                  const pageIndex = (currentPage - 1) * itemsPerPage + index + 1;
+                  return (
+                    <tr key={s.id} className="border-b hover:bg-slate-50">
+                      <td className="p-3 text-center text-slate-500">{pageIndex}</td>
                     <td className="p-3">{formatDate(s.tanggalSimpan)}</td>
                     <td className="p-3 font-medium">{ag?.nama || '-'}</td>
                     <td className="p-3 capitalize">{s.jenis}</td>
@@ -301,6 +306,27 @@ export default function SimpananPage() {
             )}
           </tbody>
         </table>
+        {filteredSimpanans.length > itemsPerPage && (
+          <div className="flex justify-center items-center gap-2 p-4 border-t">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+            >
+              &lt;
+            </button>
+            <span className="text-sm text-slate-600">
+              Halaman {currentPage} dari {Math.ceil(filteredSimpanans.length / itemsPerPage)}
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredSimpanans.length / itemsPerPage), p + 1))}
+              disabled={currentPage >= Math.ceil(filteredSimpanans.length / itemsPerPage)}
+              className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+            >
+              &gt;
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

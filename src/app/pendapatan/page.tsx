@@ -27,6 +27,10 @@ export default function PendapatanPage() {
   const [showTambah, setShowTambah] = useState(false);
   const [tambahForm, setTambahForm] = useState({ jenis: 'uang_buku', deskripsi: '', jumlah: 0, tanggal: '2024-01-01' });
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [currentPagePendapatan, setCurrentPagePendapatan] = useState(1);
+  const [currentPageUangBuku, setCurrentPageUangBuku] = useState(1);
+  const [currentPagePengeluaran, setCurrentPagePengeluaran] = useState(1);
+  const itemsPerPage = 25;
 
   const allTahun = Array.from(new Set([
     ...pendapatans.map(p => new Date(p.tanggal).getFullYear()),
@@ -197,9 +201,11 @@ export default function PendapatanPage() {
                 {filteredPendapatans.length === 0 ? (
                   <tr><td colSpan={6} className="text-center p-4 text-slate-500">Belum ada pendapatan</td></tr>
                 ) : (
-                  filteredPendapatans.map((p, index) => (
-                    <tr key={p.id} className="border-b hover:bg-slate-50">
-                      <td className="p-2 text-center text-slate-500">{index + 1}</td>
+                  filteredPendapatans
+                    .slice((currentPagePendapatan - 1) * itemsPerPage, currentPagePendapatan * itemsPerPage)
+                    .map((p, index) => (
+                      <tr key={p.id} className="border-b hover:bg-slate-50">
+                        <td className="p-2 text-center text-slate-500">{(currentPagePendapatan - 1) * itemsPerPage + index + 1}</td>
                       <td className="p-2">{formatDate(p.tanggal)}</td>
                       <td className="p-2 capitalize">{p.jenis.replace('_', ' ')}</td>
                       <td className="p-2">
@@ -262,9 +268,11 @@ export default function PendapatanPage() {
                 {filteredPengeluarans.length === 0 ? (
                   <tr><td colSpan={6} className="text-center p-4 text-slate-500">Belum ada pengeluaran</td></tr>
                 ) : (
-                  filteredPengeluarans.map((p, index) => (
-                    <tr key={p.id} className="border-b hover:bg-slate-50">
-                      <td className="p-2 text-center text-slate-500">{index + 1}</td>
+                  filteredPengeluarans
+                    .slice((currentPagePengeluaran - 1) * itemsPerPage, currentPagePengeluaran * itemsPerPage)
+                    .map((p, index) => (
+                      <tr key={p.id} className="border-b hover:bg-slate-50">
+                        <td className="p-2 text-center text-slate-500">{(currentPagePengeluaran - 1) * itemsPerPage + index + 1}</td>
                       <td className="p-2">{formatDate(p.tanggal)}</td>
                       <td className="p-2 capitalize">{p.jenis.replace('_', ' ')}</td>
                       <td className="p-2">
@@ -306,6 +314,27 @@ export default function PendapatanPage() {
                 )}
               </tbody>
             </table>
+            {filteredPengeluarans.length > itemsPerPage && (
+              <div className="flex justify-center items-center gap-2 p-3 border-t">
+                <button
+                  onClick={() => setCurrentPagePengeluaran(p => Math.max(1, p - 1))}
+                  disabled={currentPagePengeluaran === 1}
+                  className="px-2 py-1 rounded border bg-white text-sm disabled:opacity-50"
+                >
+                  &lt;
+                </button>
+                <span className="text-xs text-slate-600">
+                  {currentPagePengeluaran} / {Math.ceil(filteredPengeluarans.length / itemsPerPage)}
+                </span>
+                <button
+                  onClick={() => setCurrentPagePengeluaran(p => Math.min(Math.ceil(filteredPengeluarans.length / itemsPerPage), p + 1))}
+                  disabled={currentPagePengeluaran >= Math.ceil(filteredPengeluarans.length / itemsPerPage)}
+                  className="px-2 py-1 rounded border bg-white text-sm disabled:opacity-50"
+                >
+                  &gt;
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -325,16 +354,39 @@ export default function PendapatanPage() {
               {anggotaWithUangBuku.length === 0 ? (
                 <tr><td colSpan={3} className="text-center p-4 text-slate-500">Belum ada anggota dengan uang buku</td></tr>
               ) : (
-                anggotaWithUangBuku.map(a => (
-                  <tr key={a.id} className="border-b hover:bg-slate-50">
-                    <td className="p-2 font-medium">{a.nama}</td>
+                anggotaWithUangBuku
+                  .slice((currentPageUangBuku - 1) * itemsPerPage, currentPageUangBuku * itemsPerPage)
+                  .map(a => (
+                    <tr key={a.id} className="border-b hover:bg-slate-50">
+                      <td className="p-2 font-medium">{a.nama}</td>
                     <td className="p-2">{a.nomorNBA || '-'}</td>
                     <td className="p-2 text-right">{formatRupiah(a.uangBuku)}</td>
-                  </tr>
+</tr>
                 ))
               )}
             </tbody>
           </table>
+          {anggotaWithUangBuku.length > itemsPerPage && (
+            <div className="flex justify-center items-center gap-2 p-3 border-t">
+              <button
+                onClick={() => setCurrentPageUangBuku(p => Math.max(1, p - 1))}
+                disabled={currentPageUangBuku === 1}
+                className="px-2 py-1 rounded border bg-white text-sm disabled:opacity-50"
+              >
+                &lt;
+              </button>
+              <span className="text-xs text-slate-600">
+                {currentPageUangBuku} / {Math.ceil(anggotaWithUangBuku.length / itemsPerPage)}
+              </span>
+              <button
+                onClick={() => setCurrentPageUangBuku(p => Math.min(Math.ceil(anggotaWithUangBuku.length / itemsPerPage), p + 1))}
+                disabled={currentPageUangBuku >= Math.ceil(anggotaWithUangBuku.length / itemsPerPage)}
+                className="px-2 py-1 rounded border bg-white text-sm disabled:opacity-50"
+              >
+                &gt;
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
