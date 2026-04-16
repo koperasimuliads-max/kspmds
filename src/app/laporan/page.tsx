@@ -83,7 +83,6 @@ function LaporanContent() {
     .reduce((sum, s) => sum + s.jumlah, 0);
     
   const simpananKopLain = 0;
-  const utangPinjaman = pinjamansByYear;
   const liabilitasImbalanKerja = 0;
   const liabilitasLain = 0;
   
@@ -507,12 +506,6 @@ function LaporanContent() {
                     <td className="p-2 text-right">{formatRupiah(simpananKopLain)}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 pl-4">II.2.4</td>
-                    <td className="p-2">Utang Pinjaman</td>
-                    <td className="p-2 text-slate-500">Kewajiban</td>
-                    <td className="p-2 text-right text-red-600">{formatRupiah(utangPinjaman)}</td>
-                  </tr>
-                  <tr className="border-b">
                     <td className="p-2 pl-4">II.2.5</td>
                     <td className="p-2">Liabilitas Imbalan Kerja</td>
                     <td className="p-2 text-slate-500">Kewajiban</td>
@@ -526,7 +519,7 @@ function LaporanContent() {
                   </tr>
                   <tr className="bg-red-100 font-bold">
                     <td className="p-3" colSpan={3}>TOTAL LIABILITAS</td>
-                    <td className="p-3 text-right text-red-800">{formatRupiah(utangBunga + simpananSukarela + simpananKopLain + utangPinjaman + liabilitasImbalanKerja + liabilitasLain)}</td>
+                    <td className="p-3 text-right text-red-800">{formatRupiah(utangBunga + simpananSukarela + simpananKopLain + liabilitasImbalanKerja + liabilitasLain)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -601,7 +594,7 @@ function LaporanContent() {
           {/* CHECK BALANCE */}
           {(() => {
             const totalAset = kas + piutangBunga + pinjamansByYear - penyisihanPinjaman;
-            const totalLiabilitas = utangBunga + simpananSukarela + simpananKopLain + utangPinjaman + liabilitasImbalanKerja + liabilitasLain;
+            const totalLiabilitas = utangBunga + simpananSukarela + simpananKopLain + liabilitasImbalanKerja + liabilitasLain;
             const totalEkuitas = simpananPokok + simpananWajib + cadangan + cadanganRisiko + shuTahunBerjalan + ekuitasLain;
             const selisih = totalAset - (totalLiabilitas + totalEkuitas);
             const isBalance = selisih === 0;
