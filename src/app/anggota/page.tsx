@@ -209,6 +209,9 @@ export default function AnggotaPage() {
       const existingWajib = new Set(simpanans.filter(s => s.jenis === 'wajib').map(s => s.anggotaId));
       const existingUangBuku = new Set(pendapatans.filter(p => p.jenis === 'uang_buku').map(p => p.deskripsi));
       
+      let countSimpanan = 0;
+      let countPendapatan = 0;
+      
       anggota.forEach(a => {
         if (a.simpananPokok > 0 && !existingPokok.has(a.id)) {
           addSimpanan({
@@ -218,6 +221,7 @@ export default function AnggotaPage() {
             tanggalSimpan: a.tanggalJoin || '2024-01-01',
             status: 'aktif',
           });
+          countSimpanan++;
         }
         if (a.simpananWajib > 0 && !existingWajib.has(a.id)) {
           addSimpanan({
@@ -227,6 +231,7 @@ export default function AnggotaPage() {
             tanggalSimpan: a.tanggalJoin || '2024-01-01',
             status: 'aktif',
           });
+          countSimpanan++;
         }
         const uangBukuDeskripsi = `Uang Buku - ${a.nama}`;
         if (a.uangBuku > 0 && !existingUangBuku.has(uangBukuDeskripsi)) {
@@ -236,11 +241,17 @@ export default function AnggotaPage() {
             jumlah: a.uangBuku,
             tanggal: a.tanggalJoin || '2024-01-01',
           });
+          countPendapatan++;
         }
       });
+      
+      if (countSimpanan > 0 || countPendapatan > 0) {
+        alert(`Data disinkronkan:\n- Simpanan ditambahkan: ${countSimpanan}\n- Pendapatan uang buku ditambahkan: ${countPendapatan}`);
+      }
     };
-    if (anggota.length > 0 && isHydrated && simpanans.length >= 0) {
-      syncDataToTables();
+    
+    if (anggota.length > 0 && isHydrated) {
+      setTimeout(syncDataToTables, 500);
     }
   }, [anggota, simpanans, pendapatans, isHydrated, addSimpanan, addPendapatan]);
 
