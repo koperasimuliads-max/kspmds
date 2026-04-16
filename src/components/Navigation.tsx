@@ -142,6 +142,10 @@ export default function Navigation() {
               <p className="text-[10px]">NIB: 1111230014031</p>
               <p className="text-[10px]">NPWP: 99.043.935.8-128.000</p>
             </div>
+            <div className="mt-4 pt-3 border-t border-slate-600 text-center">
+              <p className="text-[10px] text-slate-500">© 2026 MEB Tech Solutions</p>
+              <p className="text-[9px] text-slate-600 mt-1">Created by Marwan Esra Bangun</p>
+            </div>
           </div>
         </div>
       </div>
