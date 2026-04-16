@@ -11,110 +11,7 @@ function formatRupiah(amount: number): string {
 export default function LaporanPage() {
   const { anggota, pinjamans, simpanans, pendapatans, pengeluarans, getLaporanKeuangan } = useKSP();
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-  const laporan = getLaporanKeuangan();
-
-  const simpananPerTahun = simpanans
-    .filter(s => s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
-    .reduce((sum, s) => sum + s.jumlah, 0);
-
-  const simpananByJenis = {
-    wajib: simpanans
-      .filter(s => s.jenis === 'wajib' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
-      .reduce((sum, s) => sum + s.jumlah, 0),
-    pokok: simpanans
-      .filter(s => s.jenis === 'pokok' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
-      .reduce((sum, s) => sum + s.jumlah, 0),
-    sibuhar: simpanans
-      .filter(s => s.jenis === 'sibuhar' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
-      .reduce((sum, s) => sum + s.jumlah, 0),
-    simapan: simpanans
-      .filter(s => s.jenis === 'simapan' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
-      .reduce((sum, s) => sum + s.jumlah, 0),
-    sihat: simpanans
-      .filter(s => s.jenis === 'sihat' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
-      .reduce((sum, s) => sum + s.jumlah, 0),
-    sihar: simpanans
-      .filter(s => s.jenis === 'sihar' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
-      .reduce((sum, s) => sum + s.jumlah, 0),
-  };
-
-  const totalSimpanan = Object.values(simpananByJenis).reduce((a, b) => a + b, 0);
-  const totalPinjamanAktif = pinjamans
-    .filter(p => p.status === 'aktif' && new Date(p.tanggalPinjaman).getFullYear() <= selectedYear)
-    .reduce((sum, p) => sum + p.jumlah, 0);
-  const totalPinjamanLunas = pinjamans
-    .filter(p => p.status === 'lunas' && new Date(p.tanggalPinjaman).getFullYear() <= selectedYear)
-    .reduce((sum, p) => sum + p.jumlah, 0);
-  const totalPinjamanMacet = pinjamans
-    .filter(p => p.status === 'macet' && new Date(p.tanggalPinjaman).getFullYear() <= selectedYear)
-    .reduce((sum, p) => sum + p.jumlah, 0);
-
-  const pendapatanPerTahun = pendapatans
-    .filter(p => new Date(p.tanggal).getFullYear() === selectedYear)
-    .reduce((sum, p) => sum + p.jumlah, 0);
-  const pengeluaranPerTahun = pengeluarans
-    .filter(p => new Date(p.tanggal).getFullYear() === selectedYear)
-    .reduce((sum, p) => sum + p.jumlah, 0);
-  const shNetPerTahun = pendapatanPerTahun - pengeluaranPerTahun;
-
-  const shuDistribution = shNetPerTahun > 0 ? {
-    dana_cadangan_umum: shNetPerTahun * 0.05,
-    dana_cadangan_resiko: shNetPerTahun * 0.05,
-    jasa_modal: shNetPerTahun * 0.55,
-    jasa_transaksi: shNetPerTahun * 0.20,
-    dana_pengurus_pengawas: shNetPerTahun * 0.05,
-    dana_kesejahteraan_karyawan: shNetPerTahun * 0.05,
-    dana_pendidikan: shNetPerTahun * 0.02,
-    dana_sosial: shNetPerTahun * 0.02,
-    daerah_pembangunan_daerah_kerja: shNetPerTahun * 0.01,
-  } : null;
-
-  const anggotaAktif = anggota.filter(a => a.status === 'aktif');
-  
-  const hitungSHUAnggota = () => {
-    if (!shuDistribution || shuDistribution.jasa_modal === 0 || shuDistribution.jasa_transaksi === 0) return [];
-    
-    const totalSimpananSemua = simpanans
-      .filter(s => s.status === 'aktif')
-      .reduce((sum, s) => sum + s.jumlah, 0);
-    
-    const totalPinjamanSemua = pinjamans
-      .filter(p => p.status === 'aktif')
-      .reduce((sum, p) => sum + p.jumlah, 0);
-    
-    return anggotaAktif.map(ag => {
-      const simpananAnggota = simpanans
-        .filter(s => s.anggotaId === ag.id && s.status === 'aktif')
-        .reduce((sum, s) => sum + s.jumlah, 0);
-      
-      const pinjamanAnggota = pinjamans
-        .filter(p => p.anggotaId === ag.id && p.status === 'aktif')
-        .reduce((sum, p) => sum + p.jumlah, 0);
-      
-      const jasaModal = totalSimpananSemua > 0 
-        ? (simpananAnggota / totalSimpananSemua) * shuDistribution.jasa_modal 
-        : 0;
-      
-      const jasaTransaksi = totalPinjamanSemua > 0 
-        ? (pinjamanAnggota / totalPinjamanSemua) * shuDistribution.jasa_transaksi 
-        : 0;
-      
-      return {
-        id: ag.id,
-        nama: ag.nama,
-        nomorNBA: ag.nomorNBA,
-        simpanan: simpananAnggota,
-        pinjaman: pinjamanAnggota,
-        jasaModal,
-        jasaTransaksi,
-        totalSHU: jasaModal + jasaTransaksi,
-      };
-    }).filter(a => a.totalSHU > 0).sort((a, b) => b.totalSHU - a.totalSHU);
-  };
-
-  const shuPerAnggota = hitungSHUAnggota();
-
-  const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  const [activeTab, setActiveTab] = useState<'neraca' | 'shu'>('neraca');
 
   const tahunOptions = Array.from(new Set([
     ...anggota.map(a => a.tanggalJoin ? new Date(a.tanggalJoin).getFullYear() : 2024),
@@ -122,9 +19,88 @@ export default function LaporanPage() {
     ...pengeluarans.map(p => new Date(p.tanggal).getFullYear()),
   ])).sort((a, b) => b - a);
 
+  // ========== NERACA CALCULATIONS ==========
+  
+  // Calculate totals first
+  const totalPinjamanAktif = pinjamans
+    .filter(p => p.status === 'aktif')
+    .reduce((sum, p) => sum + p.jumlah, 0);
+  const totalPinjamanLunas = pinjamans
+    .filter(p => p.status === 'lunas')
+    .reduce((sum, p) => sum + p.jumlah, 0);
+  const totalPinjamanMacet = pinjamans
+    .filter(p => p.status === 'macet')
+    .reduce((sum, p) => sum + p.jumlah, 0);
+  
+  // ASET
+  const kas = simpanans.filter(s => s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
+  const bank = 0;
+  const piutangBunga = Math.round(totalPinjamanAktif * 0.01);
+  const pinjamansByYear = pinjamans
+    .filter(p => p.status === 'aktif' && new Date(p.tanggalPinjaman).getFullYear() <= selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+  const penyisihanPinjaman = Math.round(totalPinjamanAktif * 0.05);
+  const asetTetap = 0;
+  const tanah = 0;
+  const bangunan = 0;
+  const mesinKendaraan = 0;
+  const inventaris = 0;
+  const akumulasiPenyusutan = 0;
+
+  // LIABILITAS
+  const utangBunga = Math.round(totalPinjamanAktif * 0.12 / 12);
+  const simpananHarian = simpanans.filter(s => s.jenis === 'wajib').reduce((sum, s) => sum + s.jumlah, 0);
+  const simpananBerencana = simpanans.filter(s => ['sibuhar', 'simapan', 'sihat', 'sihar'].includes(s.jenis)).reduce((sum, s) => sum + s.jumlah, 0);
+  const simpananBerjangka = 0;
+  const utangPinjaman = totalPinjamanAktif;
+
+  // EKUITAS
+  const simpananPokok = simpanans.filter(s => s.jenis === 'pokok').reduce((sum, s) => sum + s.jumlah, 0);
+  const simpananWajib = simpanans.filter(s => s.jenis === 'wajib').reduce((sum, s) => sum + s.jumlah, 0);
+  const cadangan = 0;
+  
+  const pendapatanAll = pendapatans.reduce((sum, p) => sum + p.jumlah, 0);
+  const pengeluaranAll = pengeluarans.reduce((sum, p) => sum + p.jumlah, 0);
+  const shuTahunBerjalan = pendapatanAll - pengeluaranAll;
+
+  // ========== PERHITUNGAN SHU ==========
+  
+  // PENDAPATAN (Partisipasi Anggota)
+  const pendapatanBunga = pendapatans.filter(p => p.jenis === 'bunga_pinjaman').reduce((sum, p) => sum + p.jumlah, 0);
+  const pendapatanUsahaLain = 0;
+  const pendapatanAdmin = pendapatans.filter(p => p.jenis === 'administrasi_pengunduran_diri').reduce((sum, p) => sum + p.jumlah, 0);
+  const pendapatanProvisi = 0;
+  const pendapatanDenda = 0;
+  const totalPendapatan = pendapatanBunga + pendapatanUsahaLain + pendapatanAdmin + pendapatanProvisi + pendapatanDenda;
+
+  // BEBAN USAHA
+  const bebanBungaSimpanan = Math.round(simpananHarian * 0.03); // Estimasi 3% per tahun
+  const bebanBungaPinjaman = 0;
+  const bebanGaji = pengeluarans.filter(p => p.jenis === 'gaji_karyawan').reduce((sum, p) => sum + p.jumlah, 0);
+  const bebanAdminUmum = pengeluarans.filter(p => ['operasional', 'kantor', 'listrik', 'internet', 'atk', 'perawatan', 'pajak', 'bank', 'lainnya'].includes(p.jenis)).reduce((sum, p) => sum + p.jumlah, 0);
+  const bebanPenyusutan = 0;
+  const totalBeban = bebanBungaSimpanan + bebanBungaPinjaman + bebanGaji + bebanAdminUmum + bebanPenyusutan;
+
+  const shuKotor = totalPendapatan - totalBeban;
+  
+  // SHU Distribution
+  const shuDistribution = shuKotor > 0 ? {
+    dana_cadangan_umum: shuKotor * 0.05,
+    dana_cadangan_resiko: shuKotor * 0.05,
+    jasa_modal: shuKotor * 0.55,
+    jasa_transaksi: shuKotor * 0.20,
+    dana_pengurus_pengawas: shuKotor * 0.05,
+    dana_karyawan: shuKotor * 0.05,
+    dana_pendidikan: shuKotor * 0.02,
+    dana_sosial: shuKotor * 0.02,
+    dana_pembangunan: shuKotor * 0.01,
+  } : null;
+
+  const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
   return (
     <div>
-      <div className="flex items-center gap-4 mb-2">
+      <div className="flex items-center gap-4 mb-4">
         <BackButton />
         <h1 className="text-2xl font-bold text-slate-800">Laporan Keuangan</h1>
         <select
@@ -139,210 +115,329 @@ export default function LaporanPage() {
       </div>
       <p className="text-slate-500 mb-4">KSP Mulia Dana Sejahtera - per {today}</p>
 
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">📊 NERACA PER TAHUN {selectedYear}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-3 bg-blue-50 rounded">
-            <p className="text-blue-700 text-sm font-medium">Pendapatan Tahun {selectedYear}</p>
-            <p className="text-xl font-bold text-blue-800">{formatRupiah(pendapatanPerTahun)}</p>
-            <p className="text-xs text-blue-600 mt-1">{pendapatans.filter(p => new Date(p.tanggal).getFullYear() === selectedYear).length} transaksi</p>
-          </div>
-          <div className="p-3 bg-red-50 rounded">
-            <p className="text-red-700 text-sm font-medium">Pengeluaran Tahun {selectedYear}</p>
-            <p className="text-xl font-bold text-red-800">{formatRupiah(pengeluaranPerTahun)}</p>
-            <p className="text-xs text-red-600 mt-1">{pengeluarans.filter(p => new Date(p.tanggal).getFullYear() === selectedYear).length} transaksi</p>
-          </div>
-          <div className={`p-3 rounded ${shNetPerTahun >= 0 ? 'bg-green-50' : 'bg-orange-50'}`}>
-            <p className={`text-sm font-medium ${shNetPerTahun >= 0 ? 'text-green-700' : 'text-orange-700'}`}>SHU Tahun {selectedYear}</p>
-            <p className={`text-xl font-bold ${shNetPerTahun >= 0 ? 'text-green-800' : 'text-orange-800'}`}>{formatRupiah(shNetPerTahun)}</p>
-          </div>
-          <div className="p-3 bg-purple-50 rounded">
-            <p className="text-purple-700 text-sm font-medium">Total Semua Pendapatan</p>
-            <p className="text-xl font-bold text-purple-800">{formatRupiah(pendapatanPerTahun)}</p>
-            <p className="text-xs text-purple-600 mt-1">Semua tahun</p>
-          </div>
-        </div>
+      {/* Tab Navigation */}
+      <div className="flex gap-2 mb-6">
+        <button
+          onClick={() => setActiveTab('neraca')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            activeTab === 'neraca' 
+              ? 'bg-blue-600 text-white' 
+              : 'bg-white text-slate-600 border hover:bg-slate-50'
+          }`}
+        >
+          📊 Posisi Keuangan (Neraca)
+        </button>
+        <button
+          onClick={() => setActiveTab('shu')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            activeTab === 'shu' 
+              ? 'bg-green-600 text-white' 
+              : 'bg-white text-slate-600 border hover:bg-slate-50'
+          }`}
+        >
+          📈 Perhitungan SHU (Laba/Rugi)
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">ASET - SIMPANAN</h2>
-          <div className="space-y-1 text-sm">
-            <p className="flex justify-between"><span>Simpanan Pokok</span><span>{formatRupiah(simpananByJenis.pokok)}</span></p>
-            <p className="flex justify-between"><span>Simpanan Wajib</span><span>{formatRupiah(simpananByJenis.wajib)}</span></p>
-            <p className="flex justify-between"><span>Sibuhar</span><span>{formatRupiah(simpananByJenis.sibuhar)}</span></p>
-            <p className="flex justify-between"><span>Simapan</span><span>{formatRupiah(simpananByJenis.simapan)}</span></p>
-            <p className="flex justify-between"><span>Sihat</span><span>{formatRupiah(simpananByJenis.sihat)}</span></p>
-            <p className="flex justify-between"><span>Sihar</span><span>{formatRupiah(simpananByJenis.sihar)}</span></p>
-            <p className="flex justify-between font-bold border-t pt-1"><span>TOTAL</span><span>{formatRupiah(totalSimpanan)}</span></p>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">PIUTANG</h2>
-          <div className="space-y-1 text-sm">
-            <p className="flex justify-between"><span>Pinjaman Aktif</span><span className="text-blue-600">{formatRupiah(totalPinjamanAktif)}</span></p>
-            <p className="flex justify-between text-slate-500"><span>Pinjaman Lunas</span><span>{pinjamans.filter(p => p.status === 'lunas').length} akun</span></p>
-            <p className="flex justify-between text-slate-500"><span>Pinjaman Macet</span><span>{pinjamans.filter(p => p.status === 'macet').length} akun</span></p>
-            <p className="flex justify-between font-bold border-t pt-1"><span>TOTAL PIUTANG</span><span>{formatRupiah(totalPinjamanAktif + totalPinjamanLunas + totalPinjamanMacet)}</span></p>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">PENDAPATAN</h2>
-          <div className="space-y-1 text-sm">
-            <p className="flex justify-between"><span>Total Pendapatan</span><span className="font-medium">{formatRupiah(pendapatanPerTahun)}</span></p>
-            <p className="text-xs text-slate-500 mt-2">Dari menu Pendapatan</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">PENGELUARAN</h2>
-          <div className="space-y-1 text-sm">
-            <p className="flex justify-between"><span>Total Pengeluaran</span><span className="font-medium">{formatRupiah(pengeluaranPerTahun)}</span></p>
-            <p className="text-xs text-slate-500 mt-2">Dari menu Pengeluaran</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">RINGKASAN LABA/RUGI</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-3 bg-green-50 rounded">
-            <p className="font-medium text-green-800">Total Pendapatan</p>
-            <p className="text-xl font-bold text-green-700">{formatRupiah(pendapatanPerTahun)}</p>
-          </div>
-          <div className="p-3 bg-red-50 rounded">
-            <p className="font-medium text-red-800">Total Pengeluaran</p>
-            <p className="text-xl font-bold text-red-700">{formatRupiah(pengeluaranPerTahun)}</p>
-          </div>
-          <div className={`p-3 rounded ${shNetPerTahun >= 0 ? 'bg-blue-50' : 'bg-orange-50'}`}>
-            <p className={`font-medium ${shNetPerTahun >= 0 ? 'text-blue-800' : 'text-orange-800'}`}>
-              {shNetPerTahun >= 0 ? 'SISA HASIL USAHA (SHU)' : 'RUGI'}
-            </p>
-            <p className={`text-2xl font-bold ${shNetPerTahun >= 0 ? 'text-blue-700' : 'text-orange-700'}`}>
-              {formatRupiah(shNetPerTahun)}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">STATISTIK</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div className="text-center p-3 bg-slate-50 rounded">
-            <p className="text-slate-500">Total Anggota</p>
-            <p className="text-xl font-bold">{anggota.length}</p>
-          </div>
-          <div className="text-center p-3 bg-slate-50 rounded">
-            <p className="text-slate-500">Anggota Aktif</p>
-            <p className="text-xl font-bold text-green-600">{anggota.filter(a => a.status === 'aktif').length}</p>
-          </div>
-          <div className="text-center p-3 bg-slate-50 rounded">
-            <p className="text-slate-500">Pinjaman Aktif</p>
-            <p className="text-xl font-bold text-blue-600">{pinjamans.filter(p => p.status === 'aktif').length}</p>
-          </div>
-          <div className="text-center p-3 bg-slate-50 rounded">
-            <p className="text-slate-500">Total Simpanan</p>
-            <p className="text-xl font-bold text-purple-600">{formatRupiah(totalSimpanan)}</p>
-          </div>
-        </div>
-      </div>
-
-      {shuDistribution && (
-        <div className="bg-white p-4 rounded-lg shadow mb-6">
-          <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">PEMBAGIAN SHU (SISA HASIL USAHA)</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-            <div className="p-3 bg-slate-50 rounded">
-              <p className="text-slate-500 text-xs">Dana Cadangan Umum (5%)</p>
-              <p className="font-bold">{formatRupiah(shuDistribution.dana_cadangan_umum)}</p>
+      {activeTab === 'neraca' ? (
+        /* ========== NERACA ========== */
+        <div className="space-y-6">
+          {/* ASET */}
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
+              <h2 className="text-white font-bold text-lg">I. ASET</h2>
             </div>
-            <div className="p-3 bg-slate-50 rounded">
-              <p className="text-slate-500 text-xs">Dana Cadangan Resiko (5%)</p>
-              <p className="font-bold">{formatRupiah(shuDistribution.dana_cadangan_resiko)}</p>
-            </div>
-            <div className="p-3 bg-green-50 rounded">
-              <p className="text-green-700 text-xs">Jasa Modal (55%)</p>
-              <p className="font-bold text-green-700">{formatRupiah(shuDistribution.jasa_modal)}</p>
-            </div>
-            <div className="p-3 bg-blue-50 rounded">
-              <p className="text-blue-700 text-xs">Jasa Transaksi (20%)</p>
-              <p className="font-bold text-blue-700">{formatRupiah(shuDistribution.jasa_transaksi)}</p>
-            </div>
-            <div className="p-3 bg-yellow-50 rounded">
-              <p className="text-yellow-700 text-xs">Dana Pengurus/Pengawas (5%)</p>
-              <p className="font-bold text-yellow-700">{formatRupiah(shuDistribution.dana_pengurus_pengawas)}</p>
-            </div>
-            <div className="p-3 bg-purple-50 rounded">
-              <p className="text-purple-700 text-xs">Dana Kesejahteraan Karyawan (5%)</p>
-              <p className="font-bold text-purple-700">{formatRupiah(shuDistribution.dana_kesejahteraan_karyawan)}</p>
-            </div>
-            <div className="p-3 bg-orange-50 rounded">
-              <p className="text-orange-700 text-xs">Dana Pendidikan (2%)</p>
-              <p className="font-bold text-orange-700">{formatRupiah(shuDistribution.dana_pendidikan)}</p>
-            </div>
-            <div className="p-3 bg-red-50 rounded">
-              <p className="text-red-700 text-xs">Dana Sosial (2%)</p>
-              <p className="font-bold text-red-700">{formatRupiah(shuDistribution.dana_sosial)}</p>
-            </div>
-            <div className="p-3 bg-teal-50 rounded">
-              <p className="text-teal-700 text-xs">Daerah Pembangunan Daerah Kerja (1%)</p>
-              <p className="font-bold text-teal-700">{formatRupiah(shuDistribution.daerah_pembangunan_daerah_kerja)}</p>
-            </div>
-          </div>
-          <div className="mt-4 pt-3 border-t text-center">
-            <p className="text-slate-600">Total Pembagian SHU</p>
-            <p className="text-xl font-bold text-slate-800">{formatRupiah(shNetPerTahun)}</p>
-          </div>
-        </div>
-      )}
-
-      {shuPerAnggota.length > 0 && (
-        <div className="bg-white p-4 rounded-lg shadow mb-6">
-          <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">SHU PER ANGGOTA</h2>
-          <p className="text-sm text-slate-500 mb-3">
-            Berdasarkan proporsi simpanan (Jasa Modal) dan pinjaman (Jasa Transaksi)
-          </p>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-100">
-                <tr>
-                  <th className="text-center p-2 w-12">No</th>
-                  <th className="text-left p-2">Nama Anggota</th>
-                  <th className="text-left p-2">NBA</th>
-                  <th className="text-right p-2">Simpanan</th>
-                  <th className="text-right p-2">Pinjaman</th>
-                  <th className="text-right p-2">Jasa Modal</th>
-                  <th className="text-right p-2">Jasa Transaksi</th>
-                  <th className="text-right p-2 font-bold">Total SHU</th>
-                </tr>
-              </thead>
-              <tbody>
-                {shuPerAnggota.map((a, index) => (
-                  <tr key={a.id} className="border-b hover:bg-slate-50">
-                    <td className="p-2 text-center text-slate-500">{index + 1}</td>
-                    <td className="p-2 font-medium">{a.nama}</td>
-                    <td className="p-2">{a.nomorNBA || '-'}</td>
-                    <td className="p-2 text-right">{formatRupiah(a.simpanan)}</td>
-                    <td className="p-2 text-right">{formatRupiah(a.pinjaman)}</td>
-                    <td className="p-2 text-right text-green-600">{formatRupiah(a.jasaModal)}</td>
-                    <td className="p-2 text-right text-blue-600">{formatRupiah(a.jasaTransaksi)}</td>
-                    <td className="p-2 text-right font-bold text-green-700">{formatRupiah(a.totalSHU)}</td>
+            <div className="p-4">
+              <table className="w-full text-sm">
+                <tbody>
+                  <tr className="border-b bg-slate-50">
+                    <td className="p-2 font-medium text-slate-700">I.1ASET LANCAR</td>
+                    <td className="p-2 text-right font-medium text-slate-700">SALDO</td>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot className="bg-slate-50 font-bold">
-                <tr>
-                  <td colSpan={4} className="p-2 text-right">TOTAL</td>
-                  <td className="p-2 text-right">{formatRupiah(shuPerAnggota.reduce((s, a) => s + a.simpanan, 0))}</td>
-                  <td className="p-2 text-right">{formatRupiah(shuPerAnggota.reduce((s, a) => s + a.pinjaman, 0))}</td>
-                  <td className="p-2 text-right">{formatRupiah(shuPerAnggota.reduce((s, a) => s + a.jasaModal, 0))}</td>
-                  <td className="p-2 text-right">{formatRupiah(shuPerAnggota.reduce((s, a) => s + a.jasaTransaksi, 0))}</td>
-                  <td className="p-2 text-right text-green-700">{formatRupiah(shuPerAnggota.reduce((s, a) => s + a.totalSHU, 0))}</td>
-                </tr>
-              </tfoot>
-            </table>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">I.1.1 Kas</td>
+                    <td className="p-2 text-right">{formatRupiah(kas)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">I.1.2 Bank</td>
+                    <td className="p-2 text-right">{formatRupiah(bank)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">I.1.3 Piutang Bunga</td>
+                    <td className="p-2 text-right">{formatRupiah(piutangBunga)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">I.1.4 Pinjaman Anggota</td>
+                    <td className="p-2 text-right font-medium text-blue-600">{formatRupiah(pinjamansByYear)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">I.1.5 Penyisihan Pinjaman (Kontra)</td>
+                    <td className="p-2 text-right text-red-500">({formatRupiah(penyisihanPinjaman)})</td>
+                  </tr>
+                  <tr className="border-b bg-slate-50">
+                    <td className="p-2 font-medium text-slate-700">I.2 ASET TETAP</td>
+                    <td className="p-2 text-right font-medium text-slate-700">SALDO</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">I.1.8 Aset Tetap</td>
+                    <td className="p-2 text-right">{formatRupiah(asetTetap)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">I.1.9 Tanah</td>
+                    <td className="p-2 text-right">{formatRupiah(tanah)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">I.1.10 Bangunan</td>
+                    <td className="p-2 text-right">{formatRupiah(bangunan)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">I.1.11 Mesin dan Kendaraan</td>
+                    <td className="p-2 text-right">{formatRupiah(mesinKendaraan)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">I.1.12 Inventaris & Peralatan Kantor</td>
+                    <td className="p-2 text-right">{formatRupiah(inventaris)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">I.1.13 Akumulasi Penyusutan (Kontra)</td>
+                    <td className="p-2 text-right text-red-500">({formatRupiah(akumulasiPenyusutan)})</td>
+                  </tr>
+                  <tr className="bg-blue-50 font-bold">
+                    <td className="p-3">TOTAL ASET</td>
+                    <td className="p-3 text-right text-blue-700">{formatRupiah(kas + bank + piutangBunga + pinjamansByYear - penyisihanPinjaman)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
+
+          {/* LIABILITAS */}
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-red-500 to-red-600 p-4">
+              <h2 className="text-white font-bold text-lg">II. LIABILITAS</h2>
+            </div>
+            <div className="p-4">
+              <table className="w-full text-sm">
+                <tbody>
+                  <tr className="border-b bg-slate-50">
+                    <td className="p-2 font-medium text-slate-700">II.2 LIABILITAS</td>
+                    <td className="p-2 text-right font-medium text-slate-700">SALDO</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">II.2.1 Utang Bunga</td>
+                    <td className="p-2 text-right">{formatRupiah(utangBunga)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">II.2.2.1 Simpanan Harian</td>
+                    <td className="p-2 text-right">{formatRupiah(simpananHarian)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">II.2.2.2 Simpanan Berencana</td>
+                    <td className="p-2 text-right">{formatRupiah(simpananBerencana)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">II.2.2.3 Simpanan Berjangka</td>
+                    <td className="p-2 text-right">{formatRupiah(simpananBerjangka)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">II.2.4 Utang Pinjaman</td>
+                    <td className="p-2 text-right text-red-600">{formatRupiah(utangPinjaman)}</td>
+                  </tr>
+                  <tr className="bg-red-50 font-bold">
+                    <td className="p-3">TOTAL LIABILITAS</td>
+                    <td className="p-3 text-right text-red-700">{formatRupiah(utangBunga + simpananHarian + simpananBerencana + simpananBerjangka + utangPinjaman)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* EKUITAS */}
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-green-500 to-green-600 p-4">
+              <h2 className="text-white font-bold text-lg">III. EKUITAS</h2>
+            </div>
+            <div className="p-4">
+              <table className="w-full text-sm">
+                <tbody>
+                  <tr className="border-b bg-slate-50">
+                    <td className="p-2 font-medium text-slate-700">III.3 EKUITAS</td>
+                    <td className="p-2 text-right font-medium text-slate-700">SALDO</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">III.3.1 Simpanan Pokok (Modal Tetap)</td>
+                    <td className="p-2 text-right">{formatRupiah(simpananPokok)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">III.3.2 Simpanan Wajib (Modal Tambahan)</td>
+                    <td className="p-2 text-right">{formatRupiah(simpananWajib)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">III.3.3 Cadangan</td>
+                    <td className="p-2 text-right">{formatRupiah(cadangan)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">III.3.5 Sisa Hasil Usaha (SHU)</td>
+                    <td className="p-2 text-right text-green-600 font-medium">{formatRupiah(shuTahunBerjalan)}</td>
+                  </tr>
+                  <tr className="bg-green-50 font-bold">
+                    <td className="p-3">TOTAL EKUITAS</td>
+                    <td className="p-3 text-right text-green-700">{formatRupiah(simpananPokok + simpananWajib + cadangan + shuTahunBerjalan)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* CHECK BALANCE */}
+          <div className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-xl p-4 text-white">
+            <div className="flex justify-between items-center">
+              <span className="font-bold">TOTAL LIABILITAS + EKUITAS</span>
+              <span className="text-xl font-bold">
+                {formatRupiah((utangBunga + simpananHarian + simpananBerencana + simpananBerjangka + utangPinjaman) + (simpananPokok + simpananWajib + cadangan + shuTahunBerjalan))}
+              </span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* ========== PERHITUNGAN SHU ========== */
+        <div className="space-y-6">
+          {/* PENDAPATAN */}
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-green-500 to-green-600 p-4">
+              <h2 className="text-white font-bold text-lg">IV. PARTISIPASI ANGGOTA (PENDAPATAN)</h2>
+            </div>
+            <div className="p-4">
+              <table className="w-full text-sm">
+                <tbody>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">IV.1.1 Pendapatan Bunga</td>
+                    <td className="p-2 text-right">{formatRupiah(pendapatanBunga)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">IV.1.2 Pendapatan Usaha Lain</td>
+                    <td className="p-2 text-right">{formatRupiah(pendapatanUsahaLain)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">IV.1.3 Pendapatan Administrasi</td>
+                    <td className="p-2 text-right">{formatRupiah(pendapatanAdmin)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">IV.1.4 Pendapatan Provisi</td>
+                    <td className="p-2 text-right">{formatRupiah(pendapatanProvisi)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">IV.1.5 Pendapatan Denda</td>
+                    <td className="p-2 text-right">{formatRupiah(pendapatanDenda)}</td>
+                  </tr>
+                  <tr className="bg-green-50 font-bold">
+                    <td className="p-3">JUMLAH PENDAPATAN</td>
+                    <td className="p-3 text-right text-green-700">{formatRupiah(totalPendapatan)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* BEBAN USAHA */}
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-red-500 to-red-600 p-4">
+              <h2 className="text-white font-bold text-lg">V. BEBAN USAHA</h2>
+            </div>
+            <div className="p-4">
+              <table className="w-full text-sm">
+                <tbody>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">V.1.1 Beban Bunga Simpanan Harian/Program</td>
+                    <td className="p-2 text-right">{formatRupiah(bebanBungaSimpanan)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">V.1.4 Beban Bunga Pinjaman</td>
+                    <td className="p-2 text-right">{formatRupiah(bebanBungaPinjaman)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">V.1.5 Beban Kepegawaian (Gaji)</td>
+                    <td className="p-2 text-right">{formatRupiah(bebanGaji)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">V.1.6 Beban Administrasi dan Umum</td>
+                    <td className="p-2 text-right">{formatRupiah(bebanAdminUmum)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-6">V.1.7 Beban Penyusutan dan Amortisasi</td>
+                    <td className="p-2 text-right">{formatRupiah(bebanPenyusutan)}</td>
+                  </tr>
+                  <tr className="bg-red-50 font-bold">
+                    <td className="p-3">JUMLAH BEBAN USAHA</td>
+                    <td className="p-3 text-right text-red-700">{formatRupiah(totalBeban)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* SHU KOTOR */}
+          <div className={`rounded-xl p-6 ${shuKotor >= 0 ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-red-500 to-red-600'}`}>
+            <div className="flex justify-between items-center text-white">
+              <span className="text-lg font-bold">SISA HASIL USAHA (SHU) KOTOR</span>
+              <span className="text-2xl font-bold">{formatRupiah(shuKotor)}</span>
+            </div>
+          </div>
+
+          {/* SHU DISTRIBUTION */}
+          {shuDistribution && shuKotor > 0 && (
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-4">
+                <h2 className="text-white font-bold text-lg">VI. PENYISIHAN & PEMBAGIAN SHU</h2>
+              </div>
+              <div className="p-4">
+                <table className="w-full text-sm">
+                  <tbody>
+                    <tr className="border-b">
+                      <td className="p-2 pl-6">Dana Cadangan Umum (5%)</td>
+                      <td className="p-2 text-right">{formatRupiah(shuDistribution.dana_cadangan_umum)}</td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2 pl-6">Dana Cadangan Risiko (5%)</td>
+                      <td className="p-2 text-right">{formatRupiah(shuDistribution.dana_cadangan_resiko)}</td>
+                    </tr>
+                    <tr className="border-b bg-yellow-50">
+                      <td className="p-2 pl-6 font-medium">Jasa Modal (55%)</td>
+                      <td className="p-2 text-right font-medium">{formatRupiah(shuDistribution.jasa_modal)}</td>
+                    </tr>
+                    <tr className="border-b bg-blue-50">
+                      <td className="p-2 pl-6 font-medium">Jasa Transaksi (20%)</td>
+                      <td className="p-2 text-right font-medium">{formatRupiah(shuDistribution.jasa_transaksi)}</td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2 pl-6">Dana Pengurus & Pengawas (5%)</td>
+                      <td className="p-2 text-right">{formatRupiah(shuDistribution.dana_pengurus_pengawas)}</td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2 pl-6">Dana Kesejahteraan Karyawan (5%)</td>
+                      <td className="p-2 text-right">{formatRupiah(shuDistribution.dana_karyawan)}</td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2 pl-6">Dana Pendidikan (2%)</td>
+                      <td className="p-2 text-right">{formatRupiah(shuDistribution.dana_pendidikan)}</td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2 pl-6">Dana Sosial (2%)</td>
+                      <td className="p-2 text-right">{formatRupiah(shuDistribution.dana_sosial)}</td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2 pl-6">Dana Pembangunan Daerah Kerja (1%)</td>
+                      <td className="p-2 text-right">{formatRupiah(shuDistribution.dana_pembangunan)}</td>
+                    </tr>
+                    <tr className="bg-purple-50 font-bold">
+                      <td className="p-3">TOTAL PENYISIHAN</td>
+                      <td className="p-3 text-right text-purple-700">{formatRupiah(shuKotor)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
