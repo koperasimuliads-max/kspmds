@@ -100,9 +100,33 @@ export default function SimpananPage() {
       for (const row of json) {
         const noNBA = String(row['No. NBA'] || row['noNBA'] || '').trim();
         const nama = String(row['Nama Anggota'] || row['nama'] || '').trim();
-        const tanggalStr = String(row['Tanggal Transaksi'] || row['tanggal'] || '').trim();
-        const jenisBayar = String(row['Jenis Pembayaran'] || row['jenisPembayaran'] || '').trim();
-        const jumlah = Number(row['Jumlah Transaksi'] || row['jumlah'] || 0);
+        const jumlah = Number(row['Nilai Simpanan'] || row['jumlah'] || row['Jumlah'] || 0);
+        
+        const jenisRaw = String(row['Jenis Simpanan'] || row['jenis'] || row['Jenis'] || '').toLowerCase();
+        let jenis: 'pokok' | 'wajib' | 'sibuhar' | 'simapan' | 'sihat' | 'sihar' = 'wajib';
+        if (jenisRaw.includes('pokok') || jenisRaw === 'sp') {
+          jenis = 'pokok';
+        } else if (jenisRaw.includes('wajib') || jenisRaw === 'sw') {
+          jenis = 'wajib';
+        } else if (jenisRaw.includes('sibuhar')) {
+          jenis = 'sibuhar';
+        } else if (jenisRaw.includes('simapan')) {
+          jenis = 'simapan';
+        } else if (jenisRaw.includes('sihat')) {
+          jenis = 'sihat';
+        } else if (jenisRaw.includes('sihar')) {
+          jenis = 'sihar';
+        }
+        
+        const tanggalStr = String(row['Tanggal Transaksi'] || row['tanggal'] || row['Tanggal'] || '').trim();
+        
+        const statusRaw = String(row['Status'] || row['status'] || '').toLowerCase();
+        let status: 'aktif' | 'ditarik' | 'aktif_auto' = 'aktif';
+        if (statusRaw.includes('ditarik') || statusRaw === 'ditarik') {
+          status = 'ditarik';
+        } else if (statusRaw.includes('auto') || statusRaw === 'aktif_auto') {
+          status = 'aktif_auto';
+        }
 
         if (!noNBA && !nama) continue;
 
@@ -121,10 +145,10 @@ export default function SimpananPage() {
 
         addSimpanan({
           anggotaId: ag.id,
-          jenis: 'wajib',
+          jenis: jenis,
           jumlah: jumlah,
           tanggalSimpan: tanggal,
-          status: 'aktif',
+          status: status,
         });
         count++;
       }
