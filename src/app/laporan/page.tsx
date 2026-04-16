@@ -216,20 +216,26 @@ export default function LaporanPage() {
 
   return (
     <div>
-      <div className="flex items-center gap-4 mb-4">
+      <div className="flex items-center gap-4 mb-4 print:hidden">
         <BackButton />
         <h1 className="text-2xl font-bold text-slate-800">Laporan Keuangan</h1>
         <select
           value={selectedYear}
           onChange={e => setSelectedYear(Number(e.target.value))}
-          className="ml-auto border p-2 rounded"
+          className="border p-2 rounded"
         >
           {tahunOptions.map(t => (
             <option key={t} value={t}>{t}</option>
           ))}
         </select>
+        <button
+          onClick={() => window.print()}
+          className="ml-auto bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center gap-2"
+        >
+          🖨️ Cetak / PDF
+        </button>
       </div>
-      <p className="text-slate-500 mb-4">KSP Mulia Dana Sejahtera - per {today}</p>
+      <p className="text-slate-500 mb-4 print:hidden">KSP Mulia Dana Sejahtera - per {today}</p>
 
       {/* Tab Navigation */}
       <div className="flex gap-2 mb-6 flex-wrap">
