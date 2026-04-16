@@ -590,10 +590,15 @@ export default function LaporanPage() {
                     </div>
                   </div>
                 </div>
-                {!isBalance && (
+                {!isBalance ? (
                   <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
                     <p className="font-bold">⚠️ Peringatan: Laporan tidak balance!</p>
                     <p className="text-sm">Aset tidak sama dengan Liabilitas + Ekuitas. Silakan periksa perhitungan.</p>
+                  </div>
+                ) : (
+                  <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+                    <p className="font-bold">✓ Laporan Balance & Sesuai Standar!</p>
+                    <p className="text-sm">Total Aset = Total Liabilitas + Ekuitas</p>
                   </div>
                 )}
               </div>
