@@ -16,6 +16,8 @@ export default function SHUPerAnggotaPage() {
   const { anggota, pinjamans, simpanans, pendapatans, pengeluarans } = useKSP();
   const hydrated = useHydrated();
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const allTahun = Array.from(new Set([
     ...pendapatans.map(p => new Date(p.tanggal).getFullYear()),
@@ -146,9 +148,11 @@ export default function SHUPerAnggotaPage() {
                   <tr><th className="text-center p-2 w-12">No</th><th className="text-left p-2">Nama</th><th className="text-left p-2">NBA</th><th className="text-right p-2">Total Simpanan</th><th className="text-right p-2">Pinjaman</th><th className="text-right p-2">Jasa Modal</th><th className="text-right p-2">Jasa Transaksi</th><th className="text-right p-2 font-bold">Total SHU</th></tr>
                 </thead>
                 <tbody>
-                  {perAnggota.map((a, index) => (
+                  {perAnggota
+                    .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                    .map((a, index) => (
                     <tr key={a.id} className="border-b hover:bg-slate-50">
-                      <td className="p-2 text-center text-slate-500">{index + 1}</td>
+                      <td className="p-2 text-center text-slate-500">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                       <td className="p-2 font-medium">{a.nama}</td>
                       <td className="p-2">{a.nomorNBA || '-'}</td>
                       <td className="p-2 text-right">{formatRupiah(a.simpananTotal)}</td>
@@ -164,6 +168,27 @@ export default function SHUPerAnggotaPage() {
                 </tfoot>
               </table>
             </div>
+            {perAnggota.length > itemsPerPage && (
+              <div className="flex justify-center items-center gap-2 p-4 border-t">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+                >
+                  &lt;
+                </button>
+                <span className="text-sm text-slate-600">
+                  Halaman {currentPage} dari {Math.ceil(perAnggota.length / itemsPerPage)}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(Math.ceil(perAnggota.length / itemsPerPage), p + 1))}
+                  disabled={currentPage >= Math.ceil(perAnggota.length / itemsPerPage)}
+                  className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+                >
+                  &gt;
+                </button>
+              </div>
+            )}
           </div>
         </>
       ) : (
