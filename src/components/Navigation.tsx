@@ -13,6 +13,7 @@ const navItems = [
   { href: '/pengeluaran', label: 'Pengeluaran', icon: '📤' },
   { href: '/shu', label: 'SHU Anggota', icon: '🎁' },
   { href: '/laporan', label: 'Laporan', icon: '📈' },
+  { href: '/kartu-simpanan', label: 'Kartu Simpanan', icon: '📖' },
 ];
 
 export default function Navigation() {

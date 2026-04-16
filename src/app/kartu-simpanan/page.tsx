@@ -1,0 +1,199 @@
+'use client';
+
+import { useState, useMemo } from 'react';
+import { useKSP } from '@/context/KSPContext';
+import BackButton from '@/components/BackButton';
+
+function formatRupiah(amount: number): string {
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+}
+
+function formatDate(dateStr: string) {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('id-ID');
+  } catch {
+    return '-';
+  }
+}
+
+export default function KartuSimpananPage() {
+  const { anggota, simpanans, transactions } = useKSP();
+  const [selectedAnggotaId, setSelectedAnggotaId] = useState<string>('');
+
+  const selectedAnggota = anggota.find(a => a.id === selectedAnggotaId);
+
+  const mutasiData = useMemo(() => {
+    if (!selectedAnggotaId) return [];
+    
+    const simpananRecords = simpanans
+      .filter(s => s.anggotaId === selectedAnggotaId && s.status !== 'ditarik')
+      .map(s => ({
+        tanggal: s.tanggalSimpan,
+        uraian: `Setoran ${s.jenis}`,
+        debet: s.jumlah,
+        kredit: 0,
+        jenis: 'simpanan'
+      }));
+    
+    const transaksiRecords = transactions
+      .filter(t => t.anggotaId === selectedAnggotaId)
+      .map(t => ({
+        tanggal: t.tanggal,
+        uraian: t.deskripsi,
+        debet: t.jenis === 'simpanan' ? t.jumlah : 0,
+        kredit: t.jenis === 'penarikan' || t.jenis === 'pinjaman' ? t.jumlah : 0,
+        jenis: t.jenis
+      }));
+
+    return [...simpananRecords, ...transaksiRecords]
+      .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime());
+  }, [selectedAnggotaId, simpanans, transactions]);
+
+  const totalSaldo = useMemo(() => {
+    return simpanans
+      .filter(s => s.anggotaId === selectedAnggotaId && s.status !== 'ditarik')
+      .reduce((sum, s) => sum + s.jumlah, 0);
+  }, [selectedAnggotaId, simpanans]);
+
+  return (
+    <div className="p-4">
+      <div className="flex items-center gap-4 mb-6 print:hidden">
+        <BackButton />
+        <h1 className="text-2xl font-bold text-slate-800">Kartu Simpanan Anggota</h1>
+      </div>
+
+      {/* Select Anggota */}
+      <div className="bg-white rounded-lg shadow p-4 mb-6 print:hidden">
+        <label className="block text-sm font-medium mb-2">Pilih Anggota:</label>
+        <select
+          value={selectedAnggotaId}
+          onChange={e => setSelectedAnggotaId(e.target.value)}
+          className="border p-2 rounded w-full md:w-1/2"
+        >
+          <option value="">-- Pilih Anggota --</option>
+          {anggota.map(a => (
+            <option key={a.id} value={a.id}>
+              {a.nama} (NBA: {a.nomorNBA})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {selectedAnggota && (
+        <>
+          {/* Header Info */}
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-6 text-white mb-6">
+            <h2 className="text-2xl font-bold mb-2">KSP Mulia Dana Sejahtera</h2>
+            <p className="text-blue-100">Kartu Mutasi Simpanan Anggota</p>
+            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <p className="text-xs text-blue-200">Nama Anggota</p>
+                <p className="font-semibold">{selectedAnggota.nama}</p>
+              </div>
+              <div>
+                <p className="text-xs text-blue-200">Nomor NBA</p>
+                <p className="font-semibold">{selectedAnggota.nomorNBA}</p>
+              </div>
+              <div>
+                <p className="text-xs text-blue-200">Tanggal Join</p>
+                <p className="font-semibold">{formatDate(selectedAnggota.tanggalJoin)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-blue-200">Total Saldo</p>
+                <p className="font-bold text-xl">{formatRupiah(totalSaldo)}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Print Button */}
+          <div className="mb-4 print:hidden">
+            <button
+              onClick={() => window.print()}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center gap-2"
+            >
+              🖨️ Cetak Kartu Simpanan
+            </button>
+          </div>
+
+          {/* Mutasi Table */}
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-100">
+                <tr>
+                  <th className="text-left p-3">No</th>
+                  <th className="text-left p-3">Tanggal</th>
+                  <th className="text-left p-3">Uraian</th>
+                  <th className="text-right p-3">Debet (Masuk)</th>
+                  <th className="text-right p-3">Kredit (Keluar)</th>
+                  <th className="text-right p-3">Saldo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mutasiData.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center p-4 text-slate-500">
+                      Belum ada mutasi simpanan
+                    </td>
+                  </tr>
+                ) : (
+                  mutasiData.map((m, index) => {
+                    const runningBalance = mutasiData
+                      .slice(index)
+                      .reduce((sum, item) => sum + item.debet - item.kredit, 0);
+                    return (
+                      <tr key={index} className="border-b hover:bg-slate-50">
+                        <td className="p-3 text-center">{index + 1}</td>
+                        <td className="p-3">{formatDate(m.tanggal)}</td>
+                        <td className="p-3 capitalize">{m.uraian}</td>
+                        <td className="p-3 text-right text-green-600">
+                          {m.debet > 0 ? formatRupiah(m.debet) : '-'}
+                        </td>
+                        <td className="p-3 text-right text-red-600">
+                          {m.kredit > 0 ? formatRupiah(m.kredit) : '-'}
+                        </td>
+                        <td className="p-3 text-right font-medium">
+                          {formatRupiah(runningBalance)}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+              <tfoot className="bg-blue-50 font-bold">
+                <tr>
+                  <td colSpan={5} className="p-3 text-right">TOTAL SALDO:</td>
+                  <td className="p-3 text-right text-blue-800">{formatRupiah(totalSaldo)}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          {/* Signature */}
+          <div className="mt-8 grid grid-cols-3 gap-4 print:break-before-page">
+            <div className="text-center">
+              <p className="text-sm mb-8">Bendahara</p>
+              <p className="border-t border-black inline-block px-8">Tanda Tangan</p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm mb-8">Sekretaris</p>
+              <p className="border-t border-black inline-block px-8">Tanda Tangan</p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm mb-8">Anggota</p>
+              <p className="border-t border-black inline-block px-8">{selectedAnggota.nama}</p>
+            </div>
+          </div>
+        </>
+      )}
+
+      {!selectedAnggota && (
+        <div className="text-center text-slate-500 py-12">
+          Silakan pilih anggota untuk melihat kartu simpanan
+        </div>
+      )}
+    </div>
+  );
+}
