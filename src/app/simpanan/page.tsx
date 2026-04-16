@@ -63,6 +63,40 @@ export default function SimpananPage() {
   const [importJenis, setImportJenis] = useState<string>('wajib');
   const [showImportModal, setShowImportModal] = useState(false);
 
+  const currentYear = new Date().getFullYear();
+  const startYear = 2023;
+  const years = Array.from({ length: currentYear - startYear + 1 }, (_, i) => startYear + i).reverse();
+
+  const yearlySummary = years.map(year => {
+    const simpananPokok = simpanans.filter(s => s.jenis === 'pokok' && s.status !== 'ditarik' && new Date(s.tanggalSimpan).getFullYear() === year).reduce((sum, s) => sum + s.jumlah, 0);
+    const simpananWajib = simpanans.filter(s => s.jenis === 'wajib' && s.status !== 'ditarik' && new Date(s.tanggalSimpan).getFullYear() === year).reduce((sum, s) => sum + s.jumlah, 0);
+    const simpananSibuhar = simpanans.filter(s => s.jenis === 'sibuhar' && s.status !== 'ditarik' && new Date(s.tanggalSimpan).getFullYear() === year).reduce((sum, s) => sum + s.jumlah, 0);
+    const simpananSimapan = simpanans.filter(s => s.jenis === 'simapan' && s.status !== 'ditarik' && new Date(s.tanggalSimpan).getFullYear() === year).reduce((sum, s) => sum + s.jumlah, 0);
+    const simpananSihat = simpanans.filter(s => s.jenis === 'sihat' && s.status !== 'ditarik' && new Date(s.tanggalSimpan).getFullYear() === year).reduce((sum, s) => sum + s.jumlah, 0);
+    const simpananSihar = simpanans.filter(s => s.jenis === 'sihar' && s.status !== 'ditarik' && new Date(s.tanggalSimpan).getFullYear() === year).reduce((sum, s) => sum + s.jumlah, 0);
+    return {
+      year,
+      pokok: simpananPokok,
+      wajib: simpananWajib,
+      sibuhar: simpananSibuhar,
+      simapan: simpananSimapan,
+      sihat: simpananSihat,
+      sihar: simpananSihar,
+      total: simpananPokok + simpananWajib + simpananSibuhar + simpananSimapan + simpananSihat + simpananSihar
+    };
+  });
+
+  const grandTotal = yearlySummary.reduce((acc, y) => ({
+    tahun: 'Total',
+    pokok: acc.pokok + y.pokok,
+    wajib: acc.wajib + y.wajib,
+    sibuhar: acc.sibuhar + y.sibuhar,
+    simapan: acc.simapan + y.simapan,
+    sihat: acc.sihat + y.sihat,
+    sihar: acc.sihar + y.sihar,
+    total: acc.total + y.total
+  }), { tahun: 'Total', pokok: 0, wajib: 0, sibuhar: 0, simapan: 0, sihat: 0, sihar: 0, total: 0 });
+
   const parseDate = (dateStr: string): string => {
     if (!dateStr) return '';
     const trimmed = dateStr.trim();
@@ -386,6 +420,54 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {yearlySummary.length > 0 && (
+        <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
+            <h2 className="text-white font-bold text-lg">Rekapitulasi Simpanan per Tahun</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-100">
+                <tr>
+                  <th className="text-center p-3 border-b">Tahun</th>
+                  <th className="text-right p-3 border-b">Pokok</th>
+                  <th className="text-right p-3 border-b">Wajib</th>
+                  <th className="text-right p-3 border-b">Sibuhar</th>
+                  <th className="text-right p-3 border-b">Simapan</th>
+                  <th className="text-right p-3 border-b">Sihat</th>
+                  <th className="text-right p-3 border-b">Sihar</th>
+                  <th className="text-right p-3 border-b bg-blue-50">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {yearlySummary.map(y => (
+                  <tr key={y.year} className="border-b hover:bg-slate-50">
+                    <td className="p-3 text-center font-medium">{y.year}</td>
+                    <td className="p-3 text-right">{formatRupiah(y.pokok)}</td>
+                    <td className="p-3 text-right">{formatRupiah(y.wajib)}</td>
+                    <td className="p-3 text-right">{formatRupiah(y.sibuhar)}</td>
+                    <td className="p-3 text-right">{formatRupiah(y.simapan)}</td>
+                    <td className="p-3 text-right">{formatRupiah(y.sihat)}</td>
+                    <td className="p-3 text-right">{formatRupiah(y.sihar)}</td>
+                    <td className="p-3 text-right font-medium bg-blue-50">{formatRupiah(y.total)}</td>
+                  </tr>
+                ))}
+                <tr className="bg-blue-100 font-bold">
+                  <td className="p-3 text-center">TOTAL</td>
+                  <td className="p-3 text-right">{formatRupiah(grandTotal.pokok)}</td>
+                  <td className="p-3 text-right">{formatRupiah(grandTotal.wajib)}</td>
+                  <td className="p-3 text-right">{formatRupiah(grandTotal.sibuhar)}</td>
+                  <td className="p-3 text-right">{formatRupiah(grandTotal.simapan)}</td>
+                  <td className="p-3 text-right">{formatRupiah(grandTotal.sihat)}</td>
+                  <td className="p-3 text-right">{formatRupiah(grandTotal.sihar)}</td>
+                  <td className="p-3 text-right">{formatRupiah(grandTotal.total)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
