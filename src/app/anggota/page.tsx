@@ -181,6 +181,13 @@ export default function AnggotaPage() {
       })
     : filteredAnggota;
     
+  const sortedAnggota = [...displayAnggota].sort((a, b) => {
+    if (!a.tanggalJoin && !b.tanggalJoin) return 0;
+    if (!a.tanggalJoin) return 1;
+    if (!b.tanggalJoin) return -1;
+    return new Date(b.tanggalJoin).getTime() - new Date(a.tanggalJoin).getTime();
+  });
+    
   useEffect(() => {
     const fixData = () => {
       let countPekerjaan = 0;
@@ -653,7 +660,7 @@ export default function AnggotaPage() {
           </div>
           {searchQuery && (
             <span className="text-sm text-slate-500">
-              Ditemukan: {displayAnggota.length} dari {filteredAnggota.length} anggota
+              Ditemukan: {sortedAnggota.length} dari {filteredAnggota.length} anggota
             </span>
           )}
 
@@ -1210,11 +1217,11 @@ export default function AnggotaPage() {
               </tr>
             </thead>
             <tbody>
-              {displayAnggota.length === 0 ? (
+              {sortedAnggota.length === 0 ? (
                 <tr><td colSpan={14} className="text-center p-4 text-slate-500">Belum ada anggota</td></tr>
               ) : (
                 <>
-                  {displayAnggota.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((a, index) => (
+                  {sortedAnggota.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((a, index) => (
                     <tr key={a.id} className="border-b hover:bg-slate-50">
                       <td className="p-2 text-center text-slate-500">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                       <td className="p-2">{a.tanggalJoin ? new Date(a.tanggalJoin).toLocaleDateString('id-ID') : '-'}</td>
@@ -1243,7 +1250,7 @@ export default function AnggotaPage() {
             </tbody>
           </table>
           
-          {displayAnggota.length > 0 && (
+          {sortedAnggota.length > 0 && (
             <div className="flex justify-between items-center mt-4 p-2 bg-slate-50 rounded">
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -1253,12 +1260,12 @@ export default function AnggotaPage() {
                 ← Previous
               </button>
               <span className="text-sm text-slate-600">
-                Halaman {currentPage} dari {Math.ceil(displayAnggota.length / itemsPerPage)} 
-                ({displayAnggota.length} total)
+                Halaman {currentPage} dari {Math.ceil(sortedAnggota.length / itemsPerPage)} 
+                ({sortedAnggota.length} total)
               </span>
               <button
-                onClick={() => setCurrentPage(p => Math.min(Math.ceil(displayAnggota.length / itemsPerPage), p + 1))}
-                disabled={currentPage >= Math.ceil(displayAnggota.length / itemsPerPage)}
+                onClick={() => setCurrentPage(p => Math.min(Math.ceil(sortedAnggota.length / itemsPerPage), p + 1))}
+                disabled={currentPage >= Math.ceil(sortedAnggota.length / itemsPerPage)}
                 className="px-3 py-1 rounded bg-white border disabled:opacity-50"
               >
                 Next →
