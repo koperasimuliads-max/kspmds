@@ -132,7 +132,8 @@ const referensiOptions = [
 ];
 
 export default function AnggotaPage() {
-  const { anggota, addAnggota, updateAnggota, deleteAnggota, clearAllAnggota, bulkUpdateTanggalJoin, pinjamans, simpanans, updateSimpanan, addPendapatan, isHydrated } = useKSP();
+  const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
+  const { anggota, addAnggota, updateAnggota, deleteAnggota, clearAllAnggota, bulkUpdateTanggalJoin, pinjamans, simpanans, addSimpanan, updateSimpanan, addPendapatan, isHydrated } = useKSP();
   const [showForm, setShowForm] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -244,7 +245,7 @@ export default function AnggotaPage() {
 
   const [alamatSamaKTP, setAlamatSamaKTP] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const dataToSubmit = {
       ...formData,
@@ -257,7 +258,30 @@ export default function AnggotaPage() {
       updateAnggota(editingId, dataToSubmit);
       setEditingId(null);
     } else {
-      addAnggota(dataToSubmit);
+      const newId = generateId();
+      const newAnggota = { ...dataToSubmit, id: newId };
+      addAnggota(newAnggota);
+      
+      addSimpanan({
+        anggotaId: newId,
+        jenis: 'pokok',
+        jumlah: 100000,
+        tanggalSimpan: formData.tanggalJoin,
+        status: 'aktif',
+      });
+      addSimpanan({
+        anggotaId: newId,
+        jenis: 'wajib',
+        jumlah: 25000,
+        tanggalSimpan: formData.tanggalJoin,
+        status: 'aktif',
+      });
+      addPendapatan({
+        jenis: 'uang_buku',
+        deskripsi: `Uang Buku - ${formData.nama}`,
+        jumlah: 25000,
+        tanggal: formData.tanggalJoin,
+      });
     }
     resetForm();
   };
