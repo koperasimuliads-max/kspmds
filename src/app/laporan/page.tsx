@@ -439,16 +439,10 @@ export default function LaporanPage() {
                     <td className="p-2">- Simpanan Harian (Sibuhar)</td>
                     <td className="p-2 text-slate-500">Kewajiban</td>
                     <td className="p-2 text-right">{formatRupiah(simpananHarian)}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-8">II.2.2.2</td>
-                    <td className="p-2">- Simpanan Masa Depan (Simapan)</td>
-                    <td className="p-2 text-slate-500">Kewajiban</td>
-                    <td className="p-2 text-right">{formatRupiah(simpanans.filter(s => s.jenis === 'simapan' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear).reduce((sum, s) => sum + s.jumlah, 0))}</td>
-                  </tr>
+</tr>
                   <tr className="border-b">
                     <td className="p-2 pl-8">II.2.2.1</td>
-                    <td className="p-2">- Simpanan Harian (Sibuhar)</td>
+                    <td className="p-2">- Simpanan Berjangka (Sibuhar/Sisujang)</td>
                     <td className="p-2 text-slate-500">Kewajiban</td>
                     <td className="p-2 text-right">{formatRupiah(simpananHarian)}</td>
                   </tr>
