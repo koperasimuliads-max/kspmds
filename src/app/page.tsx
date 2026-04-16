@@ -253,6 +253,78 @@ export default function Dashboard() {
             </svg>
             <span className="text-sm font-medium">Laporan</span>
           </Link>
+          <button
+            onClick={async () => {
+              const XLSX = await import('xlsx');
+              
+              // Prepare anggota data with simpanan
+              const anggotaData = anggota.map(ag => {
+                const agSimpanans = simpanans.filter(s => s.anggotaId === ag.id && s.status !== 'ditarik');
+                return {
+                  'No. NBA': ag.nama,
+                  'Nama': ag.nama,
+                  'NIK': ag.nik || '',
+                  'Status': ag.status,
+                  'Tanggal Join': ag.tanggalJoin || '',
+                  'Simpanan Pokok': agSimpanans.filter(s => s.jenis === 'pokok').reduce((sum, s) => sum + s.jumlah, 0),
+                  'Simpanan Wajib': agSimpanans.filter(s => s.jenis === 'wajib').reduce((sum, s) => sum + s.jumlah, 0),
+                  'Sibuhar': agSimpanans.filter(s => s.jenis === 'sibuhar').reduce((sum, s) => sum + s.jumlah, 0),
+                  'Simapan': agSimpanans.filter(s => s.jenis === 'simapan').reduce((sum, s) => sum + s.jumlah, 0),
+                  'Sihat': agSimpanans.filter(s => s.jenis === 'sihat').reduce((sum, s) => sum + s.jumlah, 0),
+                  'Sihar': agSimpanans.filter(s => s.jenis === 'sihar').reduce((sum, s) => sum + s.jumlah, 0),
+                  'Total Simpanan': agSimpanans.reduce((sum, s) => sum + s.jumlah, 0),
+                };
+              });
+
+              // Prepare pinjaman data
+              const pinjamansData = pinjamans.map(p => {
+                const ag = anggota.find(a => a.id === p.anggotaId);
+                return {
+                  'No. NBA': ag?.nomorNBA || '',
+                  'Nama Anggota': ag?.nama || '',
+                  'Jumlah Pinjaman': p.jumlah,
+                  'Tanggal': p.tanggalPinjaman,
+                  'Jangka Waktu': p.tenor,
+                  'Bunga': p.bunga,
+                  'Status': p.status,
+                  'Angsuran per Bulan': p.jumlah / p.tenor,
+                };
+              });
+
+              // Create workbook
+              const wb = XLSX.utils.book_new();
+              
+              const wsAnggota = XLSX.utils.json_to_sheet(anggotaData);
+              XLSX.utils.book_append_sheet(wb, wsAnggota, 'Anggota');
+              
+              const wsPinjaman = XLSX.utils.json_to_sheet(pinjamansData);
+              XLSX.utils.book_append_sheet(wb, wsPinjaman, 'Pinjaman');
+
+              // Add summary sheet
+              const now = new Date();
+              const dateStr = now.toLocaleDateString('id-ID').replace(/\//g, '-');
+              const summaryData = [
+                { 'Ringkasan': 'Total Anggota', 'Jumlah': anggota.length },
+                { 'Ringkasan': 'Anggota Aktif', 'Jumlah': anggota.filter(a => a.status === 'aktif').length },
+                { 'Ringkasan': 'Total Simpanan', 'Jumlah': simpanans.filter(s => s.status !== 'ditarik').reduce((sum, s) => sum + s.jumlah, 0) },
+                { 'Ringkasan': 'Total Pinjaman Aktif', 'Jumlah': pinjamans.filter(p => p.status === 'aktif').reduce((sum, p) => sum + p.jumlah, 0) },
+                { 'Ringkasan': 'Tanggal Backup', 'Jumlah': now.toLocaleString('id-ID') },
+                { 'Ringkasan': 'Creator', 'Jumlah': 'Marwan Esra Bangun (MEB Tech)' },
+              ];
+              const wsSummary = XLSX.utils.json_to_sheet(summaryData);
+              XLSX.utils.book_append_sheet(wb, wsSummary, 'Ringkasan');
+
+              // Download
+              XLSX.writeFile(wb, `BACKUP_KSP_MULIA_DANA_${dateStr}.xlsx`);
+              alert('Data berhasil diamankan ke Excel, Bos!');
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+            </svg>
+            <span className="text-sm font-medium">Backup Data</span>
+          </button>
         </div>
       </div>
 
