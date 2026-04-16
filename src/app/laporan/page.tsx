@@ -21,17 +21,28 @@ export default function LaporanPage() {
 
   // ========== NERACA CALCULATIONS ==========
   
+  // Total Pinjaman Aktif (semua waktu)
   const totalPinjamanAktif = pinjamans
     .filter(p => p.status === 'aktif')
     .reduce((sum, p) => sum + p.jumlah, 0);
 
-  // ASET
-  const kas = simpanans.filter(s => s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
+  // Total Simpanan Aktif (semua waktu)
+  const totalSimpananAktif = simpanans
+    .filter(s => s.status === 'aktif')
+    .reduce((sum, s) => sum + s.jumlah, 0);
+
+  // ASET - berdasarkan tahun yang dipilih
+  const kas = simpanans
+    .filter(s => s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+    .reduce((sum, s) => sum + s.jumlah, 0);
   const bank = 0;
   const piutangBunga = Math.round(totalPinjamanAktif * 0.01);
+  
+  // Pinjaman Anggota - berdasarkan tahun yang dipilih (semua status aktif)
   const pinjamansByYear = pinjamans
     .filter(p => p.status === 'aktif' && new Date(p.tanggalPinjaman).getFullYear() <= selectedYear)
     .reduce((sum, p) => sum + p.jumlah, 0);
+  
   const penyisihanPinjaman = Math.round(pinjamansByYear * 0.05);
   const pinjamansKopLain = 0;
   const penyisihanPinjamanKopLain = 0;
@@ -45,49 +56,80 @@ export default function LaporanPage() {
   const akumulasiAmortisasi = 0;
   const asetLain = 0;
 
-  // LIABILITAS
-  const utangBunga = Math.round(totalPinjamanAktif * 0.12 / 12);
-  const simpananHarian = simpanans.filter(s => s.jenis === 'wajib').reduce((sum, s) => sum + s.jumlah, 0);
-  const simpananBerencana = simpanans.filter(s => ['sibuhar', 'simapan', 'sihat', 'sihar'].includes(s.jenis)).reduce((sum, s) => sum + s.jumlah, 0);
+  // LIABILITAS - berdasarkan tahun yang dipilih
+  const utangBunga = Math.round(pinjamansByYear * 0.12 / 12);
+  
+  // Simpanan Anggota - berdasarkan tahun yang dipilih
+  const simpananHarian = simpanans
+    .filter(s => s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+    .reduce((sum, s) => sum + s.jumlah, 0);
+    
+  const simpananBerencana = simpanans
+    .filter(s => s.status === 'aktif' && ['sibuhar', 'simapan', 'sihat', 'sihar'].includes(s.jenis) && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+    .reduce((sum, s) => sum + s.jumlah, 0);
+    
   const simpananBerjangka = 0;
   const simpananKopLain = 0;
-  const utangPinjaman = totalPinjamanAktif;
+  const utangPinjaman = pinjamansByYear;
   const liabilitasImbalanKerja = 0;
   const liabilitasLain = 0;
 
-  // EKUITAS
-  const simpananPokok = simpanans.filter(s => s.jenis === 'pokok').reduce((sum, s) => sum + s.jumlah, 0);
-  const simpananWajib = simpanans.filter(s => s.jenis === 'wajib').reduce((sum, s) => sum + s.jumlah, 0);
+  // EKUITAS - berdasarkan tahun yang dipilih
+  const simpananPokok = simpanans
+    .filter(s => s.jenis === 'pokok' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+    .reduce((sum, s) => sum + s.jumlah, 0);
+    
+  const simpananWajib = simpanans
+    .filter(s => s.jenis === 'wajib' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+    .reduce((sum, s) => sum + s.jumlah, 0);
+    
   const cadangan = 0;
   const cadanganRisiko = 0;
-const pendapatanAll = pendapatans.reduce((sum, p) => sum + p.jumlah, 0);
+
+  // SHU - berdasarkan tahun yang dipilih
   const pendapatanSelectedYear = pendapatans
     .filter(p => new Date(p.tanggal).getFullYear() === selectedYear)
     .reduce((sum, p) => sum + p.jumlah, 0);
-  const pengeluaranAll = pengeluarans.reduce((sum, p) => sum + p.jumlah, 0);
+    
   const pengeluaranSelectedYear = pengeluarans
     .filter(p => new Date(p.tanggal).getFullYear() === selectedYear)
     .reduce((sum, p) => sum + p.jumlah, 0);
-  const shuTahunBerjalan = pendapatanAll - pengeluaranAll;
+    
+  const shuTahunBerjalan = pendapatanSelectedYear - pengeluaranSelectedYear;
   const ekuitasLain = 0;
 
-  // ========== PERHITUNGAN SHU ==========
+  // ========== PERHITUNGAN SHU (TAHUN DIPILIH) ==========
   
-  const pendapatanBunga = pendapatans.filter(p => p.jenis === 'bunga_pinjaman').reduce((sum, p) => sum + p.jumlah, 0);
+  const pendapatanBunga = pendapatans
+    .filter(p => p.jenis === 'bunga_pinjaman' && new Date(p.tanggal).getFullYear() === selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+    
   const pendapatanUsahaLain = 0;
-  const pendapatanAdmin = pendapatans.filter(p => p.jenis === 'administrasi_pengunduran_diri').reduce((sum, p) => sum + p.jumlah, 0);
+  
+  const pendapatanAdmin = pendapatans
+    .filter(p => p.jenis === 'administrasi_pengunduran_diri' && new Date(p.tanggal).getFullYear() === selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+    
   const pendapatanProvisi = 0;
   const pendapatanDenda = 0;
   const pendapatanPinalty = 0;
   const pendapatanLain = 0;
+  
   const totalPendapatan = pendapatanBunga + pendapatanUsahaLain + pendapatanAdmin + pendapatanProvisi + pendapatanDenda + pendapatanPinalty + pendapatanLain;
 
   const bebanBungaSimpananHarian = Math.round(simpananHarian * 0.03);
   const bebanBungaSimpananProgram = 0;
   const bebanBungaSijakop = 0;
   const bebanBungaPinjaman = 0;
-  const bebanGaji = pengeluarans.filter(p => p.jenis === 'gaji_karyawan').reduce((sum, p) => sum + p.jumlah, 0);
-  const bebanAdminUmum = pengeluarans.filter(p => ['operasional', 'kantor', 'listrik', 'internet', 'atk', 'perawatan', 'pajak', 'bank', 'lainnya'].includes(p.jenis)).reduce((sum, p) => sum + p.jumlah, 0);
+  
+  const bebanGaji = pengeluarans
+    .filter(p => p.jenis === 'gaji_karyawan' && new Date(p.tanggal).getFullYear() === selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+    
+  const bebanAdminUmum = pengeluarans
+    .filter(p => ['operasional', 'kantor', 'listrik', 'internet', 'atk', 'perawatan', 'pajak', 'bank', 'lainnya'].includes(p.jenis) && new Date(p.tanggal).getFullYear() === selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+    
   const bebanPenyusutan = 0;
   const bebanUsahaLain = 0;
   const totalBeban = bebanBungaSimpananHarian + bebanBungaSimpananProgram + bebanBungaSijakop + bebanBungaPinjaman + bebanGaji + bebanAdminUmum + bebanPenyusutan + bebanUsahaLain;
