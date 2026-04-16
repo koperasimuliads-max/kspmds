@@ -31,7 +31,7 @@ export default function LaporanPage() {
     .filter(s => s.status === 'aktif')
     .reduce((sum, s) => sum + s.jumlah, 0);
 
-  // ASET - berdasarkan tahun yang dipilih
+  // ASET - berdasarkan tahun yang dipilih (semua simpanan = Kas)
   const kas = simpanans
     .filter(s => s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
     .reduce((sum, s) => sum + s.jumlah, 0);
@@ -57,12 +57,14 @@ export default function LaporanPage() {
   const asetLain = 0;
 
   // Simpanan Anggota - berdasarkan tahun yang dipilih
+  // Simpanan Harian (Sibuhar) - KEWAJIBAN
   const simpananHarian = simpanans
-    .filter(s => s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+    .filter(s => s.jenis === 'sibuhar' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
     .reduce((sum, s) => sum + s.jumlah, 0);
     
+  // Simpanan Berencana (Simapan, Sihat, Sihar) - KEWAJIBAN
   const simpananBerencana = simpanans
-    .filter(s => s.status === 'aktif' && ['sibuhar', 'simapan', 'sihat', 'sihar'].includes(s.jenis) && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+    .filter(s => s.status === 'aktif' && ['simapan', 'sihat', 'sihar'].includes(s.jenis) && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
     .reduce((sum, s) => sum + s.jumlah, 0);
     
   const simpananBerjangka = 0;
@@ -71,10 +73,10 @@ export default function LaporanPage() {
   const liabilitasImbalanKerja = 0;
   const liabilitasLain = 0;
   
-  // LIABILITAS - berdasarkan tahun yang dipilih
+  // LIABILITAS - Utang Bunga (bunga yang harus dibayar - metode akrual)
   const utangBungaSibuhar = Math.round(simpananHarian * 0.03 / 12);
   const utangBungaSimpananBerencana = simpanans
-    .filter(s => s.status === 'aktif' && ['sibuhar', 'simapan', 'sihat', 'sihar'].includes(s.jenis) && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+    .filter(s => s.status === 'aktif' && ['simapan', 'sihat', 'sihar'].includes(s.jenis) && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
     .reduce((sum, s) => {
       const rate = s.jenis === 'simapan' ? 0.05 : s.jenis === 'sihat' ? 0.06 : s.jenis === 'sihar' ? 0 : 0.03;
       return sum + s.jumlah * rate / 12;
@@ -415,10 +417,22 @@ export default function LaporanPage() {
                     <td className="p-2 text-slate-500">Kewajiban</td>
                     <td className="p-2 text-right">{formatRupiah(utangBunga)}</td>
                   </tr>
-                  <tr className="border-b bg-red-50">
+<tr className="border-b bg-red-50">
                     <td className="p-2 pl-4" colSpan={2}>II.2.2 Simpanan Anggota</td>
                     <td className="p-2 text-slate-500">Kewajiban</td>
-                    <td className="p-2 text-right font-medium">{formatRupiah(simpananHarian + simpanans.filter(s => ['sibuhar', 'simapan', 'sihat', 'sihar'].includes(s.jenis) && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear).reduce((sum, s) => sum + s.jumlah, 0))}</td>
+                    <td className="p-2 text-right font-medium">{formatRupiah(simpananHarian + simpananBerencana)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-8">II.2.2.1</td>
+                    <td className="p-2">- Simpanan Harian (Sibuhar)</td>
+                    <td className="p-2 text-slate-500">Kewajiban</td>
+                    <td className="p-2 text-right">{formatRupiah(simpananHarian)}</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-8">II.2.2.2</td>
+                    <td className="p-2">- Simpanan Masa Depan (Simapan)</td>
+                    <td className="p-2 text-slate-500">Kewajiban</td>
+                    <td className="p-2 text-right">{formatRupiah(simpanans.filter(s => s.jenis === 'simapan' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear).reduce((sum, s) => sum + s.jumlah, 0))}</td>
                   </tr>
                   <tr className="border-b">
                     <td className="p-2 pl-8">II.2.2.1</td>
@@ -470,7 +484,7 @@ export default function LaporanPage() {
                   </tr>
                   <tr className="bg-red-100 font-bold">
                     <td className="p-3" colSpan={3}>TOTAL LIABILITAS</td>
-                    <td className="p-3 text-right text-red-800">{formatRupiah(utangBunga + simpananHarian + simpanans.filter(s => ['sibuhar', 'simapan', 'sihat', 'sihar'].includes(s.jenis) && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear).reduce((sum, s) => sum + s.jumlah, 0) + simpananKopLain + utangPinjaman + liabilitasImbalanKerja + liabilitasLain)}</td>
+                    <td className="p-3 text-right text-red-800">{formatRupiah(utangBunga + simpananHarian + simpananBerencana + simpananKopLain + utangPinjaman + liabilitasImbalanKerja + liabilitasLain)}</td>
                   </tr>
                 </tbody>
               </table>
