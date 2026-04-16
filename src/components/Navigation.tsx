@@ -69,9 +69,18 @@ export default function Navigation() {
             </ul>
           </nav>
 
-          <div className="pt-4 border-t border-slate-700 text-sm text-slate-400">
-            <p>KSP Mulia Dana Sejahtera</p>
-            <p className="text-xs mt-1">Sistem Manajemen Keuangan</p>
+          <div className="pt-4 border-t border-slate-700 text-xs text-slate-400">
+            <p className="font-semibold text-slate-300">KSP Mulia Dana Sejahtera</p>
+            <p className="mt-2">Jl. Veteran No. 85</p>
+            <p>Kel. Tambak Lau Mulgap I</p>
+            <p>Kec. Berastagi, Kab. Karo</p>
+            <p>Sumatera Utara - 22152</p>
+            <p className="mt-2 text-yellow-400">📧 koperasimuliads@gmail.com</p>
+            <p className="text-green-400">📱 089505117507</p>
+            <div className="mt-3 pt-2 border-t border-slate-700">
+              <p className="text-[10px]">NIB: 1111230014031</p>
+              <p className="text-[10px]">NPWP: 99.043.935.8-128.000</p>
+            </div>
           </div>
         </div>
       </div>

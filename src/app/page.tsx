@@ -433,8 +433,10 @@ export default function Dashboard() {
       </div>
 
       {/* Footer */}
-      <div className="text-center mt-8 text-slate-400 text-sm">
-        <p>KSP Mulia Dana Sejahtera © {new Date().getFullYear()}</p>
+      <div className="text-center mt-8 text-slate-400 text-xs">
+        <p className="font-semibold">KSP Mulia Dana Sejahtera © {new Date().getFullYear()}</p>
+        <p className="mt-1">Jl. Veteran No. 85, Kel. Tambak Lau Mulgap I, Kec. Berastagi, Kab. Karo, Sumatera Utara 22152</p>
+        <p>📧 koperasimuliads@gmail.com | 📱 089505117507</p>
       </div>
     </div>
   );
