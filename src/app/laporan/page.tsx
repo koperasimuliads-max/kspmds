@@ -116,11 +116,31 @@ const pendapatanAll = pendapatans.reduce((sum, p) => sum + p.jumlah, 0);
   } : null;
 
   // ========== PERUBAHAN EKUITAS ==========
-  const saldoAwalPokok = 0;
-  const saldoAwalWajib = 0;
+  // Hitung saldo awal dari tahun sebelumnya
+  const simpananPokokBefore = simpanans
+    .filter(s => s.jenis === 'pokok' && new Date(s.tanggalSimpan).getFullYear() < selectedYear)
+    .reduce((sum, s) => sum + s.jumlah, 0);
+  const simpananWajibBefore = simpanans
+    .filter(s => s.jenis === 'wajib' && new Date(s.tanggalSimpan).getFullYear() < selectedYear)
+    .reduce((sum, s) => sum + s.jumlah, 0);
+  const cadanganBefore = shuDistribution?.dana_cadangan_umum || 0;
+  
+  const shuBeforeYear = selectedYear > 1 
+    ? pendapatans.filter(p => new Date(p.tanggal).getFullYear() < selectedYear).reduce((sum, p) => sum + p.jumlah, 0) 
+      - pengeluarans.filter(p => new Date(p.tanggal).getFullYear() < selectedYear).reduce((sum, p) => sum + p.jumlah, 0)
+    : 0;
+
+  const saldoAwalPokok = simpananPokokBefore;
+  const saldoAwalWajib = simpananWajibBefore;
+  const saldoAwalCadangan = cadanganBefore;
+  const saldoAwalSHU = shuBeforeYear;
   const saldoAwalLain = 0;
-  const penambahanPokok = simpananPokok;
-  const penambahanWajib = simpananWajib;
+  const penambahanPokok = simpanans
+    .filter(s => s.jenis === 'pokok' && new Date(s.tanggalSimpan).getFullYear() === selectedYear)
+    .reduce((sum, s) => sum + s.jumlah, 0);
+  const penambahanWajib = simpanans
+    .filter(s => s.jenis === 'wajib' && new Date(s.tanggalSimpan).getFullYear() === selectedYear)
+    .reduce((sum, s) => sum + s.jumlah, 0);
   const penguranganPokok = 0;
   const penguranganWajib = 0;
 
@@ -749,23 +769,15 @@ const pendapatanAll = pendapatans.reduce((sum, p) => sum + p.jumlah, 0);
                 </thead>
                 <tbody>
                   <tr className="bg-blue-50 font-bold">
-                    <td className="p-2">Saldo 1 Januari</td>
-                    <td className="p-2 text-right">{formatRupiah(saldoAwalPokok)}</td>
-                    <td className="p-2 text-right">{formatRupiah(saldoAwalWajib)}</td>
-                    <td className="p-2 text-right">{formatRupiah(0)}</td>
-                    <td className="p-2 text-right">{formatRupiah(0)}</td>
-                    <td className="p-2 text-right">{formatRupiah(saldoAwalPokok + saldoAwalWajib)}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-4">SHU Tahun Berjalan</td>
-                    <td className="p-2 text-right">-</td>
-                    <td className="p-2 text-right">-</td>
-                    <td className="p-2 text-right">-</td>
-                    <td className="p-2 text-right text-green-600 font-medium">{formatRupiah(shuKotor)}</td>
-                    <td className="p-2 text-right text-green-600 font-medium">{formatRupiah(shuKotor)}</td>
+                    <td className="p-2">SALDO AWAL (1 JANUARI {selectedYear})</td>
+                    <td className="p-2 text-right font-medium">{formatRupiah(saldoAwalPokok)}</td>
+                    <td className="p-2 text-right font-medium">{formatRupiah(saldoAwalWajib)}</td>
+                    <td className="p-2 text-right font-medium">{formatRupiah(saldoAwalCadangan)}</td>
+                    <td className="p-2 text-right font-medium">{formatRupiah(saldoAwalSHU)}</td>
+                    <td className="p-2 text-right font-medium">{formatRupiah(saldoAwalPokok + saldoAwalWajib + saldoAwalCadangan + saldoAwalSHU)}</td>
                   </tr>
                   <tr className="border-b bg-green-50">
-                    <td className="p-2 pl-4 font-medium">Penambahan Modal</td>
+                    <td className="p-2 pl-4 font-medium"> Penambahan Modal</td>
                     <td className="p-2 text-right font-medium">{formatRupiah(penambahanPokok)}</td>
                     <td className="p-2 text-right font-medium">{formatRupiah(penambahanWajib)}</td>
                     <td className="p-2 text-right">{formatRupiah(shuDistribution?.dana_cadangan_umum || 0)}</td>
@@ -829,12 +841,17 @@ const pendapatanAll = pendapatans.reduce((sum, p) => sum + p.jumlah, 0);
                     <td className="p-2 text-right">({formatRupiah((shuDistribution?.jasa_modal || 0) + (shuDistribution?.jasa_transaksi || 0))})</td>
                   </tr>
                   <tr className="bg-purple-100 font-bold">
-                    <td className="p-3">Saldo 31 Desember</td>
+                    <td className="p-3">SALDO AKHIR (31 DESEMBER {selectedYear})</td>
                     <td className="p-3 text-right">{formatRupiah(saldoAwalPokok + penambahanPokok - penguranganPokok)}</td>
                     <td className="p-3 text-right">{formatRupiah(saldoAwalWajib + penambahanWajib - penguranganWajib)}</td>
-                    <td className="p-3 text-right">{formatRupiah(shuDistribution?.dana_cadangan_umum || 0)}</td>
+                    <td className="p-3 text-right">{formatRupiah(saldoAwalCadangan + (shuDistribution?.dana_cadangan_umum || 0))}</td>
                     <td className="p-3 text-right text-green-600">{formatRupiah(shuKotor - (shuDistribution?.jasa_modal || 0) - (shuDistribution?.jasa_transaksi || 0))}</td>
-                    <td className="p-3 text-right text-purple-700">{formatRupiah(saldoAwalPokok + saldoAwalWajib + shuKotor)}</td>
+                    <td className="p-3 text-right text-purple-700">{formatRupiah(
+                      (saldoAwalPokok + penambahanPokok - penguranganPokok) + 
+                      (saldoAwalWajib + penambahanWajib - penguranganWajib) + 
+                      (saldoAwalCadangan + (shuDistribution?.dana_cadangan_umum || 0)) + 
+                      (shuKotor - (shuDistribution?.jasa_modal || 0) - (shuDistribution?.jasa_transaksi || 0))
+                    )}</td>
                   </tr>
                 </tbody>
               </table>
