@@ -55,7 +55,7 @@ function LaporanContent() {
     .filter(s => s.status === 'aktif')
     .reduce((sum, s) => sum + s.jumlah, 0);
 
-  // ASET - berdasarkan tahun yang dipilih (semua simpanan = Kas)
+  // ASET - Kas = semua simpanan aktif (Pokok, Wajib, Sibuhar, Simapan, Sihat, Sihar)
   const kas = simpanans
     .filter(s => s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
     .reduce((sum, s) => sum + s.jumlah, 0);
@@ -80,7 +80,7 @@ function LaporanContent() {
   const akumulasiAmortisasi = 0;
   const asetLain = 0;
 
-  // Simpanan Anggota - berdasarkan tahun yang dipilih
+  // ===== LIABILITAS =====
   // Simpanan Harian (Sibuhar) - KEWAJIBAN
   const simpananHarian = simpanans
     .filter(s => s.jenis === 'sibuhar' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
@@ -92,6 +92,7 @@ function LaporanContent() {
     .reduce((sum, s) => sum + s.jumlah, 0);
     
   const simpananBerjangka = 0;
+    
   const simpananKopLain = 0;
   const utangPinjaman = pinjamansByYear;
   const liabilitasImbalanKerja = 0;
@@ -107,15 +108,18 @@ function LaporanContent() {
     }, 0);
   const utangBunga = utangBungaSibuhar + Math.round(utangBungaSimpananBerencana);
 
-  // EKUITAS - berdasarkan tahun yang dipilih
+  // ===== EKUITAS =====
+  // Simpanan Pokok - MODAL (bukan liabilitas)
   const simpananPokok = simpanans
     .filter(s => s.jenis === 'pokok' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
     .reduce((sum, s) => sum + s.jumlah, 0);
     
+  // Simpanan Wajib - MODAL (bukan liabilitas)
   const simpananWajib = simpanans
     .filter(s => s.jenis === 'wajib' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
     .reduce((sum, s) => sum + s.jumlah, 0);
     
+  // Cadangan dari SHU
   const cadangan = 0;
   const cadanganRisiko = 0;
 
@@ -127,8 +131,9 @@ function LaporanContent() {
   const pengeluaranSelectedYear = pengeluarans
     .filter(p => new Date(p.tanggal).getFullYear() === selectedYear)
     .reduce((sum, p) => sum + p.jumlah, 0);
-    
-  const shuTahunBerjalan = pendapatanSelectedYear - pengeluaranSelectedYear;
+
+  // SHU Tahun Berjalan
+  const shuTahunBerjalan = Math.max(0, pendapatanSelectedYear - pengeluaranSelectedYear);
   const ekuitasLain = 0;
 
   // ========== PERHITUNGAN SHU (TAHUN DIPILIH) ==========
