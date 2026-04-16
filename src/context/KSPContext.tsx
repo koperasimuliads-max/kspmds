@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { Anggota, Pinjaman, Simpanan, Transaksi, Pengeluaran, Pendapatan, LaporanKeuangan } from '@/types';
+import { Anggota, Pinjaman, Simpanan, Transaksi, Pengeluaran, Pendapatan, LaporanKeuangan, AuditLog } from '@/types';
 
 const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
   if (typeof window === 'undefined') return defaultValue;
@@ -11,7 +11,7 @@ const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
 
 const getInitialState = () => {
   if (typeof window === 'undefined') {
-    return { anggota: [], pinjamans: [], simpanans: [], transactions: [], pengeluarans: [], pendapatans: [] };
+    return { anggota: [], pinjamans: [], simpanans: [], transactions: [], pengeluarans: [], pendapatans: [], auditLogs: [] };
   }
   return {
     anggota: loadFromStorage<Anggota[]>('ksp_anggota', []),
@@ -20,6 +20,7 @@ const getInitialState = () => {
     transactions: loadFromStorage<Transaksi[]>('ksp_transactions', []),
     pengeluarans: loadFromStorage<Pengeluaran[]>('ksp_pengeluarans', []),
     pendapatans: loadFromStorage<Pendapatan[]>('ksp_pendapatans', []),
+    auditLogs: loadFromStorage<AuditLog[]>('ksp_audit_logs', []),
   };
 };
 
@@ -54,6 +55,8 @@ interface KSPContextType {
   bulkUpdateTanggalJoin: (startNBA: number, endNBA: number, tanggal: string) => void;
   bulkUpdateUangBuku: (startNBA: number, endNBA: number, jumlah: number) => void;
   fixSimpananTanggal: () => void;
+  auditLogs: AuditLog[];
+  addAuditLog: (action: string, tableName: string, recordId: string, details: string) => void;
 }
 
 const KSPContext = createContext<KSPContextType | undefined>(undefined);
@@ -70,6 +73,23 @@ export function KSPProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<Transaksi[]>([]);
   const [pengeluarans, setPengeluarans] = useState<Pengeluaran[]>([]);
   const [pendapatans, setPendapatans] = useState<Pendapatan[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+
+  const addAuditLog = useCallback((action: string, tableName: string, recordId: string, details: string) => {
+    const newLog: AuditLog = {
+      id: Date.now().toString(),
+      action,
+      tableName,
+      recordId,
+      timestamp: new Date().toISOString(),
+      details,
+    };
+    setAuditLogs(prev => {
+      const updated = [...prev, newLog];
+      localStorage.setItem('ksp_audit_logs', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
   useEffect(() => {
     const loadData = () => {
@@ -320,6 +340,8 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       bulkUpdateTanggalJoin,
       bulkUpdateUangBuku,
       fixSimpananTanggal,
+      auditLogs,
+      addAuditLog,
     }}>
       {children}
     </KSPContext.Provider>

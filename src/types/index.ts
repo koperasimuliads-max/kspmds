@@ -83,6 +83,15 @@ export interface Pendapatan {
   tanggal: string;
 }
 
+export interface AuditLog {
+  id: string;
+  action: string;
+  tableName: string;
+  recordId: string;
+  timestamp: string;
+  details: string;
+}
+
 export interface LaporanKeuangan {
   totalSimpanan: number;
   totalPinjaman: number;
