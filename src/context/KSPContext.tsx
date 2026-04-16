@@ -134,12 +134,41 @@ export function KSPProvider({ children }: { children: ReactNode }) {
 
   const updateAnggota = useCallback((id: string, data: Partial<Anggota>) => {
     setAnggota(prev => prev.map(a => a.id === id ? { ...a, ...data } : a));
-  }, []);
+    
+    if (data.simpananPokok !== undefined || data.simpananWajib !== undefined || data.uangBuku !== undefined) {
+      setTimeout(() => {
+        const updated = anggota.find(a => a.id === id);
+        if (!updated) return;
+        
+        if (data.simpananPokok !== undefined) {
+          setSimpanans(prev => prev.map(s => 
+            s.anggotaId === id && s.jenis === 'pokok' ? { ...s, jumlah: data.simpananPokok! } : s
+          ));
+        }
+        if (data.simpananWajib !== undefined) {
+          setSimpanans(prev => prev.map(s => 
+            s.anggotaId === id && s.jenis === 'wajib' ? { ...s, jumlah: data.simpananWajib! } : s
+          ));
+        }
+        if (data.uangBuku !== undefined) {
+          setPendapatans(prev => prev.map(p => 
+            p.jenis === 'uang_buku' && p.deskripsi?.includes(`Uang Buku - ${updated.nama}`) 
+              ? { ...p, jumlah: data.uangBuku! } 
+              : p
+          ));
+        }
+      }, 100);
+    }
+  }, [anggota]);
 
   const deleteAnggota = useCallback((id: string) => {
     setAnggota(prev => prev.filter(a => a.id !== id));
     setSimpanans(prev => prev.filter(s => s.anggotaId !== id));
     setPinjamans(prev => prev.filter(p => p.anggotaId !== id));
+    setPendapatans(prev => prev.filter(p => {
+      const isUangBuku = p.jenis === 'uang_buku' && p.deskripsi?.includes('Uang Buku -');
+      return !isUangBuku || !p.deskripsi?.includes(id);
+    }));
   }, []);
 
   const clearAllAnggota = useCallback(() => {
