@@ -30,7 +30,7 @@ export default function PendapatanPage() {
   const [currentPagePendapatan, setCurrentPagePendapatan] = useState(1);
   const [currentPageUangBuku, setCurrentPageUangBuku] = useState(1);
   const [currentPagePengeluaran, setCurrentPagePengeluaran] = useState(1);
-  const itemsPerPage = 25;
+  const itemsPerPage = 15;
 
   const allTahun = Array.from(new Set([
     ...pendapatans.map(p => new Date(p.tanggal).getFullYear()),
