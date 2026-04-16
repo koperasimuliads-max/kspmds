@@ -8,6 +8,7 @@ Building a KSP (Kredit Simpanan Pinjaman) financial management application calle
 
 ## Recently Completed
 
+- [x] Fixed balance sheet - removed Utang Pinjaman from liabilities (should only show assets, not liabilities for loans given)
 - [x] Fixed balance sheet - updated old variable references (simpananHarian, simpananBerencana, simpananBerjangka) to use simpananSukarela
 - [x] Fixed laporan page - removed double counting, only counts from simpanans/pinjamans/pendapatans/pengeluarans tables
 - [x] Added Pendapatan type and state to context for tracking income
