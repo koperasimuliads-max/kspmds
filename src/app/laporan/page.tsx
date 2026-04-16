@@ -284,30 +284,42 @@ export default function LaporanPage() {
                   </tr>
                   <tr className="border-b">
                     <td className="p-2 pl-4">1.1.1</td>
-                    <td className="p-2">Kas</td>
+                    <td className="p-2">Kas Tunai</td>
                     <td className="p-2 text-slate-500">Aset Lancar</td>
                     <td className="p-2 text-right">{formatRupiah(kas)}</td>
                   </tr>
                   <tr className="border-b">
                     <td className="p-2 pl-4">1.1.2</td>
-                    <td className="p-2">Bank</td>
+                    <td className="p-2">Bank - BRI Tigabinanga</td>
                     <td className="p-2 text-slate-500">Aset Lancar</td>
-                    <td className="p-2 text-right">{formatRupiah(bank)}</td>
+                    <td className="p-2 text-right">0</td>
                   </tr>
                   <tr className="border-b">
                     <td className="p-2 pl-4">1.1.3</td>
+                    <td className="p-2">Bank - BRI Berastagi</td>
+                    <td className="p-2 text-slate-500">Aset Lancar</td>
+                    <td className="p-2 text-right">0</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-4">1.1.4</td>
+                    <td className="p-2">Bank - BPR Logo Asri</td>
+                    <td className="p-2 text-slate-500">Aset Lancar</td>
+                    <td className="p-2 text-right">0</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="p-2 pl-4">1.1.5</td>
                     <td className="p-2">Piutang Bunga</td>
                     <td className="p-2 text-slate-500">Aset Lancar</td>
                     <td className="p-2 text-right">{formatRupiah(piutangBunga)}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 pl-4">1.1.4</td>
+                    <td className="p-2 pl-4">1.1.6</td>
                     <td className="p-2">Pinjaman Anggota</td>
                     <td className="p-2 text-slate-500">Aset Lancar</td>
                     <td className="p-2 text-right font-medium text-blue-600">{formatRupiah(pinjamansByYear)}</td>
                   </tr>
                   <tr className="border-b">
-                    <td className="p-2 pl-4">1.1.5</td>
+                    <td className="p-2 pl-4">1.1.7</td>
                     <td className="p-2">Penyisihan Pinjaman (Anggota)</td>
                     <td className="p-2 text-slate-500">(Pengurang Aset)</td>
                     <td className="p-2 text-right text-red-500">({formatRupiah(penyisihanPinjaman)})</td>
@@ -384,7 +396,7 @@ export default function LaporanPage() {
                   </tr>
                   <tr className="bg-blue-100 font-bold">
                     <td className="p-3" colSpan={3}>TOTAL ASET</td>
-                    <td className="p-3 text-right text-blue-800">{formatRupiah(kas + bank + piutangBunga + pinjamansByYear - penyisihanPinjaman + pinjamansKopLain - penyisihanPinjamanKopLain)}</td>
+                    <td className="p-3 text-right text-blue-800">{formatRupiah(kas + 0 + 0 + 0 + piutangBunga + pinjamansByYear - penyisihanPinjaman + pinjamansKopLain - penyisihanPinjamanKopLain)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -413,7 +425,7 @@ export default function LaporanPage() {
                   </tr>
                   <tr className="border-b">
                     <td className="p-2 pl-4">II.2.1</td>
-                    <td className="p-2">Utang Bunga</td>
+                    <td className="p-2">Utang Bunga (Bunga Akrual)</td>
                     <td className="p-2 text-slate-500">Kewajiban</td>
                     <td className="p-2 text-right">{formatRupiah(utangBunga)}</td>
                   </tr>
@@ -558,7 +570,7 @@ export default function LaporanPage() {
 
           {/* CHECK BALANCE */}
           {(() => {
-            const totalAset = kas + bank + piutangBunga + pinjamansByYear - penyisihanPinjaman + pinjamansKopLain - penyisihanPinjamanKopLain;
+            const totalAset = kas + 0 + 0 + 0 + piutangBunga + pinjamansByYear - penyisihanPinjaman + pinjamansKopLain - penyisihanPinjamanKopLain;
             const totalLiabilitas = utangBunga + simpananHarian + simpananBerencana + simpananBerjangka + simpananKopLain + utangPinjaman + liabilitasImbalanKerja + liabilitasLain;
             const totalEkuitas = simpananPokok + simpananWajib + cadangan + cadanganRisiko + shuTahunBerjalan + ekuitasLain;
             const selisih = totalAset - (totalLiabilitas + totalEkuitas);
