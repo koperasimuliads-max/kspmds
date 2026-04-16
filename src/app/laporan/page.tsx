@@ -43,7 +43,7 @@ function LaporanContent() {
     ...pengeluarans.map(p => new Date(p.tanggal).getFullYear()),
   ])).sort((a, b) => b - a);
 
-  // ========== NERACA CALCULATIONS ==========
+// ========== NERACA CALCULATIONS ==========
   
   // Total Pinjaman Aktif (semua waktu)
   const totalPinjamanAktif = pinjamans
@@ -55,14 +55,13 @@ function LaporanContent() {
     .filter(s => s.status === 'aktif')
     .reduce((sum, s) => sum + s.jumlah, 0);
 
-  // ASET - Kas = semua simpanan aktif (Pokok, Wajib, Sibuhar, Simapan, Sihat, Sihar)
-  const kas = simpanans
-    .filter(s => s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
-    .reduce((sum, s) => sum + s.jumlah, 0);
+  // ===== ASET =====
+  // Kas = 0 (tidak termasuk simpanan - simpanan akan masuk ke liabilitas/ekuitas)
+  const kas = 0;
   const bank = 0;
   const piutangBunga = Math.round(totalPinjamanAktif * 0.01);
   
-  // Pinjaman Anggota - berdasarkan tahun yang dipilih (semua status aktif)
+  // Pinjaman Anggota - berdasarkan tahun yang dipilih
   const pinjamansByYear = pinjamans
     .filter(p => p.status === 'aktif' && new Date(p.tanggalPinjaman).getFullYear() <= selectedYear)
     .reduce((sum, p) => sum + p.jumlah, 0);
@@ -92,13 +91,12 @@ function LaporanContent() {
     .reduce((sum, s) => sum + s.jumlah, 0);
     
   const simpananBerjangka = 0;
-    
   const simpananKopLain = 0;
   const utangPinjaman = pinjamansByYear;
   const liabilitasImbalanKerja = 0;
   const liabilitasLain = 0;
   
-  // LIABILITAS - Utang Bunga (bunga yang harus dibayar - metode akrual)
+  // Utang Bunga (bunga yang harus dibayar - metode akrual)
   const utangBungaSibuhar = Math.round(simpananHarian * 0.03 / 12);
   const utangBungaSimpananBerencana = simpanans
     .filter(s => s.status === 'aktif' && ['simapan', 'sihat', 'sihar'].includes(s.jenis) && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
@@ -109,17 +107,16 @@ function LaporanContent() {
   const utangBunga = utangBungaSibuhar + Math.round(utangBungaSimpananBerencana);
 
   // ===== EKUITAS =====
-  // Simpanan Pokok - MODAL (bukan liabilitas)
+  // Simpanan Pokok - MODAL
   const simpananPokok = simpanans
     .filter(s => s.jenis === 'pokok' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
     .reduce((sum, s) => sum + s.jumlah, 0);
     
-  // Simpanan Wajib - MODAL (bukan liabilitas)
+  // Simpanan Wajib - MODAL
   const simpananWajib = simpanans
     .filter(s => s.jenis === 'wajib' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
     .reduce((sum, s) => sum + s.jumlah, 0);
     
-  // Cadangan dari SHU
   const cadangan = 0;
   const cadanganRisiko = 0;
 
@@ -450,7 +447,7 @@ function LaporanContent() {
                   </tr>
                   <tr className="bg-blue-100 font-bold">
                     <td className="p-3" colSpan={3}>TOTAL ASET</td>
-                    <td className="p-3 text-right text-blue-800">{formatRupiah(kas + 0 + 0 + 0 + piutangBunga + pinjamansByYear - penyisihanPinjaman + pinjamansKopLain - penyisihanPinjamanKopLain)}</td>
+                    <td className="p-3 text-right text-blue-800">{formatRupiah(kas + piutangBunga + pinjamansByYear - penyisihanPinjaman)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -618,7 +615,7 @@ function LaporanContent() {
 
           {/* CHECK BALANCE */}
           {(() => {
-            const totalAset = kas + 0 + 0 + 0 + piutangBunga + pinjamansByYear - penyisihanPinjaman + pinjamansKopLain - penyisihanPinjamanKopLain;
+            const totalAset = kas + piutangBunga + pinjamansByYear - penyisihanPinjaman;
             const totalLiabilitas = utangBunga + simpananHarian + simpananBerencana + simpananBerjangka + simpananKopLain + utangPinjaman + liabilitasImbalanKerja + liabilitasLain;
             const totalEkuitas = simpananPokok + simpananWajib + cadangan + cadanganRisiko + shuTahunBerjalan + ekuitasLain;
             const selisih = totalAset - (totalLiabilitas + totalEkuitas);
