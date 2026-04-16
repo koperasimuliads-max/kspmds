@@ -557,14 +557,42 @@ export default function LaporanPage() {
           </div>
 
           {/* CHECK BALANCE */}
-          <div className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-xl p-4 text-white">
-            <div className="flex justify-between items-center">
-              <span className="font-bold">TOTAL LIABILITAS + EKUITAS</span>
-              <span className="text-xl font-bold">
-                {formatRupiah((utangBunga + simpananHarian + simpananBerencana + simpananBerjangka + simpananKopLain + utangPinjaman + liabilitasImbalanKerja + liabilitasLain) + (simpananPokok + simpananWajib + cadangan + cadanganRisiko + shuTahunBerjalan + ekuitasLain))}
-              </span>
-            </div>
-          </div>
+          {(() => {
+            const totalAset = kas + bank + piutangBunga + pinjamansByYear - penyisihanPinjaman + pinjamansKopLain - penyisihanPinjamanKopLain;
+            const totalLiabilitas = utangBunga + simpananHarian + simpananBerencana + simpananBerjangka + simpananKopLain + utangPinjaman + liabilitasImbalanKerja + liabilitasLain;
+            const totalEkuitas = simpananPokok + simpananWajib + cadangan + cadanganRisiko + shuTahunBerjalan + ekuitasLain;
+            const selisih = totalAset - (totalLiabilitas + totalEkuitas);
+            const isBalance = selisih === 0;
+            return (
+              <div className="space-y-3">
+                <div className={`rounded-xl p-4 ${isBalance ? 'bg-green-500' : 'bg-red-500'} text-white`}>
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <p className="text-sm opacity-80">TOTAL ASET</p>
+                      <p className="text-xl font-bold">{formatRupiah(totalAset)}</p>
+                      <p className="text-xs opacity-70">Kas + Piutang - Penyisihan</p>
+                    </div>
+                    <div>
+                      <p className="text-sm opacity-80">LIABILITAS + EKUITAS</p>
+                      <p className="text-xl font-bold">{formatRupiah(totalLiabilitas + totalEkuitas)}</p>
+                      <p className="text-xs opacity-70">Liab + Modal + SHU</p>
+                    </div>
+                    <div>
+                      <p className="text-sm opacity-80">SELISIH</p>
+                      <p className="text-xl font-bold">{formatRupiah(selisih)}</p>
+                      <p className="text-xs opacity-70">{isBalance ? 'BALANCE ✓' : 'TIDAK BALANCE!'}</p>
+                    </div>
+                  </div>
+                </div>
+                {!isBalance && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+                    <p className="font-bold">⚠️ Peringatan: Laporan tidak balance!</p>
+                    <p className="text-sm">Aset tidak sama dengan Liabilitas + Ekuitas. Silakan periksa perhitungan.</p>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
       ) : activeTab === 'shu' ? (
         /* ========== PERHITUNGAN SHU ========== */
