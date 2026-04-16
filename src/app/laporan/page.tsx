@@ -13,38 +13,60 @@ export default function LaporanPage() {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const laporan = getLaporanKeuangan();
 
+  const simpananPerTahun = simpanans
+    .filter(s => s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+    .reduce((sum, s) => sum + s.jumlah, 0);
+
   const simpananByJenis = {
-    wajib: simpanans.filter(s => s.jenis === 'wajib' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0),
-    pokok: simpanans.filter(s => s.jenis === 'pokok' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0),
-    sibuhar: simpanans.filter(s => s.jenis === 'sibuhar' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0),
-    simapan: simpanans.filter(s => s.jenis === 'simapan' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0),
-    sihat: simpanans.filter(s => s.jenis === 'sihat' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0),
-    sihar: simpanans.filter(s => s.jenis === 'sihar' && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0),
+    wajib: simpanans
+      .filter(s => s.jenis === 'wajib' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+      .reduce((sum, s) => sum + s.jumlah, 0),
+    pokok: simpanans
+      .filter(s => s.jenis === 'pokok' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+      .reduce((sum, s) => sum + s.jumlah, 0),
+    sibuhar: simpanans
+      .filter(s => s.jenis === 'sibuhar' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+      .reduce((sum, s) => sum + s.jumlah, 0),
+    simapan: simpanans
+      .filter(s => s.jenis === 'simapan' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+      .reduce((sum, s) => sum + s.jumlah, 0),
+    sihat: simpanans
+      .filter(s => s.jenis === 'sihat' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+      .reduce((sum, s) => sum + s.jumlah, 0),
+    sihar: simpanans
+      .filter(s => s.jenis === 'sihar' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+      .reduce((sum, s) => sum + s.jumlah, 0),
   };
 
   const totalSimpanan = Object.values(simpananByJenis).reduce((a, b) => a + b, 0);
-  const totalPinjamanAktif = pinjamans.filter(p => p.status === 'aktif').reduce((sum, p) => sum + p.jumlah, 0);
-  const totalPinjamanLunas = pinjamans.filter(p => p.status === 'lunas').reduce((sum, p) => sum + p.jumlah, 0);
-  const totalPinjamanMacet = pinjamans.filter(p => p.status === 'macet').reduce((sum, p) => sum + p.jumlah, 0);
+  const totalPinjamanAktif = pinjamans
+    .filter(p => p.status === 'aktif' && new Date(p.tanggalPinjaman).getFullYear() <= selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+  const totalPinjamanLunas = pinjamans
+    .filter(p => p.status === 'lunas' && new Date(p.tanggalPinjaman).getFullYear() <= selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+  const totalPinjamanMacet = pinjamans
+    .filter(p => p.status === 'macet' && new Date(p.tanggalPinjaman).getFullYear() <= selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
 
-  const totalPendapatan = pendapatans.reduce((sum, p) => sum + p.jumlah, 0);
-  const totalPengeluaran = pengeluarans.reduce((sum, p) => sum + p.jumlah, 0);
-  const shNet = totalPendapatan - totalPengeluaran;
-
-  const pendapatanPerTahun = pendapatans.filter(p => new Date(p.tanggal).getFullYear() === selectedYear).reduce((sum, p) => sum + p.jumlah, 0);
-  const pengeluaranPerTahun = pengeluarans.filter(p => new Date(p.tanggal).getFullYear() === selectedYear).reduce((sum, p) => sum + p.jumlah, 0);
+  const pendapatanPerTahun = pendapatans
+    .filter(p => new Date(p.tanggal).getFullYear() === selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+  const pengeluaranPerTahun = pengeluarans
+    .filter(p => new Date(p.tanggal).getFullYear() === selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
   const shNetPerTahun = pendapatanPerTahun - pengeluaranPerTahun;
 
-  const shuDistribution = shNet > 0 ? {
-    dana_cadangan_umum: shNet * 0.05,
-    dana_cadangan_resiko: shNet * 0.05,
-    jasa_modal: shNet * 0.55,
-    jasa_transaksi: shNet * 0.20,
-    dana_pengurus_pengawas: shNet * 0.05,
-    dana_kesejahteraan_karyawan: shNet * 0.05,
-    dana_pendidikan: shNet * 0.02,
-    dana_sosial: shNet * 0.02,
-    daerah_pembangunan_daerah_kerja: shNet * 0.01,
+  const shuDistribution = shNetPerTahun > 0 ? {
+    dana_cadangan_umum: shNetPerTahun * 0.05,
+    dana_cadangan_resiko: shNetPerTahun * 0.05,
+    jasa_modal: shNetPerTahun * 0.55,
+    jasa_transaksi: shNetPerTahun * 0.20,
+    dana_pengurus_pengawas: shNetPerTahun * 0.05,
+    dana_kesejahteraan_karyawan: shNetPerTahun * 0.05,
+    dana_pendidikan: shNetPerTahun * 0.02,
+    dana_sosial: shNetPerTahun * 0.02,
+    daerah_pembangunan_daerah_kerja: shNetPerTahun * 0.01,
   } : null;
 
   const anggotaAktif = anggota.filter(a => a.status === 'aktif');
@@ -136,7 +158,7 @@ export default function LaporanPage() {
           </div>
           <div className="p-3 bg-purple-50 rounded">
             <p className="text-purple-700 text-sm font-medium">Total Semua Pendapatan</p>
-            <p className="text-xl font-bold text-purple-800">{formatRupiah(totalPendapatan)}</p>
+            <p className="text-xl font-bold text-purple-800">{formatRupiah(pendapatanPerTahun)}</p>
             <p className="text-xs text-purple-600 mt-1">Semua tahun</p>
           </div>
         </div>
@@ -169,7 +191,7 @@ export default function LaporanPage() {
         <div className="bg-white p-4 rounded-lg shadow">
           <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">PENDAPATAN</h2>
           <div className="space-y-1 text-sm">
-            <p className="flex justify-between"><span>Total Pendapatan</span><span className="font-medium">{formatRupiah(totalPendapatan)}</span></p>
+            <p className="flex justify-between"><span>Total Pendapatan</span><span className="font-medium">{formatRupiah(pendapatanPerTahun)}</span></p>
             <p className="text-xs text-slate-500 mt-2">Dari menu Pendapatan</p>
           </div>
         </div>
@@ -177,7 +199,7 @@ export default function LaporanPage() {
         <div className="bg-white p-4 rounded-lg shadow">
           <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">PENGELUARAN</h2>
           <div className="space-y-1 text-sm">
-            <p className="flex justify-between"><span>Total Pengeluaran</span><span className="font-medium">{formatRupiah(totalPengeluaran)}</span></p>
+            <p className="flex justify-between"><span>Total Pengeluaran</span><span className="font-medium">{formatRupiah(pengeluaranPerTahun)}</span></p>
             <p className="text-xs text-slate-500 mt-2">Dari menu Pengeluaran</p>
           </div>
         </div>
@@ -188,18 +210,18 @@ export default function LaporanPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-3 bg-green-50 rounded">
             <p className="font-medium text-green-800">Total Pendapatan</p>
-            <p className="text-xl font-bold text-green-700">{formatRupiah(totalPendapatan)}</p>
+            <p className="text-xl font-bold text-green-700">{formatRupiah(pendapatanPerTahun)}</p>
           </div>
           <div className="p-3 bg-red-50 rounded">
             <p className="font-medium text-red-800">Total Pengeluaran</p>
-            <p className="text-xl font-bold text-red-700">{formatRupiah(totalPengeluaran)}</p>
+            <p className="text-xl font-bold text-red-700">{formatRupiah(pengeluaranPerTahun)}</p>
           </div>
-          <div className={`p-3 rounded ${shNet >= 0 ? 'bg-blue-50' : 'bg-orange-50'}`}>
-            <p className={`font-medium ${shNet >= 0 ? 'text-blue-800' : 'text-orange-800'}`}>
-              {shNet >= 0 ? 'SISA HASIL USAHA (SHU)' : 'RUGI'}
+          <div className={`p-3 rounded ${shNetPerTahun >= 0 ? 'bg-blue-50' : 'bg-orange-50'}`}>
+            <p className={`font-medium ${shNetPerTahun >= 0 ? 'text-blue-800' : 'text-orange-800'}`}>
+              {shNetPerTahun >= 0 ? 'SISA HASIL USAHA (SHU)' : 'RUGI'}
             </p>
-            <p className={`text-2xl font-bold ${shNet >= 0 ? 'text-blue-700' : 'text-orange-700'}`}>
-              {formatRupiah(shNet)}
+            <p className={`text-2xl font-bold ${shNetPerTahun >= 0 ? 'text-blue-700' : 'text-orange-700'}`}>
+              {formatRupiah(shNetPerTahun)}
             </p>
           </div>
         </div>
@@ -270,7 +292,7 @@ export default function LaporanPage() {
           </div>
           <div className="mt-4 pt-3 border-t text-center">
             <p className="text-slate-600">Total Pembagian SHU</p>
-            <p className="text-xl font-bold text-slate-800">{formatRupiah(shNet)}</p>
+            <p className="text-xl font-bold text-slate-800">{formatRupiah(shNetPerTahun)}</p>
           </div>
         </div>
       )}
