@@ -149,7 +149,7 @@ export default function AnggotaPage() {
   const [bulkFromPekerjaan, setBulkFromPekerjaan] = useState('');
   const [bulkToPekerjaan, setBulkToPekerjaan] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 15;
+  const itemsPerPage = 20;
   
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
   

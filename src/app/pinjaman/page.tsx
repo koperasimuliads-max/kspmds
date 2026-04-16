@@ -68,7 +68,7 @@ export default function PinjamanPage() {
   const [hariTerlambatInput, setHariTerlambatInput] = useState(0);
   const [jumlahDisplay, setJumlahDisplay] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 15;
+  const itemsPerPage = 20;
 
   const hitungCicilan = (jumlah: number, bunga: number, tenor: number) => {
     const bungaPerBulan = bunga / 100 / 12;
