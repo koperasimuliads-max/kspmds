@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useKSP } from '@/context/KSPContext';
+import Link from 'next/link';
 
 function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
 }
 
 export default function Dashboard() {
-  const { anggota, pinjamans, simpanans, transactions, getLaporanKeuangan } = useKSP();
-  const [selectedYear, setSelectedYear] = useState(2024);
+  const { anggota, pinjamans, simpanans, transactions, pendapatans, pengeluarans, getLaporanKeuangan } = useKSP();
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -20,29 +21,32 @@ export default function Dashboard() {
 
   const recentTransactions = [...transactions]
     .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime())
-    .slice(0, 10);
+    .slice(0, 8);
 
-  const pinjamansAktif = pinjamans.filter(p => p.status === 'aktif').length;
-  const pinjamansLunas = pinjamans.filter(p => p.status === 'lunas').length;
-  const pinjamansMacet = pinjamans.filter(p => p.status === 'macet').length;
-  const totalPinjaman = pinjamansAktif + pinjamansLunas + pinjamansMacet;
+  const pinjamansAktif = pinjamans.filter(p => p.status === 'aktif');
+  const pinjamansLunas = pinjamans.filter(p => p.status === 'lunas');
+  const totalPinjamanCount = pinjamans.length;
   
-  const wajib = simpanans.filter(s => s.jenis === 'wajib' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
-  const pokok = simpanans.filter(s => s.jenis === 'pokok' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
-  const sibuhar = simpanans.filter(s => s.jenis === 'sibuhar' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
-  const simapan = simpanans.filter(s => s.jenis === 'simapan' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
-  const sihat = simpanans.filter(s => s.jenis === 'sihat' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
-  const sihar = simpanans.filter(s => s.jenis === 'sihar' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
-  const totalSimpanan = wajib + pokok + sibuhar + simapan + sihat + sihar;
+  const simpananWajib = simpanans.filter(s => s.jenis === 'wajib' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
+  const simpananPokok = simpanans.filter(s => s.jenis === 'pokok' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
+  const simpananSibuhar = simpanans.filter(s => s.jenis === 'sibuhar' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
+  const simpananSimapan = simpanans.filter(s => s.jenis === 'simapan' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
+  const simpananSihat = simpanans.filter(s => s.jenis === 'sihat' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
+  const simpananSihar = simpanans.filter(s => s.jenis === 'sihar' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
+  const totalSimpanan = simpananWajib + simpananPokok + simpananSibuhar + simpananSimapan + simpananSihat + simpananSihar;
+
+  const totalPendapatan = pendapatans.reduce((sum, p) => sum + p.jumlah, 0);
+  const totalPengeluaran = pengeluarans.reduce((sum, p) => sum + p.jumlah, 0);
+  const shu = totalPendapatan - totalPengeluaran;
+
+  const anggotaAktif = anggota.filter(a => a.status === 'aktif').length;
+  const anggotaNonaktif = anggota.filter(a => a.status === 'nonaktif').length;
 
   const getYearStats = (year: number) => {
     const months: { name: string; masuk: number; keluar: number }[] = [];
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     
     for (let month = 0; month < 12; month++) {
-      const monthStart = new Date(year, month, 1);
-      const monthEnd = new Date(year, month + 1, 0);
-      const monthName = monthStart.toLocaleDateString('id-ID', { month: 'short' });
-      
       const masuk = anggota.filter(a => {
         if (!a.tanggalJoin) return false;
         const joinDate = new Date(a.tanggalJoin);
@@ -55,309 +59,382 @@ export default function Dashboard() {
         return exitDate.getFullYear() === year && exitDate.getMonth() === month;
       }).length;
       
-      months.push({ name: monthName, masuk, keluar });
+      months.push({ name: monthNames[month], masuk, keluar });
     }
     return months;
   };
 
-  const availableYears = Array.from(new Set(anggota.map(a => {
-    if (a.tanggalJoin) return new Date(a.tanggalJoin).getFullYear();
-    return 2024;
-  }).concat(anggota.filter(a => a.tanggalKeluar).map(a => new Date(a.tanggalKeluar!).getFullYear())))).sort((a, b) => b - a);
+  const availableYears = Array.from(new Set([
+    ...anggota.map(a => a.tanggalJoin ? new Date(a.tanggalJoin).getFullYear() : new Date().getFullYear()),
+    ...anggota.filter(a => a.tanggalKeluar).map(a => new Date(a.tanggalKeluar!).getFullYear())
+  ])).sort((a, b) => b - a);
 
   const yearStats = getYearStats(selectedYear);
   const currentYearMasuk = yearStats.reduce((s, m) => s + m.masuk, 0);
   const currentYearKeluar = yearStats.reduce((s, m) => s + m.keluar, 0);
 
-  return !mounted ? (
-    <div className="flex items-center justify-center h-64">
-      <div className="text-slate-500">Loading...</div>
-    </div>
-  ) : (
-    <div>
-      <h1 className="text-2xl font-bold mb-6 text-slate-800">Dashboard</h1>
-      
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-          <p className="text-sm text-slate-500">Total Aktif</p>
-          <p className="text-2xl font-bold text-slate-800">{laporan.jumlahAnggotaAktif}</p>
-        </div>
-        
-        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-          <p className="text-sm text-slate-500">Masuk ({selectedYear})</p>
-          <p className="text-2xl font-bold text-green-600">{currentYearMasuk}</p>
-        </div>
-        
-        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
-          <p className="text-sm text-slate-500">Keluar ({selectedYear})</p>
-          <p className="text-2xl font-bold text-red-600">{currentYearKeluar}</p>
-        </div>
-        
-        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-          <p className="text-sm text-slate-500">Total Simpanan</p>
-          <p className="text-xl font-bold text-slate-800">{formatRupiah(laporan.totalSimpanan)}</p>
-        </div>
-        
-        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
-          <p className="text-sm text-slate-500">Total Pinjaman Aktif</p>
-          <p className="text-xl font-bold text-slate-800">{formatRupiah(laporan.totalPinjamanAktif)}</p>
-        </div>
-        
-        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
-          <p className="text-sm text-slate-500">Pinjaman Lunas</p>
-          <p className="text-2xl font-bold text-slate-800">{laporan.totalPinjamanLunas}</p>
-        </div>
+  const maxTransaction = Math.max(...recentTransactions.map(t => t.jumlah), 1);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
+    );
+  }
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="font-semibold text-slate-700">Grafik Pinjaman per Status</h3>
-            <span className="text-sm text-slate-500">Total: {pinjamansAktif + pinjamansLunas + pinjamansMacet}</span>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-6">
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 rounded-2xl p-6 mb-6 text-white shadow-xl">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">KSP Mulia Dana Sejahtera</h1>
+            <p className="text-blue-100 mt-1 text-sm md:text-base">Koperasi Simpanan Pinjaman - Dashboard Monitoring</p>
           </div>
-          <div className="relative h-48">
-            <div className="absolute bottom-0 left-0 right-0 flex items-end justify-around h-36 gap-2">
-              <div className="flex flex-col items-center w-1/3">
-                <div 
-                  className="w-full bg-blue-500 rounded-t-lg transition-all" 
-                  style={{ height: totalPinjaman > 1 ? `${(pinjamansAktif / totalPinjaman) * 100}%` : '0%' }}
-                ></div>
-                <span className="text-xs mt-2 text-slate-600">Aktif</span>
-                <span className="text-xs font-bold">{totalPinjaman > 1 ? Math.round((pinjamansAktif / totalPinjaman) * 100) : 0}%</span>
-                <span className="text-xs text-slate-500">({pinjamansAktif})</span>
-              </div>
-              <div className="flex flex-col items-center w-1/3">
-                <div 
-                  className="w-full bg-green-500 rounded-t-lg transition-all" 
-                  style={{ height: totalPinjaman > 1 ? `${(pinjamansLunas / totalPinjaman) * 100}%` : '0%' }}
-                ></div>
-                <span className="text-xs mt-2 text-slate-600">Lunas</span>
-                <span className="text-xs font-bold">{totalPinjaman > 1 ? Math.round((pinjamansLunas / totalPinjaman) * 100) : 0}%</span>
-                <span className="text-xs text-slate-500">({pinjamansLunas})</span>
-              </div>
-              <div className="flex flex-col items-center w-1/3">
-                <div 
-                  className="w-full bg-red-500 rounded-t-lg transition-all" 
-                  style={{ height: totalPinjaman > 1 ? `${(pinjamansMacet / totalPinjaman) * 100}%` : '0%' }}
-                ></div>
-                <span className="text-xs mt-2 text-slate-600">Macet</span>
-                <span className="text-xs font-bold">{totalPinjaman > 1 ? Math.round((pinjamansMacet / totalPinjaman) * 100) : 0}%</span>
-                <span className="text-xs text-slate-500">({pinjamansMacet})</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-lg shadow">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="font-semibold text-slate-700">Grafik Simpanan per Jenis</h3>
-            <span className="text-sm text-slate-500">Total: {formatRupiah(totalSimpanan)}</span>
-          </div>
-          <div className="relative h-48">
-            <div className="absolute bottom-0 left-0 right-0 flex items-end justify-around h-36 gap-2">
-              <div className="flex flex-col items-center w-1/4">
-                <div 
-                  className="w-full bg-yellow-500 rounded-t-lg transition-all" 
-                  style={{ height: totalSimpanan > 1 ? `${(wajib / totalSimpanan) * 100}%` : '0%' }}
-                ></div>
-                <span className="text-xs mt-2 text-slate-600">Wajib</span>
-                <span className="text-xs font-bold">{totalSimpanan > 1 ? Math.round((wajib / totalSimpanan) * 100) : 0}%</span>
-              </div>
-              <div className="flex flex-col items-center w-1/4">
-                <div 
-                  className="w-full bg-teal-500 rounded-t-lg transition-all" 
-                  style={{ height: totalSimpanan > 1 ? `${(pokok / totalSimpanan) * 100}%` : '0%' }}
-                ></div>
-                <span className="text-xs mt-2 text-slate-600">Pokok</span>
-                <span className="text-xs font-bold">{totalSimpanan > 1 ? Math.round((pokok / totalSimpanan) * 100) : 0}%</span>
-              </div>
-              </div>
+          <div className="text-right">
+            <p className="text-blue-200 text-sm">Tanggal</p>
+            <p className="text-xl font-semibold">{new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
           </div>
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold text-slate-700">Anggota Masuk & Keluar per Bulan</h3>
-          <select 
-            value={selectedYear} 
-            onChange={e => setSelectedYear(Number(e.target.value))}
-            className="border p-2 rounded"
-          >
-            {availableYears.map(year => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </select>
-        </div>
-        <div className="overflow-x-auto">
-          <div className="relative h-56 min-w-[800px]">
-            <div className="absolute bottom-0 left-0 right-0 flex items-end justify-around h-40 gap-1">
-              {yearStats.map((m, i) => {
-                const maxVal = Math.max(...yearStats.map(x => Math.max(x.masuk, x.keluar)), 1);
-                return (
-                  <div key={i} className="flex flex-col items-center w-8 flex-shrink-0">
-                    <div className="flex gap-0.5 w-full justify-center h-32 items-end">
-                      <div 
-                        className="w-3 bg-green-500 rounded-t" 
-                        style={{ height: m.masuk > 0 ? `${(m.masuk / maxVal) * 100}%` : '0%' }}
-                        title={`Masuk: ${m.masuk}`}
-                      ></div>
-                      <div 
-                        className="w-3 bg-red-500 rounded-t" 
-                        style={{ height: m.keluar > 0 ? `${(m.keluar / maxVal) * 100}%` : '0%' }}
-                        title={`Keluar: ${m.keluar}`}
-                      ></div>
-                    </div>
-                    <span className="text-[10px] mt-1 text-slate-600 whitespace-nowrap">{m.name}</span>
-                    <div className="text-[10px]">
-                      <span className="text-green-600">↑{m.masuk}</span>
-                      {m.keluar > 0 && <span className="text-red-600">↓{m.keluar}</span>}
-                    </div>
-                  </div>
-                );
-              })}
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+        <div className="bg-white rounded-xl p-4 shadow-lg border-t-4 border-green-500 hover:shadow-xl transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-500 uppercase font-medium">Anggota Aktif</p>
+              <p className="text-2xl font-bold text-slate-800">{anggotaAktif}</p>
+            </div>
+            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
             </div>
           </div>
+          <p className="text-xs text-slate-400 mt-2">{anggotaNonaktif} nonaktif</p>
         </div>
-        <div className="flex justify-center gap-4 mt-3 text-sm">
-          <span className="text-green-600 font-medium">█ Masuk</span>
-          <span className="text-red-600 font-medium">█ Keluar</span>
+
+        <div className="bg-white rounded-xl p-4 shadow-lg border-t-4 border-blue-500 hover:shadow-xl transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-500 uppercase font-medium">Masuk {selectedYear}</p>
+              <p className="text-2xl font-bold text-green-600">{currentYearMasuk}</p>
+            </div>
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </div>
+          </div>
+          <p className="text-xs text-slate-400 mt-2">anggota baru</p>
         </div>
-        
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-100">
-              <tr>
-                <th className="text-left p-2">Bulan</th>
-                <th className="text-right p-2">Masuk</th>
-                <th className="text-right p-2">%</th>
-                <th className="text-right p-2">Keluar</th>
-                <th className="text-right p-2">%</th>
-              </tr>
-            </thead>
-            <tbody>
-              {yearStats.map((m, i) => {
-                const total = yearStats.reduce((s, x) => s + x.masuk + x.keluar, 0);
-                const masukPct = total > 0 ? Math.round((m.masuk / total) * 100) : 0;
-                const keluarPct = total > 0 ? Math.round((m.keluar / total) * 100) : 0;
-                return (
-                  <tr key={i} className="border-b hover:bg-slate-50">
-                    <td className="p-2">{m.name}</td>
-                    <td className="p-2 text-right text-green-600 font-medium">{m.masuk}</td>
-                    <td className="p-2 text-right text-slate-500">{masukPct}%</td>
-                    <td className="p-2 text-right text-red-600 font-medium">{m.keluar}</td>
-                    <td className="p-2 text-right text-slate-500">{keluarPct}%</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-            <tfoot className="bg-slate-100 font-semibold">
-              <tr>
-                <td className="p-2">Total</td>
-                <td className="p-2 text-right text-green-600">{yearStats.reduce((s, m) => s + m.masuk, 0)}</td>
-                <td className="p-2 text-right">100%</td>
-                <td className="p-2 text-right text-red-600">{yearStats.reduce((s, m) => s + m.keluar, 0)}</td>
-                <td className="p-2 text-right">100%</td>
-              </tr>
-            </tfoot>
-          </table>
+
+        <div className="bg-white rounded-xl p-4 shadow-lg border-t-4 border-red-500 hover:shadow-xl transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-500 uppercase font-medium">Keluar {selectedYear}</p>
+              <p className="text-2xl font-bold text-red-600">{currentYearKeluar}</p>
+            </div>
+            <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+              <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+              </svg>
+            </div>
+          </div>
+          <p className="text-xs text-slate-400 mt-2">anggota keluar</p>
         </div>
-        
-        <div className="mt-4 p-3 bg-slate-50 rounded text-sm">
-          <h4 className="font-semibold text-slate-700 mb-2">Ringkasan Statistik {selectedYear}:</h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            <div className="text-center">
-              <p className="text-slate-500 text-xs">Total Masuk</p>
-              <p className="text-xl font-bold text-green-600">{currentYearMasuk}</p>
+
+        <div className="bg-white rounded-xl p-4 shadow-lg border-t-4 border-yellow-500 hover:shadow-xl transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-500 uppercase font-medium">Total Simpanan</p>
+              <p className="text-xl font-bold text-slate-800">{formatRupiah(totalSimpanan)}</p>
             </div>
-            <div className="text-center">
-              <p className="text-slate-500 text-xs">Total Keluar</p>
-              <p className="text-xl font-bold text-red-600">{currentYearKeluar}</p>
+            <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+              <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
-            <div className="text-center">
-              <p className="text-slate-500 text-xs">Rata-rata Masuk/Bulan</p>
-              <p className="text-lg font-bold text-green-600">{Math.round(currentYearMasuk / 12)}</p>
+          </div>
+          <p className="text-xs text-slate-400 mt-2">semua jenis</p>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 shadow-lg border-t-4 border-purple-500 hover:shadow-xl transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-500 uppercase font-medium">Pinjaman Aktif</p>
+              <p className="text-xl font-bold text-slate-800">{formatRupiah(laporan.totalPinjamanAktif)}</p>
             </div>
-            <div className="text-center">
-              <p className="text-slate-500 text-xs">Bulan Tertinggi</p>
-              <p className="text-lg font-bold text-slate-700">
-                {yearStats.reduce((max, m) => m.masuk > max.masuk ? m : max, yearStats[0] || {name: '-', masuk: 0}).name}
+            <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+          </div>
+          <p className="text-xs text-slate-400 mt-2">{pinjamansAktif.length} pinjaman</p>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 shadow-lg border-t-4 border-indigo-500 hover:shadow-xl transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-500 uppercase font-medium">SHU</p>
+              <p className={`text-xl font-bold ${shu >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {formatRupiah(shu)}
               </p>
             </div>
+            <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+              <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+          </div>
+          <p className="text-xs text-slate-400 mt-2">pendapatan - biaya</p>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-white rounded-xl p-4 shadow-lg mb-6">
+        <div className="flex flex-wrap gap-3">
+          <Link href="/anggota" className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            <span className="text-sm font-medium">Tambah Anggota</span>
+          </Link>
+          <Link href="/simpanan" className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span className="text-sm font-medium">Tambah Simpanan</span>
+          </Link>
+          <Link href="/pinjaman" className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span className="text-sm font-medium">Ajukan Pinjaman</span>
+          </Link>
+          <Link href="/laporan" className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span className="text-sm font-medium">Laporan</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {/* Simpanan Chart */}
+        <div className="bg-white rounded-xl p-5 shadow-lg">
+          <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Komposisi Simpanan
+          </h3>
+          <div className="space-y-3">
+            {[
+              { label: 'Simpanan Wajib', value: simpananWajib, color: 'bg-yellow-500' },
+              { label: 'Simpanan Pokok', value: simpananPokok, color: 'bg-teal-500' },
+              { label: 'Sibuhar', value: simpananSibuhar, color: 'bg-blue-500' },
+              { label: 'Simapan', value: simpananSimapan, color: 'bg-purple-500' },
+              { label: 'Sihat', value: simpananSihat, color: 'bg-indigo-500' },
+              { label: 'Sihar', value: simpananSihar, color: 'bg-pink-500' },
+            ].map((item, idx) => (
+              <div key={idx}>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-slate-600">{item.label}</span>
+                  <span className="font-semibold text-slate-800">{formatRupiah(item.value)}</span>
+                </div>
+                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full ${item.color} rounded-full transition-all duration-500`}
+                    style={{ width: totalSimpanan > 0 ? `${(item.value / totalSimpanan) * 100}%` : '0%' }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 pt-4 border-t text-center">
+            <span className="text-lg font-bold text-slate-800">Total: {formatRupiah(totalSimpanan)}</span>
+          </div>
+        </div>
+
+        {/* Pinjaman Chart */}
+        <div className="bg-white rounded-xl p-5 shadow-lg">
+          <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Status Pinjaman
+          </h3>
+          <div className="space-y-3">
+            {[
+              { label: 'Aktif', value: pinjamansAktif.length, color: 'bg-blue-500', sub: formatRupiah(pinjamansAktif.reduce((s, p) => s + p.jumlah, 0)) },
+              { label: 'Lunas', value: pinjamansLunas.length, color: 'bg-green-500', sub: formatRupiah(pinjamansLunas.reduce((s, p) => s + p.jumlah, 0)) },
+            ].map((item, idx) => (
+              <div key={idx}>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-slate-600">{item.label}</span>
+                  <span className="font-semibold text-slate-800">{item.sub}</span>
+                </div>
+                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full ${item.color} rounded-full transition-all duration-500`}
+                    style={{ width: totalPinjamanCount > 0 ? `${(item.value / totalPinjamanCount) * 100}%` : '0%' }}
+                  />
+                </div>
+                <p className="text-xs text-slate-400 mt-1">{item.value} pinjaman</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 pt-4 border-t text-center">
+            <span className="text-lg font-bold text-slate-800">Total: {formatRupiah(laporan.totalPinjamanAktif)}</span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="font-semibold text-slate-700 mb-2">Detail Pinjaman</h3>
-          <div className="space-y-1 text-sm">
-            <p className="flex justify-between">
-              <span>Aktif:</span>
-              <span className="font-medium">{pinjamansAktif}</span>
-            </p>
-            <p className="flex justify-between">
-              <span>Lunas:</span>
-              <span className="font-medium">{pinjamansLunas}</span>
-            </p>
-            <p className="flex justify-between">
-              <span>Macet:</span>
-              <span className="font-medium">{pinjamansMacet}</span>
-            </p>
+      {/* Monthly Stats & Transactions */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Monthly Chart */}
+        <div className="bg-white rounded-xl p-5 shadow-lg">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-bold text-slate-800 flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Pergerakan Anggota {selectedYear}
+            </h3>
+            <select 
+              value={selectedYear} 
+              onChange={e => setSelectedYear(Number(e.target.value))}
+              className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {availableYears.map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-end justify-between h-40 gap-1">
+            {yearStats.map((m, i) => {
+              const maxVal = Math.max(...yearStats.map(x => Math.max(x.masuk, x.keluar)), 1);
+              return (
+                <div key={i} className="flex-1 flex flex-col items-center">
+                  <div className="w-full flex gap-0.5 justify-center h-28 items-end">
+                    <div 
+                      className="w-3 bg-green-500 rounded-t hover:bg-green-600 transition-colors" 
+                      style={{ height: m.masuk > 0 ? `${(m.masuk / maxVal) * 100}%` : '4px' }}
+                      title={`Masuk: ${m.masuk}`}
+                    />
+                    <div 
+                      className="w-3 bg-red-400 rounded-t hover:bg-red-500 transition-colors" 
+                      style={{ height: m.keluar > 0 ? `${(m.keluar / maxVal) * 100}%` : '4px' }}
+                      title={`Keluar: ${m.keluar}`}
+                    />
+                  </div>
+                  <span className="text-[10px] text-slate-500 mt-1">{m.name}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex justify-center gap-4 mt-3 text-xs">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded"></span> Masuk</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 bg-red-400 rounded"></span> Keluar</span>
           </div>
         </div>
-        
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="font-semibold text-slate-700 mb-2">Detail Simpanan</h3>
-          <div className="space-y-1 text-sm">
-            <p className="flex justify-between">
-              <span>Wajib:</span>
-              <span className="font-medium">{formatRupiah(wajib)}</span>
-            </p>
-            <p className="flex justify-between">
-              <span>Pokok:</span>
-              <span className="font-medium">{formatRupiah(pokok)}</span>
-            </p>
+
+        {/* Recent Transactions */}
+        <div className="bg-white rounded-xl p-5 shadow-lg">
+          <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Transaksi Terbaru
+          </h3>
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {recentTransactions.length === 0 ? (
+              <p className="text-slate-500 text-center py-4">Belum ada transaksi</p>
+            ) : (
+              recentTransactions.map(t => (
+                <div key={t.id} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      t.jenis === 'simpanan' ? 'bg-green-100 text-green-600' :
+                      t.jenis === 'pinjaman' ? 'bg-purple-100 text-purple-600' :
+                      t.jenis === 'pembayaran' ? 'bg-blue-100 text-blue-600' :
+                      'bg-slate-100 text-slate-600'
+                    }`}>
+                      {t.jenis === 'simpanan' ? '↓' : t.jenis === 'pinjaman' ? '↑' : t.jenis === 'pembayaran' ? '↩' : '○'}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-slate-800 capitalize">{t.jenis}</p>
+                      <p className="text-xs text-slate-500">{t.deskripsi}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-slate-800">{formatRupiah(t.jumlah)}</p>
+                    <p className="text-xs text-slate-400">{new Date(t.tanggal).toLocaleDateString('id-ID')}</p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-        </div>
-        
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="font-semibold text-slate-700 mb-2">Total Pembayaran</h3>
-          <p className="text-xl font-bold text-green-600">{formatRupiah(laporan.totalPembayaranPinjaman)}</p>
-          <p className="text-sm text-slate-500 mt-1">Dari pinjaman</p>
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded-lg shadow">
-        <h3 className="font-semibold text-slate-700 mb-4">Transaksi Terbaru</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-2">Tanggal</th>
-                <th className="text-left py-2">Jenis</th>
-                <th className="text-left py-2">Deskripsi</th>
-                <th className="text-right py-2">Jumlah</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentTransactions.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="text-center py-4 text-slate-500">Belum ada transaksi</td>
-                </tr>
-              ) : (
-                recentTransactions.map(t => (
-                  <tr key={t.id} className="border-b hover:bg-slate-50">
-                    <td className="py-2">{new Date(t.tanggal).toLocaleDateString('id-ID')}</td>
-                    <td className="py-2 capitalize">{t.jenis}</td>
-                    <td className="py-2">{t.deskripsi}</td>
-                    <td className="py-2 text-right">{formatRupiah(t.jumlah)}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-5 shadow-lg text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-green-100 text-sm">Total Pendapatan</p>
+              <p className="text-2xl font-bold">{formatRupiah(totalPendapatan)}</p>
+            </div>
+            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </div>
+          </div>
+          <p className="text-green-100 text-xs mt-2">semua waktu</p>
         </div>
+
+        <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-xl p-5 shadow-lg text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-red-100 text-sm">Total Pengeluaran</p>
+              <p className="text-2xl font-bold">{formatRupiah(totalPengeluaran)}</p>
+            </div>
+            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+              </svg>
+            </div>
+          </div>
+          <p className="text-red-100 text-xs mt-2">semua waktu</p>
+        </div>
+
+        <div className={`bg-gradient-to-br ${shu >= 0 ? 'from-indigo-500 to-indigo-600' : 'from-orange-500 to-orange-600'} rounded-xl p-5 shadow-lg text-white`}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-white/80 text-sm">Selisih (SHU)</p>
+              <p className="text-2xl font-bold">{formatRupiah(shu)}</p>
+            </div>
+            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+          </div>
+          <p className="text-white/80 text-xs mt-2">pendapatan - biaya</p>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="text-center mt-8 text-slate-400 text-sm">
+        <p>KSP Mulia Dana Sejahtera © {new Date().getFullYear()}</p>
       </div>
     </div>
   );
