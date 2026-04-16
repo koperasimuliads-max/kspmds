@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useKSP } from '@/context/KSPContext';
 import { Simpanan } from '@/types';
 import BackButton from '@/components/BackButton';
@@ -57,6 +57,90 @@ export default function SimpananPage() {
     premi: 100000,
     bunga: 0,
   });
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importing, setImporting] = useState(false);
+
+  const parseDate = (dateStr: string): string => {
+    if (!dateStr) return '';
+    const trimmed = dateStr.trim();
+    if (!trimmed) return '';
+    if (trimmed.match(/^\d{4}-\d{2}-\d{2}$/)) return trimmed;
+    if (trimmed.match(/^\d{2}-\d{2}-\d{4}$/)) {
+      const parts = trimmed.split('-');
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    if (trimmed.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+      const parts = trimmed.split('/');
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    if (trimmed.match(/^\d{4}\/\d{2}\/\d{2}$/)) {
+      const parts = trimmed.split('/');
+      return `${parts[0]}-${parts[1]}-${parts[2]}`;
+    }
+    return trimmed;
+  };
+
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImporting(true);
+    try {
+      const XLSX = await import('xlsx');
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(sheet) as Record<string, unknown>[];
+
+      let count = 0;
+      let errorCount = 0;
+      const errors: string[] = [];
+
+      for (const row of json) {
+        const noNBA = String(row['No. NBA'] || row['noNBA'] || '').trim();
+        const nama = String(row['Nama Anggota'] || row['nama'] || '').trim();
+        const tanggalStr = String(row['Tanggal Transaksi'] || row['tanggal'] || '').trim();
+        const jenisBayar = String(row['Jenis Pembayaran'] || row['jenisPembayaran'] || '').trim();
+        const jumlah = Number(row['Jumlah Transaksi'] || row['jumlah'] || 0);
+
+        if (!noNBA && !nama) continue;
+
+        const ag = anggota.find(a => 
+          (noNBA && a.nomorNBA === noNBA) || 
+          (nama && a.nama.toLowerCase() === nama.toLowerCase())
+        );
+
+        if (!ag) {
+          errorCount++;
+          errors.push(`Tidak ditemukan: ${nama || noNBA}`);
+          continue;
+        }
+
+        const tanggal = parseDate(tanggalStr) || new Date().toISOString().split('T')[0];
+
+        addSimpanan({
+          anggotaId: ag.id,
+          jenis: 'wajib',
+          jumlah: jumlah,
+          tanggalSimpan: tanggal,
+          status: 'aktif',
+        });
+        count++;
+      }
+
+      if (errorCount > 0) {
+        alert(`Berhasil import: ${count}\nGagal: ${errorCount}\n\n${errors.slice(0, 5).join('\n')}${errors.length > 5 ? '\n...' : ''}`);
+      } else {
+        alert(`Berhasil import ${count} data simpanan wajib!`);
+      }
+    } catch (err) {
+      alert('Gagal import: ' + (err instanceof Error ? err.message : 'Error tidak diketahui'));
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   useEffect(() => {
     const hasWrongDate = simpanans.some(s => {
@@ -138,12 +222,28 @@ export default function SimpananPage() {
           <BackButton />
           <h1 className="text-2xl font-bold text-slate-800">Data Simpanan</h1>
         </div>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          {showForm ? 'Tutup Form' : '+ Tambah Simpanan'}
-        </button>
+        <div className="flex gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            onChange={handleImportExcel}
+            className="hidden"
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={importing}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50"
+          >
+            {importing ? 'Mengimport...' : '📥 Import Excel'}
+          </button>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            {showForm ? 'Tutup Form' : '+ Tambah Simpanan'}
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-2 mb-4 overflow-x-auto">
