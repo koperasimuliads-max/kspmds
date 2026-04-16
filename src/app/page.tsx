@@ -35,9 +35,18 @@ export default function Dashboard() {
   const simpananSihar = simpanans.filter(s => s.jenis === 'sihar' && s.status.includes('aktif')).reduce((sum, s) => sum + s.jumlah, 0);
   const totalSimpanan = simpananWajib + simpananPokok + simpananSibuhar + simpananSimapan + simpananSihat + simpananSihar;
 
-  const totalPendapatan = pendapatans.reduce((sum, p) => sum + p.jumlah, 0);
-  const totalPengeluaran = pengeluarans.reduce((sum, p) => sum + p.jumlah, 0);
+  const totalPendapatan = pendapatans
+    .filter(p => new Date(p.tanggal).getFullYear() === selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+  const totalPengeluaran = pengeluarans
+    .filter(p => new Date(p.tanggal).getFullYear() === selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
   const shu = totalPendapatan - totalPengeluaran;
+
+  const totalPinjamanAktif = pinjamans
+    .filter(p => p.status === 'aktif')
+    .reduce((sum, p) => sum + p.jumlah, 0);
+  const ldr = totalSimpanan > 0 ? (totalPinjamanAktif / totalSimpanan) * 100 : 0;
 
   const anggotaAktif = anggota.filter(a => a.status === 'aktif').length;
   const anggotaNonaktif = anggota.filter(a => a.status === 'nonaktif').length;
@@ -100,7 +109,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
         <div className="bg-white rounded-xl p-4 shadow-lg border-t-4 border-green-500 hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between">
             <div>
@@ -179,7 +188,7 @@ export default function Dashboard() {
         <div className="bg-white rounded-xl p-4 shadow-lg border-t-4 border-indigo-500 hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-slate-500 uppercase font-medium">SHU</p>
+              <p className="text-xs text-slate-500 uppercase font-medium">SHU {selectedYear}</p>
               <p className={`text-xl font-bold ${shu >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {formatRupiah(shu)}
               </p>
@@ -190,7 +199,24 @@ export default function Dashboard() {
               </svg>
             </div>
           </div>
-          <p className="text-xs text-slate-400 mt-2">pendapatan - biaya</p>
+          <p className="text-xs text-slate-400 mt-2">laba tahun berjalan</p>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 shadow-lg border-t-4 border-purple-500 hover:shadow-xl transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-500 uppercase font-medium">LDR</p>
+              <p className={`text-xl font-bold ${ldr <= 80 ? 'text-green-600' : ldr <= 100 ? 'text-yellow-600' : 'text-red-600'}`}>
+                {ldr.toFixed(1)}%
+              </p>
+            </div>
+            <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+            </div>
+          </div>
+          <p className="text-xs text-slate-400 mt-2">pinjaman / simpanan</p>
         </div>
       </div>
 
