@@ -97,9 +97,15 @@ export default function Dashboard() {
       {/* Header Section */}
       <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 rounded-2xl p-6 mb-6 text-white shadow-xl">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">KSP Mulia Dana Sejahtera</h1>
-            <p className="text-blue-100 mt-1 text-sm md:text-base">Koperasi Simpanan Pinjaman - Dashboard Monitoring</p>
+          <div className="flex items-center gap-4">
+            {/* Logo Placeholder - Ganti src dengan URL logo Anda */}
+            <div className="w-20 h-20 bg-white/10 rounded-xl flex items-center justify-center border-2 border-white/30">
+              <span className="text-3xl">🏢</span>
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">KSP Mulia Dana Sejahtera</h1>
+              <p className="text-blue-100 mt-1 text-sm md:text-base">Koperasi Simpanan Pinjaman - Dashboard Monitoring</p>
+            </div>
           </div>
           <div className="text-right">
             <p className="text-blue-200 text-sm">Tanggal</p>
@@ -463,6 +469,7 @@ export default function Dashboard() {
         <p className="font-semibold">KSP Mulia Dana Sejahtera © {new Date().getFullYear()}</p>
         <p className="mt-1">Jl. Veteran No. 85, Kel. Tambak Lau Mulgap I, Kec. Berastagi, Kab. Karo, Sumatera Utara 22152</p>
         <p>📧 koperasimuliads@gmail.com | 📱 089505117507</p>
+        <p className="mt-2 text-slate-500">Powered by <span className="font-semibold text-blue-500">MEB Tech Solutions</span> | Created by Marwan Esra Bangun</p>
       </div>
     </div>
   );
