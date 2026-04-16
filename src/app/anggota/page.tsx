@@ -148,6 +148,8 @@ export default function AnggotaPage() {
   const [showBulkUpdate, setShowBulkUpdate] = useState(false);
   const [bulkFromPekerjaan, setBulkFromPekerjaan] = useState('');
   const [bulkToPekerjaan, setBulkToPekerjaan] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 25;
   
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
   
@@ -1211,33 +1213,58 @@ export default function AnggotaPage() {
               {displayAnggota.length === 0 ? (
                 <tr><td colSpan={14} className="text-center p-4 text-slate-500">Belum ada anggota</td></tr>
               ) : (
-                displayAnggota.map((a, index) => (
-                  <tr key={a.id} className="border-b hover:bg-slate-50">
-                    <td className="p-2 text-center text-slate-500">{index + 1}</td>
-                    <td className="p-2">{a.tanggalJoin ? new Date(a.tanggalJoin).toLocaleDateString('id-ID') : '-'}</td>
-                    <td className="p-2 font-medium">{a.nama}</td>
-                    <td className="p-2">{a.nik}</td>
-                    <td className="p-2">{a.nomorNBA || '-'}</td>
-                    <td className="p-2">{a.jenisKelamin === 'L' ? 'L' : 'P'}</td>
-                    <td className="p-2 text-xs">{a.tempatLahir ? `${a.tempatLahir}, ${a.tanggalLahir ? new Date(a.tanggalLahir).toLocaleDateString('id-ID') : '-'}` : '-'}</td>
-                    <td className="p-2"><span className={`px-2 py-1 rounded text-xs ${a.status === 'aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{a.status}</span></td>
-                    <td className="p-2 text-slate-500">{a.tanggalKeluar ? new Date(a.tanggalKeluar).toLocaleDateString('id-ID') : '-'}</td>
-                    <td className="p-2">{a.pekerjaan ? getLabel(pekerjaanOptions, a.pekerjaan) : '-'}</td>
-                    <td className="p-2 text-right">{formatRupiah(a.simpananPokok)}</td>
-                    <td className="p-2 text-right">{formatRupiah(a.simpananWajib)}</td>
-                    <td className="p-2 text-right">{formatRupiah(a.uangBuku)}</td>
-                    <td className="p-2 text-center no-print">
-                      <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-1">Edit</button>
-                      {a.status === 'aktif' && (
-                        <button onClick={() => handleKeluar(a.id)} className="text-orange-600 hover:underline mr-1">Keluar</button>
-                      )}
-                      <button onClick={() => handleDelete(a.id)} className="text-red-600 hover:underline">Hapus</button>
-                    </td>
-                  </tr>
-                ))
-              )}
+                <>
+                  {displayAnggota.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((a, index) => (
+                    <tr key={a.id} className="border-b hover:bg-slate-50">
+                      <td className="p-2 text-center text-slate-500">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                      <td className="p-2">{a.tanggalJoin ? new Date(a.tanggalJoin).toLocaleDateString('id-ID') : '-'}</td>
+                      <td className="p-2 font-medium">{a.nama}</td>
+                      <td className="p-2">{a.nik}</td>
+                      <td className="p-2">{a.nomorNBA || '-'}</td>
+                      <td className="p-2">{a.jenisKelamin === 'L' ? 'L' : 'P'}</td>
+                      <td className="p-2 text-xs">{a.tempatLahir ? `${a.tempatLahir}, ${a.tanggalLahir ? new Date(a.tanggalLahir).toLocaleDateString('id-ID') : '-'}` : '-'}</td>
+                      <td className="p-2"><span className={`px-2 py-1 rounded text-xs ${a.status === 'aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{a.status}</span></td>
+                      <td className="p-2 text-slate-500">{a.tanggalKeluar ? new Date(a.tanggalKeluar).toLocaleDateString('id-ID') : '-'}</td>
+                      <td className="p-2">{a.pekerjaan ? getLabel(pekerjaanOptions, a.pekerjaan) : '-'}</td>
+                      <td className="p-2 text-right">{formatRupiah(a.simpananPokok)}</td>
+                      <td className="p-2 text-right">{formatRupiah(a.simpananWajib)}</td>
+                      <td className="p-2 text-right">{formatRupiah(a.uangBuku)}</td>
+                      <td className="p-2 text-center no-print">
+                        <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-1">Edit</button>
+                        {a.status === 'aktif' && (
+                          <button onClick={() => handleKeluar(a.id)} className="text-orange-600 hover:underline mr-1">Keluar</button>
+                        )}
+                        <button onClick={() => handleDelete(a.id)} className="text-red-600 hover:underline">Hapus</button>
+                      </td>
+                    </tr>
+                  ))}
+              </>
+            )}
             </tbody>
           </table>
+          
+          {displayAnggota.length > 0 && (
+            <div className="flex justify-between items-center mt-4 p-2 bg-slate-50 rounded">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 rounded bg-white border disabled:opacity-50"
+              >
+                ← Previous
+              </button>
+              <span className="text-sm text-slate-600">
+                Halaman {currentPage} dari {Math.ceil(displayAnggota.length / itemsPerPage)} 
+                ({displayAnggota.length} total)
+              </span>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(Math.ceil(displayAnggota.length / itemsPerPage), p + 1))}
+                disabled={currentPage >= Math.ceil(displayAnggota.length / itemsPerPage)}
+                className="px-3 py-1 rounded bg-white border disabled:opacity-50"
+              >
+                Next →
+              </button>
+            </div>
+          )}
         </div>
       </div>
       </>
