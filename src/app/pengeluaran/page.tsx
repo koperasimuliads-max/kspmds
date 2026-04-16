@@ -75,6 +75,7 @@ export default function PengeluaranPage() {
   };
 
   const totalPengeluaran = pengeluarans.reduce((sum, p) => sum + p.jumlah, 0);
+  const sortedPengeluarans = [...pengeluarans].sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime());
 
   const byJenis = pengeluarans.reduce((acc, p) => {
     acc[p.jenis] = (acc[p.jenis] || 0) + p.jumlah;
@@ -180,8 +181,7 @@ export default function PengeluaranPage() {
                 </td>
               </tr>
             ) : (
-              [...pengeluarans]
-                .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime())
+              sortedPengeluarans
                 .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
                 .map(p => (
                   <tr key={p.id} className="border-b hover:bg-slate-50">
@@ -198,7 +198,7 @@ export default function PengeluaranPage() {
             )}
           </tbody>
         </table>
-        {pengeluarans.length > itemsPerPage && (
+        {sortedPengeluarans.length > itemsPerPage && (
           <div className="flex justify-center items-center gap-2 p-4 border-t">
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -208,11 +208,11 @@ export default function PengeluaranPage() {
               &lt;
             </button>
             <span className="text-sm text-slate-600">
-              Halaman {currentPage} dari {Math.ceil(pengeluarans.length / itemsPerPage)}
+              Halaman {currentPage} dari {Math.ceil(sortedPengeluarans.length / itemsPerPage)}
             </span>
             <button
-              onClick={() => setCurrentPage(p => Math.min(Math.ceil(pengeluarans.length / itemsPerPage), p + 1))}
-              disabled={currentPage >= Math.ceil(pengeluarans.length / itemsPerPage)}
+              onClick={() => setCurrentPage(p => Math.min(Math.ceil(sortedPengeluarans.length / itemsPerPage), p + 1))}
+              disabled={currentPage >= Math.ceil(sortedPengeluarans.length / itemsPerPage)}
               className="px-3 py-1 rounded border bg-white disabled:opacity-50"
             >
               &gt;

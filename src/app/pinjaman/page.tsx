@@ -197,6 +197,7 @@ export default function PinjamanPage() {
   };
 
   const anggotaAktif = anggota.filter(a => a.status === 'aktif');
+  const sortedPinjamans = [...pinjamans].sort((a, b) => new Date(b.tanggalPinjaman).getTime() - new Date(a.tanggalPinjaman).getTime());
   const npl = hitungNPL();
   const kesehatan = hitungNPL() > 0 ? hitungKategoriKesehatan(hitungNPL()) : { nilai: 1, kategori: 'Sehat' };
 
@@ -358,7 +359,7 @@ export default function PinjamanPage() {
                 <td colSpan={11} className="text-center p-4 text-slate-500">Belum ada pinjaman</td>
               </tr>
             ) : (
-              pinjamans
+              sortedPinjamans
                 .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
                 .map((p, index) => {
                   const ag = anggota.find(a => a.id === p.anggotaId);
@@ -404,7 +405,7 @@ export default function PinjamanPage() {
             )}
           </tbody>
         </table>
-        {pinjamans.length > itemsPerPage && (
+        {sortedPinjamans.length > itemsPerPage && (
           <div className="flex justify-center items-center gap-2 p-4 border-t">
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -414,11 +415,11 @@ export default function PinjamanPage() {
               &lt;
             </button>
             <span className="text-sm text-slate-600">
-              Halaman {currentPage} dari {Math.ceil(pinjamans.length / itemsPerPage)}
+              Halaman {currentPage} dari {Math.ceil(sortedPinjamans.length / itemsPerPage)}
             </span>
             <button
-              onClick={() => setCurrentPage(p => Math.min(Math.ceil(pinjamans.length / itemsPerPage), p + 1))}
-              disabled={currentPage >= Math.ceil(pinjamans.length / itemsPerPage)}
+              onClick={() => setCurrentPage(p => Math.min(Math.ceil(sortedPinjamans.length / itemsPerPage), p + 1))}
+              disabled={currentPage >= Math.ceil(sortedPinjamans.length / itemsPerPage)}
               className="px-3 py-1 rounded border bg-white disabled:opacity-50"
             >
               &gt;
