@@ -44,6 +44,7 @@ export interface Pinjaman {
   hariTerlambat: number;
   kategoriKesehatan: 'sehat' | 'cukup_sehat' | 'kurang_sehat' | 'tidak_sehat';
   tipePinjaman?: 'flat' | 'musiman';
+  isSaldoAwal?: boolean;
 }
 
 export interface Simpanan {

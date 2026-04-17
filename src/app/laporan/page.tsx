@@ -58,17 +58,23 @@ function LaporanContent() {
     .reduce((sum, p) => sum + p.jumlah, 0);
 
   // ===== ASET =====
-  // Pinjaman Anggota - berdasarkan tahun yang dipilih (sebelum kas agar bisa digunakan)
-  const pinjamansByYear = pinjamans
-    .filter(p => p.status === 'aktif' && new Date(p.tanggalPinjaman).getFullYear() <= selectedYear)
+  // Pisahkan Pinjaman: Saldo Awal (tidak mengurangi kas) vs Pinjaman Baru (mengurangi kas)
+  const pinjamansSaldoAwal = pinjamans
+    .filter(p => p.status === 'aktif' && p.isSaldoAwal === true && new Date(p.tanggalPinjaman).getFullYear() <= selectedYear)
     .reduce((sum, p) => sum + p.jumlah, 0);
+  
+  const pinjamansBaru = pinjamans
+    .filter(p => p.status === 'aktif' && !p.isSaldoAwal && new Date(p.tanggalPinjaman).getFullYear() <= selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+  
+  const pinjamansByYear = pinjamansSaldoAwal + pinjamansBaru;
 
-  // Kas ( netto ) = Total Simpanan - Total Pinjaman (uang yang sudah dipinjamkan)
-  //Karena saat memberikan pinjaman, uang kas berkurang dan menjadi piutang
+  // Kas ( netto ) = Total Simpanan - Total Pinjaman Baru (pinjaman saldo awal sudah ada di piutang)
+  // Karena saat memberikan pinjaman baru, uang kas berkurang dan menjadi piutang
   const totalSimpanan = simpanans
     .filter(s => s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
     .reduce((sum, s) => sum + s.jumlah, 0);
-  const kas = totalSimpanan - pinjamansByYear;
+  const kas = totalSimpanan - pinjamansBaru;
   const bank = 0;
   const piutangBunga = Math.round(totalPinjamanAktif * 0.01);
   
@@ -126,7 +132,8 @@ function LaporanContent() {
   const shuTahunBerjalan = Math.max(0, pendapatanSelectedYear - pengeluaranSelectedYear);
   
   // Ekuitas Lain (Modal Ditahan/Selisih Penyeimbang) - agar Neraca selalu balance
-  const totalAsetHitung = (totalSimpanan - pinjamansByYear) + (totalPinjamanAktif * 0.01);
+  // Termasuk saldo awal pinjaman yang sudah ada di piutang
+  const totalAsetHitung = (totalSimpanan - pinjamansBaru) + (totalPinjamanAktif * 0.01) + pinjamansSaldoAwal;
   const totalLiabilitasHitung = (totalPinjamanAktif * 0.03 / 12) + simpananSukarela;
   const totalModalDasar = simpananPokok + simpananWajib;
   const ekuitasLain = Math.max(0, totalAsetHitung - totalLiabilitasHitung - totalModalDasar - shuTahunBerjalan);
@@ -375,6 +382,12 @@ function LaporanContent() {
                     <td className="p-2">Pinjaman Anggota</td>
                     <td className="p-2 text-slate-500">Aset Lancar</td>
                     <td className="p-2 text-right font-medium text-blue-600">{formatRupiah(pinjamansByYear)}</td>
+                  </tr>
+                  <tr className="border-b bg-slate-50">
+                    <td className="p-2 pl-8">→ Saldo Awal 2025</td>
+                    <td className="p-2 text-slate-500">Diimpor dari Excel</td>
+                    <td className="p-2 text-slate-500"></td>
+                    <td className="p-2 text-right text-slate-600">{formatRupiah(pinjamansSaldoAwal)}</td>
                   </tr>
                   <tr className="border-b">
                     <td className="p-2 pl-4">1.1.7</td>

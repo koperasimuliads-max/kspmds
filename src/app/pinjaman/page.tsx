@@ -153,6 +153,7 @@ export default function PinjamanPage() {
           kolektibilitas: 'lancar',
           kategoriKesehatan: 'sehat',
           tipePinjaman: tipePinjaman,
+          isSaldoAwal: true,
         });
         count++;
       }
