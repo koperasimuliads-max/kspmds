@@ -51,17 +51,19 @@ function LaporanContent() {
     .reduce((sum, p) => sum + p.jumlah, 0);
 
   // ===== ASET =====
-  // Kas = semua simpanan yang masuk (Pokok + Wajib + Sibuhar + Simapan + Sihat + Sihar)
-  const kas = simpanans
-    .filter(s => s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
-    .reduce((sum, s) => sum + s.jumlah, 0);
-  const bank = 0;
-  const piutangBunga = Math.round(totalPinjamanAktif * 0.01);
-  
-  // Pinjaman Anggota - berdasarkan tahun yang dipilih
+  // Pinjaman Anggota - berdasarkan tahun yang dipilih (sebelum kas agar bisa digunakan)
   const pinjamansByYear = pinjamans
     .filter(p => p.status === 'aktif' && new Date(p.tanggalPinjaman).getFullYear() <= selectedYear)
     .reduce((sum, p) => sum + p.jumlah, 0);
+
+  // Kas ( netto ) = Total Simpanan - Total Pinjaman (uang yang sudah dipinjamkan)
+  //Karena saat memberikan pinjaman, uang kas berkurang dan menjadi piutang
+  const totalSimpanan = simpanans
+    .filter(s => s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
+    .reduce((sum, s) => sum + s.jumlah, 0);
+  const kas = totalSimpanan - pinjamansByYear;
+  const bank = 0;
+  const piutangBunga = Math.round(totalPinjamanAktif * 0.01);
   
   const penyisihanPinjaman = Math.round(pinjamansByYear * 0.05);
   const pinjamansKopLain = 0;
@@ -605,7 +607,7 @@ function LaporanContent() {
                     <div>
                       <p className="text-sm opacity-80">TOTAL ASET</p>
                       <p className="text-xl font-bold">{formatRupiah(totalAset)}</p>
-                      <p className="text-xs opacity-70">Kas + Piutang - Penyisihan</p>
+                      <p className="text-xs opacity-70">Kas(Netto) + Piutang - Penyisihan</p>
                     </div>
                     <div>
                       <p className="text-sm opacity-80">LIABILITAS + EKUITAS</p>
