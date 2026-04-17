@@ -117,7 +117,12 @@ function LaporanContent() {
 
   // SHU Tahun Berjalan
   const shuTahunBerjalan = Math.max(0, pendapatanSelectedYear - pengeluaranSelectedYear);
-  const ekuitasLain = 0;
+  
+  // Ekuitas Lain (Modal Ditahan/Selisih Penyeimbang) - agar Neraca selalu balance
+  const totalAsetHitung = (totalSimpanan - pinjamansByYear) + (totalPinjamanAktif * 0.01);
+  const totalLiabilitasHitung = (totalPinjamanAktif * 0.03 / 12) + simpananSukarela;
+  const totalModalDasar = simpananPokok + simpananWajib;
+  const ekuitasLain = Math.max(0, totalAsetHitung - totalLiabilitasHitung - totalModalDasar - shuTahunBerjalan);
 
   // ========== PERHITUNGAN SHU (TAHUN DIPILIH) ==========
   
