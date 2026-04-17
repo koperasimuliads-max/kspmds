@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useKSP } from '@/context/KSPContext';
 import { Pinjaman } from '@/types';
 import BackButton from '@/components/BackButton';
@@ -70,6 +70,9 @@ export default function PinjamanPage() {
   const [jumlahDisplay, setJumlahDisplay] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importing, setImporting] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const hitungCicilan = (jumlah: number, bunga: number, tenor: number, tipe: string) => {
     if (tipe === 'musiman') {
@@ -86,6 +89,86 @@ export default function PinjamanPage() {
     const totalPinjamanBermasalah = pinjamans.filter(p => p.status === 'aktif' && (p.kolektibilitas === 'kurang_lancar' || p.kolektibilitas === 'diragukan' || p.kolektibilitas === 'macet')).reduce((sum, p) => sum + p.jumlah, 0);
     if (totalPinjamanAktif === 0) return 0;
     return (totalPinjamanBermasalah / totalPinjamanAktif) * 100;
+  };
+
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImporting(true);
+    try {
+      const XLSX = await import('xlsx');
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(sheet) as Record<string, unknown>[];
+
+      let count = 0;
+      let errorCount = 0;
+      const errors: string[] = [];
+
+      for (const row of json) {
+        const noNBA = String(row['No. NBA'] || row['noNBA'] || '').trim();
+        const nama = String(row['Nama Anggota'] || row['nama'] || '').trim();
+        const jumlah = Number(row['Sisa Pokok'] || row['outstanding_principal'] || row['Jumlah'] || row['jumlah'] || 0);
+        
+        const jenisPinjaman = String(row['Jenis Pinjaman'] || row['loan_type'] || row['Jenis'] || '').toLowerCase();
+        let tipePinjaman: 'flat' | 'musiman' = 'flat';
+        if (jenisPinjaman.includes('musiman')) {
+          tipePinjaman = 'musiman';
+        } else if (jenisPinjaman.includes('flat')) {
+          tipePinjaman = 'flat';
+        }
+
+        const bunga = Number(row['Bunga (%)'] || row['interest_rate'] || row['Bunga'] || 12);
+
+        if (!noNBA && !nama) continue;
+
+        const ag = anggota.find(a => 
+          (noNBA && a.nomorNBA === noNBA) || 
+          (nama && a.nama.toLowerCase() === nama.toLowerCase())
+        );
+
+        if (!ag) {
+          errorCount++;
+          errors.push(`Tidak ditemukan: ${nama || noNBA}`);
+          continue;
+        }
+
+        const tanggalPinjaman = '2025-12-31';
+        const tenor = 12;
+        const cicilan = hitungCicilan(jumlah, bunga, tenor, tipePinjaman);
+
+        addPinjaman({
+          anggotaId: ag.id,
+          jumlah: jumlah,
+          bunga: bunga,
+          tenor: tenor,
+          tanggalPinjaman: tanggalPinjaman,
+          status: 'aktif',
+          cicilanPerBulan: cicilan,
+          totalPembayaran: tipePinjaman === 'musiman' ? cicilan * tenor : cicilan * tenor,
+          sudahDibayar: 0,
+          hariTerlambat: 0,
+          kolektibilitas: 'lancar',
+          kategoriKesehatan: 'sehat',
+          tipePinjaman: tipePinjaman,
+        });
+        count++;
+      }
+
+      if (errorCount > 0) {
+        alert(`Berhasil import: ${count}\nGagal: ${errorCount}\n\n${errors.slice(0, 5).join('\n')}${errors.length > 5 ? '\n...' : ''}`);
+      } else {
+        alert(`Berhasil import ${count} data pinjaman!`);
+      }
+      setShowImportModal(false);
+    } catch (err) {
+      alert('Gagal import: ' + (err instanceof Error ? err.message : 'Error tidak diketahui'));
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -220,6 +303,12 @@ export default function PinjamanPage() {
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
           {showForm ? 'Tutup Form' : '+ Ajukan Pinjaman'}
+        </button>
+        <button
+          onClick={() => setShowImportModal(true)}
+          className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+        >
+          📥 Import Saldo Akhir 2025
         </button>
       </div>
 
@@ -473,6 +562,36 @@ export default function PinjamanPage() {
                 </>
               );
             })()}
+          </div>
+        </div>
+      )}
+
+      {showImportModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="font-semibold text-lg mb-4">Import Saldo Akhir 2025</h2>
+            <p className="text-sm text-slate-600 mb-2">Format Kolom Excel:</p>
+            <ul className="text-xs text-slate-500 mb-4 space-y-1">
+              <li>- No. NBA atau Nama Anggota</li>
+              <li>- Jenis Pinjaman (Flat/Musiman)</li>
+              <li>- Sisa Pokok (angka)</li>
+              <li>- Bunga (%)</li>
+            </ul>
+            <input
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={handleImportExcel}
+              ref={fileInputRef}
+              className="border p-2 rounded w-full mb-4"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowImportModal(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Batal
+              </button>
+            </div>
           </div>
         </div>
       )}
