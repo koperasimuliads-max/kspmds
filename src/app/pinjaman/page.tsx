@@ -581,11 +581,11 @@ export default function PinjamanPage() {
               <li>- <strong>Bunga (%)</strong> = 12 untuk Flat, 30 untuk Musiman (2.5% x 12 bulan)</li>
             </ul>
             <a 
-              href="/template_pinjaman.csv" 
+              href="/template_pinjaman.xlsx" 
               download 
               className="text-blue-600 text-sm hover:underline mb-4 inline-block"
             >
-              📥 Download Template CSV
+              📥 Download Template Excel
             </a>
             <input
               type="file"
