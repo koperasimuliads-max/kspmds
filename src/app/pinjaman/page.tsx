@@ -573,13 +573,20 @@ export default function PinjamanPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <h2 className="font-semibold text-lg mb-4">Import Saldo Akhir 2025</h2>
-            <p className="text-sm text-slate-600 mb-2">Format Kolom Excel:</p>
-            <ul className="text-xs text-slate-500 mb-4 space-y-1">
-              <li>- No. NBA atau Nama Anggota</li>
-              <li>- Jenis Pinjaman (Flat/Musiman)</li>
-              <li>- Sisa Pokok (angka)</li>
-              <li>- Bunga (%)</li>
+            <p className="text-sm text-slate-600 mb-2">Format Kolom Excel/CSV:</p>
+            <ul className="text-xs text-slate-500 mb-2 space-y-1">
+              <li>- <strong>No. NBA</strong> atau <strong>Nama Anggota</strong></li>
+              <li>- <strong>Jenis Pinjaman</strong> = "Flat" atau "Musiman"</li>
+              <li>- <strong>Sisa Pokok</strong> = angka (tanpa titik/koma)</li>
+              <li>- <strong>Bunga (%)</strong> = 12 untuk Flat, 30 untuk Musiman (2.5% x 12 bulan)</li>
             </ul>
+            <a 
+              href="/template_pinjaman.csv" 
+              download 
+              className="text-blue-600 text-sm hover:underline mb-4 inline-block"
+            >
+              📥 Download Template CSV
+            </a>
             <input
               type="file"
               accept=".xlsx,.xls,.csv"
