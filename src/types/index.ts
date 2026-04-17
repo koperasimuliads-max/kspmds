@@ -43,6 +43,7 @@ export interface Pinjaman {
   kolektibilitas: 'lancar' | 'kurang_lancar' | 'diragukan' | 'macet';
   hariTerlambat: number;
   kategoriKesehatan: 'sehat' | 'cukup_sehat' | 'kurang_sehat' | 'tidak_sehat';
+  tipePinjaman?: 'flat' | 'musiman';
 }
 
 export interface Simpanan {

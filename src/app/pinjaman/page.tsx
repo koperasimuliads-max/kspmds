@@ -63,6 +63,7 @@ export default function PinjamanPage() {
     hariTerlambat: 0,
     kolektibilitas: 'lancar' as 'lancar' | 'kurang_lancar' | 'diragukan' | 'macet',
     kategoriKesehatan: 'sehat' as 'sehat' | 'cukup_sehat' | 'kurang_sehat' | 'tidak_sehat',
+    tipePinjaman: 'flat' as 'flat' | 'musiman',
   });
   const [jumlahBayar, setJumlahBayar] = useState(0);
   const [hariTerlambatInput, setHariTerlambatInput] = useState(0);
@@ -70,7 +71,11 @@ export default function PinjamanPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-  const hitungCicilan = (jumlah: number, bunga: number, tenor: number) => {
+  const hitungCicilan = (jumlah: number, bunga: number, tenor: number, tipe: string) => {
+    if (tipe === 'musiman') {
+      const bungaPerBulan = bunga / 100;
+      return Math.round(jumlah * bungaPerBulan);
+    }
     const bungaPerBulan = bunga / 100 / 12;
     const cicilan = (jumlah * bungaPerBulan * Math.pow(1 + bungaPerBulan, tenor)) / (Math.pow(1 + bungaPerBulan, tenor) - 1);
     return Math.round(cicilan);
@@ -85,7 +90,7 @@ export default function PinjamanPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const cicilan = hitungCicilan(formData.jumlah, formData.bunga, formData.tenor);
+    const cicilan = hitungCicilan(formData.jumlah, formData.bunga, formData.tenor, formData.tipePinjaman || 'flat');
     const total = cicilan * formData.tenor;
     const kolek = hitungKolektibilitas(formData.hariTerlambat);
     
@@ -129,6 +134,7 @@ export default function PinjamanPage() {
       hariTerlambat: data.hariTerlambat || 0,
       kolektibilitas: data.kolektibilitas || 'lancar',
       kategoriKesehatan: data.kategoriKesehatan || 'sehat',
+      tipePinjaman: data.tipePinjaman || 'flat',
     });
     setJumlahDisplay(formatRupiahInput(String(data.jumlah)));
     setEditingId(data.id);
@@ -190,6 +196,7 @@ export default function PinjamanPage() {
       hariTerlambat: 0,
       kolektibilitas: 'lancar',
       kategoriKesehatan: 'sehat',
+      tipePinjaman: 'flat',
     });
     setJumlahDisplay('');
     setShowForm(false);
@@ -282,6 +289,14 @@ export default function PinjamanPage() {
                 className="border p-2 rounded"
                 required
               />
+              <select
+                value={formData.tipePinjaman || 'flat'}
+                onChange={e => setFormData({ ...formData, tipePinjaman: e.target.value as 'flat' | 'musiman' })}
+                className="border p-2 rounded"
+              >
+                <option value="flat">Flat (Angsuran Tetap)</option>
+                <option value="musiman">Musiman (Bunga Saja)</option>
+              </select>
               <input
                 type="date"
                 value={formData.tanggalPinjaman}
@@ -300,8 +315,8 @@ export default function PinjamanPage() {
             </div>
             {formData.jumlah > 0 && formData.bunga > 0 && formData.tenor > 0 && (
               <div className="mt-3 p-3 bg-slate-100 rounded">
-                <p>Estimasi Cicilan per Bulan: <strong>{formatRupiah(hitungCicilan(formData.jumlah, formData.bunga, formData.tenor))}</strong></p>
-                <p>Total Pembayaran: <strong>{formatRupiah(hitungCicilan(formData.jumlah, formData.bunga, formData.tenor) * formData.tenor)}</strong></p>
+                <p>Estimasi Cicilan per Bulan: <strong>{formatRupiah(hitungCicilan(formData.jumlah, formData.bunga, formData.tenor, formData.tipePinjaman || 'flat'))}</strong></p>
+                <p>Total Pembayaran: <strong>{formatRupiah(hitungCicilan(formData.jumlah, formData.bunga, formData.tenor, formData.tipePinjaman || 'flat') * formData.tenor)}</strong></p>
               </div>
             )}
           </form>
