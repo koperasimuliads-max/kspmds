@@ -295,22 +295,24 @@ export default function PinjamanPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <BackButton />
           <h1 className="text-2xl font-bold text-slate-800">Data Pinjaman</h1>
         </div>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          {showForm ? 'Tutup Form' : '+ Ajukan Pinjaman'}
-        </button>
-        <button
-          onClick={() => setShowImportModal(true)}
-          className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
-        >
-          📥 Import Saldo Akhir 2025
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            {showForm ? 'Tutup Form' : '+ Ajukan Pinjaman'}
+          </button>
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+          >
+            📥 Import Saldo Akhir 2025
+          </button>
+        </div>
       </div>
 
       <div className="bg-white p-4 rounded-lg shadow mb-4">
