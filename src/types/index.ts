@@ -55,6 +55,8 @@ export interface Simpanan {
   tenor?: number;
   premi?: number;
   bunga?: number;
+  lastBungaMonth?: number;
+  lastBungaYear?: number;
 }
 
 export interface Transaksi {
@@ -73,6 +75,8 @@ export interface Pengeluaran {
   deskripsi: string;
   jumlah: number;
   tanggal: string;
+  tahun?: number;
+  bulan?: number;
 }
 
 export interface Pendapatan {

@@ -22,7 +22,7 @@ function LoadingFallback() {
 
 function LaporanContent() {
   const searchParams = useSearchParams();
-  const { anggota, pinjamans, simpanans, pendapatans, pengeluarans } = useKSP();
+  const { anggota, pinjamans, simpanans, pendapatans, pengeluarans, hitungBungaBulanan } = useKSP();
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   
   const tabParam = searchParams.get('tab');
@@ -42,6 +42,13 @@ function LaporanContent() {
     ...pendapatans.map(p => new Date(p.tanggal).getFullYear()),
     ...pengeluarans.map(p => new Date(p.tanggal).getFullYear()),
   ])).sort((a, b) => b - a);
+
+  const handleHitungBunga = () => {
+    if (confirm('Hitung bunga bulanan untuk semua simpanan berbunga?')) {
+      hitungBungaBulanan();
+      alert('Bunga bulanan berhasil dihitung!');
+    }
+  };
 
 // ========== NERACA CALCULATIONS ==========
   
@@ -298,6 +305,15 @@ function LaporanContent() {
           }`}
         >
           📋 Perubahan Ekuitas
+        </button>
+      </div>
+
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={handleHitungBunga}
+          className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
+        >
+          🔄 Hitung Bunga Bulanan
         </button>
       </div>
 

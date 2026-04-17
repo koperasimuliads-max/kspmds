@@ -55,6 +55,7 @@ interface KSPContextType {
   bulkUpdateTanggalJoin: (startNBA: number, endNBA: number, tanggal: string) => void;
   bulkUpdateUangBuku: (startNBA: number, endNBA: number, jumlah: number) => void;
   fixSimpananTanggal: () => void;
+  hitungBungaBulanan: () => void;
   auditLogs: AuditLog[];
   addAuditLog: (action: string, tableName: string, recordId: string, details: string) => void;
 }
@@ -308,6 +309,47 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     }));
   }, [anggota]);
 
+  const hitungBungaBulanan = useCallback(() => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    setSimpanans(prev => prev.map(s => {
+      if (s.status !== 'aktif') return s;
+      
+      let bungaTahunan = 0;
+      if (s.jenis === 'sibuhar') bungaTahunan = 0.03;
+      else if (s.jenis === 'simapan') bungaTahunan = 0.05;
+      else if (s.jenis === 'sihat') bungaTahunan = 0.06;
+      else return s;
+      
+      const bungaBulanan = s.jumlah * (bungaTahunan / 12);
+      const baru = {
+        ...s,
+        jumlah: s.jumlah + Math.round(bungaBulanan),
+        lastBungaMonth: currentMonth,
+        lastBungaYear: currentYear,
+      };
+      return baru;
+    }));
+    
+    const totalBunga = simpanans
+      .filter(s => s.status === 'aktif' && ['sibuhar', 'simapan', 'sihat'].includes(s.jenis))
+      .reduce((sum, s) => {
+        let bungaTahunan = s.jenis === 'sibuhar' ? 0.03 : s.jenis === 'simapan' ? 0.05 : 0.06;
+        return sum + (s.jumlah * (bungaTahunan / 12));
+      }, 0);
+    
+    addPengeluaran({
+      jenis: 'bunga_simpanan',
+      jumlah: Math.round(totalBunga),
+      tanggal: now.toISOString().split('T')[0],
+      tahun: currentYear,
+      bulan: currentMonth + 1,
+      deskripsi: `Bunga simpanan bulan ${now.toLocaleString('id-ID', { month: 'long' })} ${currentYear}`,
+    });
+  }, [simpanans]);
+
   return (
     <KSPContext.Provider value={{
       anggota,
@@ -340,6 +382,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       bulkUpdateTanggalJoin,
       bulkUpdateUangBuku,
       fixSimpananTanggal,
+      hitungBungaBulanan,
       auditLogs,
       addAuditLog,
     }}>
