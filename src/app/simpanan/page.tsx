@@ -356,13 +356,27 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
               </select>
             </div>
             <div className="mb-4">
-              <p className="text-sm text-slate-600 mb-2">Format Kolom Excel:</p>
+              <p className="text-sm text-slate-600 mb-2">
+                {importJenis === 'sibuhar' ? 'Format Kolom Excel Sibuhar:' : 'Format Kolom Excel:'}
+              </p>
               <ul className="text-xs text-slate-500 space-y-1 bg-slate-50 p-2 rounded">
-                <li>- No. NBA (atau noNBA)</li>
-                <li>- Nama Anggota (atau nama)</li>
-                <li>- Nilai Simpanan (atau Jumlah)</li>
-                <li>- Tanggal Transaksi (atau Tanggal)</li>
-                <li>- Status (opsional: aktif, ditarik, aktif_auto)</li>
+                {importJenis === 'sibuhar' ? (
+                  <>
+                    <li>- NBA (atau noNBA)</li>
+                    <li>- Nama Anggota (atau nama)</li>
+                    <li>- Tanggal Transaksi (atau Tanggal)</li>
+                    <li>- Jenis Pembayaran (opsional: Tunai, BRI Tigabinanga, BRI Berastagi)</li>
+                    <li>- Jumlah Transaksi (atau Jumlah)</li>
+                  </>
+                ) : (
+                  <>
+                    <li>- No. NBA (atau noNBA)</li>
+                    <li>- Nama Anggota (atau nama)</li>
+                    <li>- Nilai Simpanan (atau Jumlah)</li>
+                    <li>- Tanggal Transaksi (atau Tanggal)</li>
+                    <li>- Status (opsional: aktif, ditarik, aktif_auto)</li>
+                  </>
+                )}
               </ul>
             </div>
             <input
