@@ -466,110 +466,54 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
         </div>
       )}
 
-      {yearlySummary.length > 0 && (
-        <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
-            <h2 className="text-white font-bold text-lg">Rekapitulasi Simpanan per Tahun</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-100">
-                <tr>
-                  <th className="text-center p-3 border-b">Tahun</th>
-                  <th className="text-right p-3 border-b">Pokok</th>
-                  <th className="text-right p-3 border-b">Wajib</th>
-                  <th className="text-right p-3 border-b">Sibuhar</th>
-                  <th className="text-right p-3 border-b">Simapan</th>
-                  <th className="text-right p-3 border-b">Sihat</th>
-                  <th className="text-right p-3 border-b">Sihar</th>
-                  <th className="text-right p-3 border-b bg-blue-50">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {yearlySummary.map(y => (
-                  <tr key={y.year} className="border-b hover:bg-slate-50">
-                    <td className="p-3 text-center font-medium">{y.year}</td>
-                    <td className="p-3 text-right">{formatRupiah(y.pokok)}</td>
-                    <td className="p-3 text-right">{formatRupiah(y.wajib)}</td>
-                    <td className="p-3 text-right">{formatRupiah(y.sibuhar)}</td>
-                    <td className="p-3 text-right">{formatRupiah(y.simapan)}</td>
-                    <td className="p-3 text-right">{formatRupiah(y.sihat)}</td>
-                    <td className="p-3 text-right">{formatRupiah(y.sihar)}</td>
-                    <td className="p-3 text-right font-medium bg-blue-50">{formatRupiah(y.total)}</td>
-                  </tr>
-                ))}
-                <tr className="bg-blue-100 font-bold">
-                  <td className="p-3 text-center">TOTAL</td>
-                  <td className="p-3 text-right">{formatRupiah(grandTotal.pokok)}</td>
-                  <td className="p-3 text-right">{formatRupiah(grandTotal.wajib)}</td>
-                  <td className="p-3 text-right">{formatRupiah(grandTotal.sibuhar)}</td>
-                  <td className="p-3 text-right">{formatRupiah(grandTotal.simapan)}</td>
-                  <td className="p-3 text-right">{formatRupiah(grandTotal.sihat)}</td>
-                  <td className="p-3 text-right">{formatRupiah(grandTotal.sihar)}</td>
-                  <td className="p-3 text-right">{formatRupiah(grandTotal.total)}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {viewMode === 'anggota' && (
+      {simpananByAnggota.length > 0 && (
         <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
           <div className="bg-gradient-to-r from-green-600 to-green-700 p-4">
-            <h2 className="text-white font-bold text-lg">Simpanan per Anggota</h2>
+            <h2 className="text-white font-bold text-lg">Rekapitulasi Simpanan per Anggota</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-slate-100">
                 <tr>
-                  <th className="text-center p-2 border-b w-10">No</th>
-                  <th className="text-left p-2 border-b min-w-[150px]">Nama Anggota</th>
-                  <th className="text-right p-2 border-b min-w-[100px] bg-blue-50">Pokok</th>
-                  <th className="text-right p-2 border-b min-w-[100px] bg-blue-50">Wajib</th>
-                  <th className="text-right p-2 border-b min-w-[100px]">Sibuhar</th>
-                  <th className="text-right p-2 border-b min-w-[100px]">Simapan</th>
-                  <th className="text-right p-2 border-b min-w-[100px]">Sihat</th>
-                  <th className="text-right p-2 border-b min-w-[100px]">Sihar</th>
-                  <th className="text-right p-2 border-b min-w-[120px] bg-green-50 font-semibold">Total</th>
+                  <th className="text-center p-3 border-b min-w-[40px]">No</th>
+                  <th className="text-left p-3 border-b min-w-[150px]">Nama Anggota</th>
+                  <th className="text-right p-3 border-b min-w-[120px]">Pokok</th>
+                  <th className="text-right p-3 border-b min-w-[120px]">Wajib</th>
+                  <th className="text-right p-3 border-b min-w-[120px]">Sibuhar</th>
+                  <th className="text-right p-3 border-b min-w-[120px]">Simapan</th>
+                  <th className="text-right p-3 border-b min-w-[120px]">Sihat</th>
+                  <th className="text-right p-3 border-b min-w-[120px]">Sihar</th>
+                  <th className="text-right p-3 border-b min-w-[140px] bg-green-50">Total</th>
                 </tr>
               </thead>
               <tbody>
-                {simpananByAnggota.length === 0 ? (
-                  <tr>
-                    <td colSpan={9} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
+                {simpananByAnggota.map((item, index) => (
+                  <tr key={item.anggota.id} className="border-b hover:bg-slate-50">
+                    <td className="p-3 text-center text-slate-500">{index + 1}</td>
+                    <td className="p-3 font-medium">{item.anggota.nama}</td>
+                    <td className="p-3 text-right">{item.pokok > 0 ? formatRupiah(item.pokok) : '-'}</td>
+                    <td className="p-3 text-right">{item.wajib > 0 ? formatRupiah(item.wajib) : '-'}</td>
+                    <td className="p-3 text-right">{item.sibuhar > 0 ? formatRupiah(item.sibuhar) : '-'}</td>
+                    <td className="p-3 text-right">{item.simapan > 0 ? formatRupiah(item.simapan) : '-'}</td>
+                    <td className="p-3 text-right">{item.sihat > 0 ? formatRupiah(item.sihat) : '-'}</td>
+                    <td className="p-3 text-right">{item.sihar > 0 ? formatRupiah(item.sihar) : '-'}</td>
+                    <td className="p-3 text-right font-semibold bg-green-50">{formatRupiah(item.total)}</td>
                   </tr>
-                ) : (
-                  simpananByAnggota.map((item, index) => (
-                    <tr key={item.anggota.id} className="border-b hover:bg-slate-50">
-                      <td className="p-2 text-center text-slate-500">{index + 1}</td>
-                      <td className="p-2 font-medium">{item.anggota.nama}</td>
-                      <td className="p-2 text-right">{formatRupiah(item.pokok)}</td>
-                      <td className="p-2 text-right">{formatRupiah(item.wajib)}</td>
-                      <td className="p-2 text-right">{item.sibuhar > 0 ? formatRupiah(item.sibuhar) : '-'}</td>
-                      <td className="p-2 text-right">{item.simapan > 0 ? formatRupiah(item.simapan) : '-'}</td>
-                      <td className="p-2 text-right">{item.sihat > 0 ? formatRupiah(item.sihat) : '-'}</td>
-                      <td className="p-2 text-right">{item.sihar > 0 ? formatRupiah(item.sihar) : '-'}</td>
-                      <td className="p-2 text-right font-semibold bg-green-50">{formatRupiah(item.total)}</td>
-                    </tr>
-                  ))
-                )}
-                {simpananByAnggota.length > 0 && (
-                  <tr className="bg-green-100 font-bold">
-                    <td className="p-2 text-center" colSpan={2}>TOTAL</td>
-                    <td className="p-2 text-right">{formatRupiah(grandTotalByAnggota.pokok)}</td>
-                    <td className="p-2 text-right">{formatRupiah(grandTotalByAnggota.wajib)}</td>
-                    <td className="p-2 text-right">{formatRupiah(grandTotalByAnggota.sibuhar)}</td>
-                    <td className="p-2 text-right">{formatRupiah(grandTotalByAnggota.simapan)}</td>
-                    <td className="p-2 text-right">{formatRupiah(grandTotalByAnggota.sihat)}</td>
-                    <td className="p-2 text-right">{formatRupiah(grandTotalByAnggota.sihar)}</td>
-                    <td className="p-2 text-right">{formatRupiah(grandTotalByAnggota.total)}</td>
-                  </tr>
-                )}
+                ))}
+                <tr className="bg-green-100 font-bold">
+                  <td className="p-3 text-center" colSpan={2}>TOTAL</td>
+                  <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.pokok)}</td>
+                  <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.wajib)}</td>
+                  <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.sibuhar)}</td>
+                  <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.simapan)}</td>
+                  <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.sihat)}</td>
+                  <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.sihar)}</td>
+                  <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.total)}</td>
+                </tr>
               </tbody>
             </table>
           </div>
-        </div>
+</div>
       )}
 
       {viewMode === 'list' && (
