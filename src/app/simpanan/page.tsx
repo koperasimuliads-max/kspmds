@@ -53,10 +53,18 @@ export default function SimpananPage() {
     jenis: 'wajib' as 'wajib' | 'pokok' | 'sibuhar' | 'simapan' | 'sihat' | 'sihar',
     tanggalSimpan: '2024-01-01',
     status: 'aktif' as 'aktif' | 'ditarik' | 'aktif_auto',
+    jenisPembayaran: 'tunai' as 'tunai' | 'bri_tigabinanga' | 'bri_berastagi' | 'penarikan',
     tenor: 12,
     premi: 100000,
     bunga: 0,
   });
+
+  const jenisPembayaranOptions = [
+    { value: 'tunai', label: 'Tunai' },
+    { value: 'bri_tigabinanga', label: 'Transfer BRI Cab. Tigabinanga' },
+    { value: 'bri_berastagi', label: 'BRI Cab. Berastagi' },
+    { value: 'penarikan', label: 'Penarikan' },
+  ];
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
@@ -149,6 +157,16 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
           status = 'aktif_auto';
         }
 
+        const jenisBayarRaw = String(row['Jenis Pembayaran'] || row['JenisTransaksi'] || row['jenis_pembayaran'] || '').toLowerCase();
+        let jenisPembayaran: 'tunai' | 'bri_tigabinanga' | 'bri_berastagi' | 'penarikan' = 'tunai';
+        if (jenisBayarRaw.includes('tigabinanga')) {
+          jenisPembayaran = 'bri_tigabinanga';
+        } else if (jenisBayarRaw.includes('berastagi')) {
+          jenisPembayaran = 'bri_berastagi';
+        } else if (jenisBayarRaw.includes('penarikan')) {
+          jenisPembayaran = 'penarikan';
+        }
+
         if (!noNBA && !nama) continue;
 
         const ag = anggota.find(a => 
@@ -170,6 +188,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
           jumlah: jumlah,
           tanggalSimpan: tanggal,
           status: status,
+          jenisPembayaran: jenisPembayaran,
         });
         count++;
       }
@@ -227,6 +246,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
       jenis: data.jenis,
       tanggalSimpan: data.tanggalSimpan,
       status: data.status,
+      jenisPembayaran: data.jenisPembayaran || 'tunai',
       tenor: data.tenor || 12,
       premi: data.premi || 100000,
       bunga: data.bunga || 0,
@@ -249,6 +269,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
       jenis: 'wajib',
       tanggalSimpan: '2024-01-01',
       status: 'aktif',
+      jenisPembayaran: 'tunai',
       tenor: 12,
       premi: 100000,
       bunga: 0,
@@ -460,6 +481,15 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
               <option value="aktif_auto">Aktif Auto</option>
               <option value="ditarik">Ditarik</option>
             </select>
+            <select
+              value={formData.jenisPembayaran}
+              onChange={e => setFormData({ ...formData, jenisPembayaran: e.target.value as typeof formData.jenisPembayaran })}
+              className="border p-2 rounded"
+            >
+              {jenisPembayaranOptions.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
             <div className="flex gap-2">
               <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                 {editingId ? 'Update' : 'Simpan'}
@@ -495,7 +525,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
               <tbody>
                 {simpananByAnggota.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
+                    <td colSpan={10} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
                   </tr>
                 ) : (
                   simpananByanggotaPage.map((item, index) => {
@@ -571,13 +601,14 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
                 </>
               ) : null}
               <th className="text-left p-3">Status</th>
+              <th className="text-left p-3">Jenis Transaksi</th>
               <th className="text-center p-3">Aksi</th>
             </tr>
           </thead>
           <tbody>
             {filteredSimpanans.length === 0 ? (
               <tr>
-                <td colSpan={9} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
+                <td colSpan={10} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
               </tr>
             ) : (
               sortedSimpanans
@@ -611,6 +642,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
                         {s.status}
                       </span>
                     </td>
+                    <td className="p-3 text-sm">{jenisPembayaranOptions.find(o => o.value === s.jenisPembayaran)?.label || '-'}</td>
                     <td className="p-3 text-center">
                       <button onClick={() => handleEdit(s)} className="text-blue-600 hover:underline mr-2">Edit</button>
                       <button onClick={() => handleDelete(s.id)} className="text-red-600 hover:underline">Hapus</button>
