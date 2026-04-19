@@ -63,6 +63,7 @@ export default function SimpananPage() {
   const [importJenis, setImportJenis] = useState<string>('wajib');
   const [showImportModal, setShowImportModal] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'anggota'>('list');
+  const [currentPageAnggota, setCurrentPageAnggota] = useState(1);
 
   const currentYear = new Date().getFullYear();
   const startYear = 2023;
@@ -289,6 +290,11 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
     total: simpananByAnggota.reduce((sum, a) => sum + a.total, 0),
   }), [simpananByAnggota]);
 
+  const simpananByanggotaPage = useMemo(() => {
+    const start = (currentPageAnggota - 1) * itemsPerPage;
+    return simpananByAnggota.slice(start, start + itemsPerPage);
+  }, [simpananByAnggota, currentPageAnggota]);
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -487,33 +493,65 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
                 </tr>
               </thead>
               <tbody>
-                {simpananByAnggota.map((item, index) => (
-                  <tr key={item.anggota.id} className="border-b hover:bg-slate-50">
-                    <td className="p-3 text-center text-slate-500">{index + 1}</td>
-                    <td className="p-3 font-medium">{item.anggota.nama}</td>
-                    <td className="p-3 text-right">{item.pokok > 0 ? formatRupiah(item.pokok) : '-'}</td>
-                    <td className="p-3 text-right">{item.wajib > 0 ? formatRupiah(item.wajib) : '-'}</td>
-                    <td className="p-3 text-right">{item.sibuhar > 0 ? formatRupiah(item.sibuhar) : '-'}</td>
-                    <td className="p-3 text-right">{item.simapan > 0 ? formatRupiah(item.simapan) : '-'}</td>
-                    <td className="p-3 text-right">{item.sihat > 0 ? formatRupiah(item.sihat) : '-'}</td>
-                    <td className="p-3 text-right">{item.sihar > 0 ? formatRupiah(item.sihar) : '-'}</td>
-                    <td className="p-3 text-right font-semibold bg-green-50">{formatRupiah(item.total)}</td>
+                {simpananByAnggota.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
                   </tr>
-                ))}
-                <tr className="bg-green-100 font-bold">
-                  <td className="p-3 text-center" colSpan={2}>TOTAL</td>
-                  <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.pokok)}</td>
-                  <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.wajib)}</td>
-                  <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.sibuhar)}</td>
-                  <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.simapan)}</td>
-                  <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.sihat)}</td>
-                  <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.sihar)}</td>
-                  <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.total)}</td>
-                </tr>
+                ) : (
+                  simpananByanggotaPage.map((item, index) => {
+                    const globalIndex = (currentPageAnggota - 1) * itemsPerPage + index;
+                    return (
+                      <tr key={item.anggota.id} className="border-b hover:bg-slate-50">
+                        <td className="p-3 text-center text-slate-500">{globalIndex + 1}</td>
+                        <td className="p-3 font-medium">{item.anggota.nama}</td>
+                        <td className="p-3 text-right">{item.pokok > 0 ? formatRupiah(item.pokok) : '-'}</td>
+                        <td className="p-3 text-right">{item.wajib > 0 ? formatRupiah(item.wajib) : '-'}</td>
+                        <td className="p-3 text-right">{item.sibuhar > 0 ? formatRupiah(item.sibuhar) : '-'}</td>
+                        <td className="p-3 text-right">{item.simapan > 0 ? formatRupiah(item.simapan) : '-'}</td>
+                        <td className="p-3 text-right">{item.sihat > 0 ? formatRupiah(item.sihat) : '-'}</td>
+                        <td className="p-3 text-right">{item.sihar > 0 ? formatRupiah(item.sihar) : '-'}</td>
+                        <td className="p-3 text-right font-semibold bg-green-50">{formatRupiah(item.total)}</td>
+                      </tr>
+                    );
+                  })
+                )}
+                {simpananByAnggota.length > 0 && (
+                  <tr className="bg-green-100 font-bold">
+                    <td className="p-3 text-center" colSpan={2}>TOTAL</td>
+                    <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.pokok)}</td>
+                    <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.wajib)}</td>
+                    <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.sibuhar)}</td>
+                    <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.simapan)}</td>
+                    <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.sihat)}</td>
+                    <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.sihar)}</td>
+                    <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.total)}</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
-</div>
+          {simpananByAnggota.length > itemsPerPage && (
+            <div className="flex justify-center items-center gap-2 p-4 border-t">
+              <button
+                onClick={() => setCurrentPageAnggota(p => Math.max(1, p - 1))}
+                disabled={currentPageAnggota === 1}
+                className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+              >
+                &lt;
+              </button>
+              <span className="text-sm text-slate-600">
+                Halaman {currentPageAnggota} dari {Math.ceil(simpananByAnggota.length / itemsPerPage)}
+              </span>
+              <button
+                onClick={() => setCurrentPageAnggota(p => Math.min(Math.ceil(simpananByAnggota.length / itemsPerPage), p + 1))}
+                disabled={currentPageAnggota >= Math.ceil(simpananByAnggota.length / itemsPerPage)}
+                className="px-3 py-1 rounded border bg-white disabled:opacity-50"
+              >
+                &gt;
+              </button>
+            </div>
+          )}
+        </div>
       )}
 
       {viewMode === 'list' && (
