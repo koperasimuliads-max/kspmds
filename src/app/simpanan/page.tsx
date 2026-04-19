@@ -379,6 +379,13 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
                 )}
               </ul>
             </div>
+            <a 
+              href={importJenis === 'sibuhar' ? '/template_sibuhar.xlsx' : '/template_simpanan.xlsx'}
+              download 
+              className="text-blue-600 text-sm hover:underline mb-4 inline-block"
+            >
+              Download Template Excel
+            </a>
             <input
               ref={fileInputRef}
               type="file"
