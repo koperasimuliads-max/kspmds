@@ -139,9 +139,16 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const json = XLSX.utils.sheet_to_json(sheet) as Record<string, unknown>[];
 
-      let count = 0;
       let errorCount = 0;
       const errors: string[] = [];
+      const validData: {
+        anggotaId: string;
+        jenis: 'pokok' | 'wajib' | 'sibuhar' | 'simapan' | 'sihat' | 'sihar';
+        jumlah: number;
+        tanggalSimpan: string;
+        status: 'aktif' | 'ditarik' | 'aktif_auto';
+        jenisPembayaran: 'tunai' | 'bri_tigabinanga' | 'bri_berastagi' | 'penarikan';
+      }[] = [];
 
       for (const row of json) {
         const noNBA = String(row['No. NBA'] || row['noNBA'] || '').trim();
@@ -157,7 +164,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
           status = 'aktif_auto';
         }
 
-        const jenisBayarRaw = String(row['Jenis Pembayaran'] || row['JenisTransaksi'] || row['jenis_pembayaran'] || '').toLowerCase();
+        const jenisBayarRaw = String(row['Jenis Pembayaran'] || row['JenisTransaksi'] || row['jenis_pembayaran'] || row['Jenis Pembayaran'] || '').toLowerCase();
         let jenisPembayaran: 'tunai' | 'bri_tigabinanga' | 'bri_berastagi' | 'penarikan' = 'tunai';
         if (jenisBayarRaw.includes('tigabinanga')) {
           jenisPembayaran = 'bri_tigabinanga';
@@ -167,7 +174,11 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
           jenisPembayaran = 'penarikan';
         }
 
-        if (!noNBA && !nama) continue;
+        if (!noNBA && !nama) {
+          errorCount++;
+          errors.push(`Data kosong - No. NBA/Nama tidak ditemukan`);
+          continue;
+        }
 
         const ag = anggota.find(a => 
           (noNBA && a.nomorNBA === noNBA) || 
@@ -180,9 +191,20 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
           continue;
         }
 
-        const tanggal = parseDate(tanggalStr) || new Date().toISOString().split('T')[0];
+        const tanggal = parseDate(tanggalStr);
+        if (!tanggal) {
+          errorCount++;
+          errors.push(`Tanggal tidak valid: ${tanggalStr}`);
+          continue;
+        }
 
-        addSimpanan({
+        if (jumlah <= 0) {
+          errorCount++;
+          errors.push(`Jumlah tidak valid: ${jumlah}`);
+          continue;
+        }
+
+        validData.push({
           anggotaId: ag.id,
           jenis: importJenis as 'pokok' | 'wajib' | 'sibuhar' | 'simapan' | 'sihat' | 'sihar',
           jumlah: jumlah,
@@ -190,15 +212,21 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
           status: status,
           jenisPembayaran: jenisPembayaran,
         });
-        count++;
+      }
+
+      if (errorCount > 0) {
+        alert(`Gagal import! Ada ${errorCount} data bermasalah:\n\n${errors.slice(0, 10).join('\n')}${errors.length > 10 ? '\n...dan ' + (errors.length - 10) + ' lagi' : ''}\n\nMohon perbaiki data terlebih dahulu, kemudian import ulang.`);
+        setImporting(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
+      for (const data of validData) {
+        addSimpanan(data);
       }
 
       const jenisLabel = jenisSimpananOptions.find(j => j.value === importJenis)?.label || importJenis;
-      if (errorCount > 0) {
-        alert(`Berhasil import: ${count}\nGagal: ${errorCount}\n\n${errors.slice(0, 5).join('\n')}${errors.length > 5 ? '\n...' : ''}`);
-      } else {
-        alert(`Berhasil import ${count} data ${jenisLabel}!`);
-      }
+      alert(`Berhasil import ${validData.length} data ${jenisLabel}!`);
       setShowImportModal(false);
     } catch (err) {
       alert('Gagal import: ' + (err instanceof Error ? err.message : 'Error tidak diketahui'));
