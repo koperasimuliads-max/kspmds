@@ -573,6 +573,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
               <thead className="bg-slate-100">
                 <tr>
                   <th className="text-center p-3 border-b min-w-[40px]">No</th>
+                  <th className="text-center p-3 border-b min-w-[80px]">NBA</th>
                   <th className="text-left p-3 border-b min-w-[150px]">Nama Anggota</th>
                   <th className="text-right p-3 border-b min-w-[120px]">Pokok</th>
                   <th className="text-right p-3 border-b min-w-[120px]">Wajib</th>
@@ -586,7 +587,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
               <tbody>
                 {simpananByAnggota.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
+<td colSpan={11} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
                   </tr>
                 ) : (
                   simpananByanggotaPage.map((item, index) => {
@@ -594,6 +595,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
                     return (
                       <tr key={item.anggota.id} className="border-b hover:bg-slate-50">
                         <td className="p-3 text-center text-slate-500">{globalIndex + 1}</td>
+                        <td className="p-3 text-center font-medium">{item.anggota.nomorNBA}</td>
                         <td className="p-3 font-medium">{item.anggota.nama}</td>
                         <td className="p-3 text-right">{item.pokok > 0 ? formatRupiah(item.pokok) : '-'}</td>
                         <td className="p-3 text-right">{item.wajib > 0 ? formatRupiah(item.wajib) : '-'}</td>
@@ -608,7 +610,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
                 )}
                 {simpananByAnggota.length > 0 && (
                   <tr className="bg-green-100 font-bold">
-                    <td className="p-3 text-center" colSpan={2}>TOTAL</td>
+                    <td className="p-3 text-center" colSpan={3}>TOTAL</td>
                     <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.pokok)}</td>
                     <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.wajib)}</td>
                     <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.sibuhar)}</td>
@@ -651,6 +653,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
           <thead className="bg-slate-100">
             <tr>
               <th className="text-center p-3 w-12">No</th>
+              <th className="text-center p-3 w-16">NBA</th>
               <th className="text-left p-3">Tanggal</th>
               <th className="text-left p-3">Nama Anggota</th>
               <th className="text-left p-3">Jenis Simpanan</th>
@@ -669,7 +672,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
           <tbody>
             {filteredSimpanans.length === 0 ? (
               <tr>
-                <td colSpan={10} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
+                <td colSpan={11} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
               </tr>
             ) : (
               sortedSimpanans
@@ -679,10 +682,11 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
                   const showBungaTenor = s.jenis === 'sibuhar' || s.jenis === 'simapan' || s.jenis === 'sihat' || s.jenis === 'sihar';
                   const pageIndex = (currentPage - 1) * itemsPerPage + index + 1;
                   return (
-                    <tr key={s.id} className="border-b hover:bg-slate-50">
+<tr key={s.id} className="border-b hover:bg-slate-50">
                       <td className="p-3 text-center text-slate-500">{pageIndex}</td>
-                    <td className="p-3">{formatDate(s.tanggalSimpan)}</td>
-                    <td className="p-3 font-medium">{ag?.nama || '-'}</td>
+                      <td className="p-3 text-center">{ag?.nomorNBA || '-'}</td>
+                      <td className="p-3">{formatDate(s.tanggalSimpan)}</td>
+                      <td className="p-3 font-medium">{ag?.nama || '-'}</td>
                     <td className="p-3 capitalize">{s.jenis}</td>
                     <td className="p-3 text-right">{formatRupiah(s.jumlah)}</td>
                     {showBungaTenor ? (
