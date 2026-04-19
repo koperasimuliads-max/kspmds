@@ -40,7 +40,7 @@ const jenisSimpananOptions = [
 ];
 
 export default function SimpananPage() {
-  const { anggota, simpanans, addSimpanan, updateSimpanan, deleteSimpanan, fixSimpananTanggal, addTransaksi } = useKSP();
+  const { anggota, simpanans, addSimpanan, updateSimpanan, deleteSimpanan, deleteAllSimpananByJenis, fixSimpananTanggal, addTransaksi } = useKSP();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filterJenis, setFilterJenis] = useState('all');
@@ -459,6 +459,18 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
             className="px-3 py-2 rounded text-sm bg-yellow-500 text-white hover:bg-yellow-600"
           >
             🔧 Perbaiki Tanggal
+          </button>
+          <button
+            onClick={() => {
+              const count = simpanans.filter(s => s.jenis === 'sibuhar').length;
+              if (confirm(`Hapus semua ${count} data Sibuhar?`)) {
+                deleteAllSimpananByJenis('sibuhar');
+                alert(`${count} data Sibuhar telah dihapus!`);
+              }
+            }}
+            className="px-3 py-2 rounded text-sm bg-red-500 text-white hover:bg-red-600"
+          >
+            🗑️ Hapus Sibuhar
           </button>
           <div className="ml-auto flex gap-2">
             <button

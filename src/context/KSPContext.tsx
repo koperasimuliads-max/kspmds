@@ -42,6 +42,7 @@ interface KSPContextType {
   addSimpanan: (simpanan: Omit<Simpanan, 'id'>) => void;
   updateSimpanan: (id: string, simpanan: Partial<Simpanan>) => void;
   deleteSimpanan: (id: string) => void;
+  deleteAllSimpananByJenis: (jenis: Simpanan['jenis']) => void;
   addTransaksi: (transaksi: Omit<Transaksi, 'id'>) => void;
   deleteTransaksi: (id: string) => void;
   addPengeluaran: (pengeluaran: Omit<Pengeluaran, 'id'>) => void;
@@ -225,6 +226,10 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     setSimpanans(prev => prev.filter(s => s.id !== id));
   }, []);
 
+  const deleteAllSimpananByJenis = useCallback((jenis: Simpanan['jenis']) => {
+    setSimpanans(prev => prev.filter(s => s.jenis !== jenis));
+  }, []);
+
   const addTransaksi = useCallback((data: Omit<Transaksi, 'id'>) => {
     setTransactions(prev => [...prev, { ...data, id: generateId() }]);
   }, []);
@@ -369,6 +374,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       addSimpanan,
       updateSimpanan,
       deleteSimpanan,
+      deleteAllSimpananByJenis,
       addTransaksi,
       deleteTransaksi,
       addPengeluaran,
