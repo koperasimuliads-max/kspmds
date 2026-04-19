@@ -32,10 +32,20 @@ function LaporanContent() {
 
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab === 'shu') setActiveTab('shu');
-    else if (tab === 'ekuitas') setActiveTab('ekuitas');
-    else setActiveTab('neraca');
+    window.location.hash = tab || 'neraca';
   }, [searchParams]);
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1) as 'neraca' | 'shu' | 'ekuitas';
+      if (hash === 'shu' || hash === 'ekuitas' || hash === 'neraca') {
+        setActiveTab(hash);
+      }
+    };
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);;
 
   const tahunOptions = Array.from(new Set([
     ...anggota.map(a => a.tanggalJoin ? new Date(a.tanggalJoin).getFullYear() : 2024),

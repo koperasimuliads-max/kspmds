@@ -576,7 +576,7 @@ export default function PinjamanPage() {
             <p className="text-sm text-slate-600 mb-2">Format Kolom Excel/CSV:</p>
             <ul className="text-xs text-slate-500 mb-2 space-y-1">
               <li>- <strong>No. NBA</strong> atau <strong>Nama Anggota</strong></li>
-              <li>- <strong>Jenis Pinjaman</strong> = "Flat" atau "Musiman"</li>
+              <li>- <strong>Jenis Pinjaman</strong> = &quot;Flat&quot; atau &quot;Musiman&quot;</li>
               <li>- <strong>Sisa Pokok</strong> = angka (tanpa titik/koma)</li>
               <li>- <strong>Bunga (%)</strong> = 12 untuk Flat, 30 untuk Musiman (2.5% x 12 bulan)</li>
             </ul>

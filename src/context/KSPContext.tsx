@@ -348,7 +348,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       bulan: currentMonth + 1,
       deskripsi: `Bunga simpanan bulan ${now.toLocaleString('id-ID', { month: 'long' })} ${currentYear}`,
     });
-  }, [simpanans]);
+  }, [simpanans, addPengeluaran]);
 
   return (
     <KSPContext.Provider value={{
