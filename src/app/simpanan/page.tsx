@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useKSP } from '@/context/KSPContext';
 import { Simpanan } from '@/types';
 import BackButton from '@/components/BackButton';
@@ -62,6 +62,7 @@ export default function SimpananPage() {
   const [importing, setImporting] = useState(false);
   const [importJenis, setImportJenis] = useState<string>('wajib');
   const [showImportModal, setShowImportModal] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'anggota'>('list');
 
   const currentYear = new Date().getFullYear();
   const startYear = 2023;
@@ -260,6 +261,34 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
   const filteredSimpanans = filterJenis === 'all' ? simpanans : simpanans.filter(s => s.jenis === filterJenis);
   const sortedSimpanans = [...filteredSimpanans].sort((a, b) => new Date(b.tanggalSimpan).getTime() - new Date(a.tanggalSimpan).getTime());
 
+  const simpananByAnggota = useMemo(() => {
+    return anggotaAktif.map(ag => {
+      const sims = simpanans.filter(s => s.anggotaId === ag.id && s.status !== 'ditarik');
+      const getJenis = (jenis: string) => sims.find(s => s.jenis === jenis);
+      return {
+        anggota: ag,
+        simpanans: sims,
+        pokok: getJenis('pokok')?.jumlah || 0,
+        wajib: getJenis('wajib')?.jumlah || 0,
+        sibuhar: getJenis('sibuhar')?.jumlah || 0,
+        simapan: getJenis('simapan')?.jumlah || 0,
+        sihat: getJenis('sihat')?.jumlah || 0,
+        sihar: getJenis('sihar')?.jumlah || 0,
+        total: sims.reduce((sum, s) => sum + s.jumlah, 0),
+      };
+    }).filter(a => a.total > 0);
+  }, [anggotaAktif, simpanans]);
+
+  const grandTotalByAnggota = useMemo(() => ({
+    pokok: simpananByAnggota.reduce((sum, a) => sum + a.pokok, 0),
+    wajib: simpananByAnggota.reduce((sum, a) => sum + a.wajib, 0),
+    sibuhar: simpananByAnggota.reduce((sum, a) => sum + a.sibuhar, 0),
+    simapan: simpananByAnggota.reduce((sum, a) => sum + a.simapan, 0),
+    sihat: simpananByAnggota.reduce((sum, a) => sum + a.sihat, 0),
+    sihar: simpananByAnggota.reduce((sum, a) => sum + a.sihar, 0),
+    total: simpananByAnggota.reduce((sum, a) => sum + a.total, 0),
+  }), [simpananByAnggota]);
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -328,34 +357,48 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
         </div>
       )}
 
-      <div className="flex gap-2 mb-4 overflow-x-auto">
-        <button
-          onClick={() => setFilterJenis('all')}
-          className={`px-3 py-2 rounded text-sm ${filterJenis === 'all' ? 'bg-blue-600 text-white' : 'bg-white border'}`}
-        >
-          Semua ({simpanans.length})
-        </button>
-        {jenisSimpananOptions.map(opt => (
+      <div className="flex gap-2 mb-4">
           <button
-            key={opt.value}
-            onClick={() => setFilterJenis(opt.value)}
-            className={`px-3 py-2 rounded text-sm ${filterJenis === opt.value ? 'bg-blue-600 text-white' : 'bg-white border'}`}
+            onClick={() => setFilterJenis('all')}
+            className={`px-3 py-2 rounded text-sm ${filterJenis === 'all' ? 'bg-blue-600 text-white' : 'bg-white border'}`}
           >
-            {opt.label.split(' ')[0]} ({simpanans.filter(s => s.jenis === opt.value).length})
+            Semua ({simpanans.length})
           </button>
-        ))}
-        <button
-          onClick={() => {
-            if (confirm('Samakan tanggal simpanan pokok & wajib dengan tanggal masuk anggota?')) {
-              fixSimpananTanggal();
-              alert('Tanggal simpanan telah diperbaiki!');
-            }
-          }}
-          className="px-3 py-2 rounded text-sm bg-yellow-500 text-white hover:bg-yellow-600"
-        >
-          🔧 Perbaiki Tanggal
-        </button>
-      </div>
+          {jenisSimpananOptions.map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => setFilterJenis(opt.value)}
+              className={`px-3 py-2 rounded text-sm ${filterJenis === opt.value ? 'bg-blue-600 text-white' : 'bg-white border'}`}
+            >
+              {opt.label.split(' ')[0]} ({simpanans.filter(s => s.jenis === opt.value).length})
+            </button>
+          ))}
+          <button
+            onClick={() => {
+              if (confirm('Samakan tanggal simpanan pokok & wajib dengan tanggal masuk anggota?')) {
+                fixSimpananTanggal();
+                alert('Tanggal simpanan telah diperbaiki!');
+              }
+            }}
+            className="px-3 py-2 rounded text-sm bg-yellow-500 text-white hover:bg-yellow-600"
+          >
+            🔧 Perbaiki Tanggal
+          </button>
+          <div className="ml-auto flex gap-2">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-3 py-2 rounded text-sm ${viewMode === 'list' ? 'bg-slate-700 text-white' : 'bg-white border'}`}
+            >
+              📋 Daftar
+            </button>
+            <button
+              onClick={() => setViewMode('anggota')}
+              className={`px-3 py-2 rounded text-sm ${viewMode === 'anggota' ? 'bg-slate-700 text-white' : 'bg-white border'}`}
+            >
+              👤 per Anggota
+            </button>
+          </div>
+        </div>
 
       {showForm && (
         <div className="bg-white p-4 rounded-lg shadow mb-4">
@@ -471,6 +514,65 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
         </div>
       )}
 
+      {viewMode === 'anggota' && (
+        <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
+          <div className="bg-gradient-to-r from-green-600 to-green-700 p-4">
+            <h2 className="text-white font-bold text-lg">Simpanan per Anggota</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-100">
+                <tr>
+                  <th className="text-center p-2 border-b w-10">No</th>
+                  <th className="text-left p-2 border-b min-w-[150px]">Nama Anggota</th>
+                  <th className="text-right p-2 border-b min-w-[100px] bg-blue-50">Pokok</th>
+                  <th className="text-right p-2 border-b min-w-[100px] bg-blue-50">Wajib</th>
+                  <th className="text-right p-2 border-b min-w-[100px]">Sibuhar</th>
+                  <th className="text-right p-2 border-b min-w-[100px]">Simapan</th>
+                  <th className="text-right p-2 border-b min-w-[100px]">Sihat</th>
+                  <th className="text-right p-2 border-b min-w-[100px]">Sihar</th>
+                  <th className="text-right p-2 border-b min-w-[120px] bg-green-50 font-semibold">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {simpananByAnggota.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
+                  </tr>
+                ) : (
+                  simpananByAnggota.map((item, index) => (
+                    <tr key={item.anggota.id} className="border-b hover:bg-slate-50">
+                      <td className="p-2 text-center text-slate-500">{index + 1}</td>
+                      <td className="p-2 font-medium">{item.anggota.nama}</td>
+                      <td className="p-2 text-right">{formatRupiah(item.pokok)}</td>
+                      <td className="p-2 text-right">{formatRupiah(item.wajib)}</td>
+                      <td className="p-2 text-right">{item.sibuhar > 0 ? formatRupiah(item.sibuhar) : '-'}</td>
+                      <td className="p-2 text-right">{item.simapan > 0 ? formatRupiah(item.simapan) : '-'}</td>
+                      <td className="p-2 text-right">{item.sihat > 0 ? formatRupiah(item.sihat) : '-'}</td>
+                      <td className="p-2 text-right">{item.sihar > 0 ? formatRupiah(item.sihar) : '-'}</td>
+                      <td className="p-2 text-right font-semibold bg-green-50">{formatRupiah(item.total)}</td>
+                    </tr>
+                  ))
+                )}
+                {simpananByAnggota.length > 0 && (
+                  <tr className="bg-green-100 font-bold">
+                    <td className="p-2 text-center" colSpan={2}>TOTAL</td>
+                    <td className="p-2 text-right">{formatRupiah(grandTotalByAnggota.pokok)}</td>
+                    <td className="p-2 text-right">{formatRupiah(grandTotalByAnggota.wajib)}</td>
+                    <td className="p-2 text-right">{formatRupiah(grandTotalByAnggota.sibuhar)}</td>
+                    <td className="p-2 text-right">{formatRupiah(grandTotalByAnggota.simapan)}</td>
+                    <td className="p-2 text-right">{formatRupiah(grandTotalByAnggota.sihat)}</td>
+                    <td className="p-2 text-right">{formatRupiah(grandTotalByAnggota.sihar)}</td>
+                    <td className="p-2 text-right">{formatRupiah(grandTotalByAnggota.total)}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {viewMode === 'list' && (
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-slate-100">
@@ -559,6 +661,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }
