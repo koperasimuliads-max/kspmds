@@ -89,6 +89,7 @@ export default function PinjamanPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [searchAnggota, setSearchAnggota] = useState('');
 
   const hitungCicilan = (jumlah: number, bunga: number, tenor: number, tipe: string) => {
     if (tipe === 'musiman') {
@@ -346,6 +347,7 @@ export default function PinjamanPage() {
     setShowRincianBiaya(false);
     setUseLegalisasi(false);
     setBpjstkTenorInput(0);
+    setSearchAnggota('');
   };
 
   const anggotaAktif = anggota.filter(a => a.status === 'aktif');
@@ -403,17 +405,32 @@ export default function PinjamanPage() {
           <h2 className="font-semibold mb-3">{editingId ? 'Edit Pinjaman' : 'Ajukan Pinjaman Baru'}</h2>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <select
-                value={formData.anggotaId}
-                onChange={e => setFormData({ ...formData, anggotaId: e.target.value })}
-                className="border p-2 rounded"
-                required
-              >
-                <option value="">Pilih Anggota</option>
-                {anggotaAktif.map(a => (
-                  <option key={a.id} value={a.id}>{a.nama}</option>
-                ))}
-              </select>
+              <div>
+                <input
+                  type="text"
+                  placeholder="Cari Nama atau No. NBA..."
+                  value={searchAnggota}
+                  onChange={e => setSearchAnggota(e.target.value)}
+                  className="border p-2 rounded w-full mb-2"
+                />
+                <select
+                  value={formData.anggotaId}
+                  onChange={e => setFormData({ ...formData, anggotaId: e.target.value })}
+                  className="border p-2 rounded w-full"
+                  required
+                >
+                  <option value="">Pilih Anggota</option>
+                  {anggotaAktif
+                    .filter(a => {
+                      if (!searchAnggota.trim()) return true;
+                      const query = searchAnggota.toLowerCase();
+                      return a.nama.toLowerCase().includes(query) || (a.nomorNBA || '').toLowerCase().includes(query);
+                    })
+                    .map(a => (
+                    <option key={a.id} value={a.id}>{a.nama} ({a.nomorNBA || '-'})</option>
+                  ))}
+                </select>
+              </div>
               <input
                 type="text"
                 placeholder="Jumlah Pinjaman (contoh: 10.000.000)"
