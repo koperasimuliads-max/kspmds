@@ -71,6 +71,8 @@ export default function SimpananPage() {
   const [importJenis, setImportJenis] = useState<string>('wajib');
   const [showImportModal, setShowImportModal] = useState(false);
   const [currentPageAnggota, setCurrentPageAnggota] = useState(1);
+  const [searchAnggota, setSearchAnggota] = useState('');
+  const [searchSimpanan, setSearchSimpanan] = useState('');
 
   const currentYear = new Date().getFullYear();
   const startYear = 2023;
@@ -370,7 +372,17 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
   const anggotaAktif = anggota.filter(a => a.status === 'aktif');
   const filteredSimpanans = filterJenis === 'all' ? simpanans : simpanans.filter(s => s.jenis === filterJenis);
-  const sortedSimpanans = [...filteredSimpanans].sort((a, b) => new Date(b.tanggalSimpan).getTime() - new Date(a.tanggalSimpan).getTime());
+  
+  const simpananWithAnggota = useMemo(() => {
+    if (!searchSimpanan.trim()) return filteredSimpanans;
+    const query = searchSimpanan.toLowerCase();
+    return filteredSimpanans.filter(s => {
+      const ag = anggota.find(a => a.id === s.anggotaId);
+      return ag?.nama.toLowerCase().includes(query) || ag?.nomorNBA?.toLowerCase().includes(query);
+    });
+  }, [filteredSimpanans, searchSimpanan, anggota]);
+  
+  const sortedSimpanans = [...simpananWithAnggota].sort((a, b) => new Date(b.tanggalSimpan).getTime() - new Date(a.tanggalSimpan).getTime());
 
   const simpananByAnggota = useMemo(() => {
     return anggotaAktif.map(ag => {
@@ -398,20 +410,29 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
     }).filter(a => a.total > 0);
   }, [anggotaAktif, simpanans]);
 
+  const filteredSimpananByAnggota = useMemo(() => {
+    if (!searchAnggota.trim()) return simpananByAnggota;
+    const query = searchAnggota.toLowerCase();
+    return simpananByAnggota.filter(item =>
+      item.anggota.nama.toLowerCase().includes(query) ||
+      item.anggota.nomorNBA?.toLowerCase().includes(query)
+    );
+  }, [simpananByAnggota, searchAnggota]);
+
   const grandTotalByAnggota = useMemo(() => ({
-    pokok: simpananByAnggota.reduce((sum, a) => sum + a.pokok, 0),
-    wajib: simpananByAnggota.reduce((sum, a) => sum + a.wajib, 0),
-    sibuhar: simpananByAnggota.reduce((sum, a) => sum + a.sibuhar, 0),
-    simapan: simpananByAnggota.reduce((sum, a) => sum + a.simapan, 0),
-    sihat: simpananByAnggota.reduce((sum, a) => sum + a.sihat, 0),
-    sihar: simpananByAnggota.reduce((sum, a) => sum + a.sihar, 0),
-    total: simpananByAnggota.reduce((sum, a) => sum + a.total, 0),
-  }), [simpananByAnggota]);
+    pokok: filteredSimpananByAnggota.reduce((sum, a) => sum + a.pokok, 0),
+    wajib: filteredSimpananByAnggota.reduce((sum, a) => sum + a.wajib, 0),
+    sibuhar: filteredSimpananByAnggota.reduce((sum, a) => sum + a.sibuhar, 0),
+    simapan: filteredSimpananByAnggota.reduce((sum, a) => sum + a.simapan, 0),
+    sihat: filteredSimpananByAnggota.reduce((sum, a) => sum + a.sihat, 0),
+    sihar: filteredSimpananByAnggota.reduce((sum, a) => sum + a.sihar, 0),
+    total: filteredSimpananByAnggota.reduce((sum, a) => sum + a.total, 0),
+  }), [filteredSimpananByAnggota]);
 
   const simpananByanggotaPage = useMemo(() => {
     const start = (currentPageAnggota - 1) * itemsPerPage;
-    return simpananByAnggota.slice(start, start + itemsPerPage);
-  }, [simpananByAnggota, currentPageAnggota]);
+    return filteredSimpananByAnggota.slice(start, start + itemsPerPage);
+  }, [filteredSimpananByAnggota, currentPageAnggota]);
 
   return (
     <div>
@@ -541,6 +562,16 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
           >
             🗑️ Hapus SBH
           </button>
+          <input
+            type="text"
+            placeholder="Cari NBA atau Nama..."
+            value={searchSimpanan}
+            onChange={e => {
+              setSearchSimpanan(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="border p-2 rounded text-sm w-48 ml-auto"
+          />
         </div>
 
       {showForm && (
@@ -620,8 +651,18 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
       {simpananByAnggota.length > 0 && (
         <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
-          <div className="bg-gradient-to-r from-green-600 to-green-700 p-4">
+          <div className="bg-gradient-to-r from-green-600 to-green-700 p-4 flex justify-between items-center">
             <h2 className="text-white font-bold text-lg">Rekapitulasi Simpanan per Anggota</h2>
+            <input
+              type="text"
+              placeholder="Cari NBA atau Nama Anggota..."
+              value={searchAnggota}
+              onChange={e => {
+                setSearchAnggota(e.target.value);
+                setCurrentPageAnggota(1);
+              }}
+              className="border p-2 rounded text-sm w-64"
+            />
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -640,7 +681,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
                 </tr>
               </thead>
               <tbody>
-                {simpananByAnggota.length === 0 ? (
+                {filteredSimpananByAnggota.length === 0 ? (
                   <tr>
 <td colSpan={11} className="text-center p-4 text-slate-500">Belum ada simpanan</td>
                   </tr>
@@ -663,7 +704,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
                     );
                   })
                 )}
-                {simpananByAnggota.length > 0 && (
+                {filteredSimpananByAnggota.length > 0 && (
                   <tr className="bg-green-100 font-bold">
                     <td className="p-3 text-center" colSpan={3}>TOTAL</td>
                     <td className="p-3 text-right">{formatRupiah(grandTotalByAnggota.pokok)}</td>
@@ -678,7 +719,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
               </tbody>
             </table>
           </div>
-          {simpananByAnggota.length > itemsPerPage && (
+          {filteredSimpananByAnggota.length > itemsPerPage && (
             <div className="flex justify-center items-center gap-2 p-4 border-t">
               <button
                 onClick={() => setCurrentPageAnggota(p => Math.max(1, p - 1))}
@@ -688,11 +729,11 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
                 &lt;
               </button>
               <span className="text-sm text-slate-600">
-                Halaman {currentPageAnggota} dari {Math.ceil(simpananByAnggota.length / itemsPerPage)}
+                Halaman {currentPageAnggota} dari {Math.ceil(filteredSimpananByAnggota.length / itemsPerPage)}
               </span>
               <button
-                onClick={() => setCurrentPageAnggota(p => Math.min(Math.ceil(simpananByAnggota.length / itemsPerPage), p + 1))}
-                disabled={currentPageAnggota >= Math.ceil(simpananByAnggota.length / itemsPerPage)}
+                onClick={() => setCurrentPageAnggota(p => Math.min(Math.ceil(filteredSimpananByAnggota.length / itemsPerPage), p + 1))}
+                disabled={currentPageAnggota >= Math.ceil(filteredSimpananByAnggota.length / itemsPerPage)}
                 className="px-3 py-1 rounded border bg-white disabled:opacity-50"
               >
                 &gt;
