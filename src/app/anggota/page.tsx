@@ -387,9 +387,9 @@ export default function AnggotaPage() {
       return;
     }
     
-    // Update all simpanan to ditarik
+    // Update all simpanan to ditarik with tanggal penarikan
     simpananAktif.forEach(s => {
-      updateSimpanan(s.id, { status: 'ditarik' });
+      updateSimpanan(s.id, { status: 'ditarik', tanggalPenarikan: today, jenisPembayaran: 'penarikan' });
     });
     
     // Update anggota status

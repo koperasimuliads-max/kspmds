@@ -51,6 +51,7 @@ export interface Simpanan {
   tanggalSimpan: string;
   status: 'aktif' | 'ditarik' | 'aktif_auto';
   jenisPembayaran?: 'tunai' | 'bri_tigabinanga' | 'bri_berastagi' | 'penarikan';
+  tanggalPenarikan?: string;
   tenor?: number;
   premi?: number;
   bunga?: number;
