@@ -77,9 +77,12 @@ export default function PinjamanPage() {
     bpjstkPremi: 0,
     bpjstkDibayar: 0,
     bpjstkFee: 0,
+    penanggungJawab: '',
   });
   const [showRincianBiaya, setShowRincianBiaya] = useState(false);
-  const [useLegalisasi, setUseLegalisasi] = useState(false);
+  const [jenisAgunan, setJenisAgunan] = useState<string>('none');
+  const [useInsentif, setUseInsentif] = useState(false);
+  const [penanggungJawab, setPenanggungJawab] = useState('');
   const [bpjstkTenorInput, setBpjstkTenorInput] = useState(0);
   const [jumlahBayar, setJumlahBayar] = useState(0);
   const [hariTerlambatInput, setHariTerlambatInput] = useState(0);
@@ -265,10 +268,17 @@ export default function PinjamanPage() {
       bpjstkPremi: data.bpjstkPremi || 0,
       bpjstkDibayar: data.bpjstkDibayar || 0,
       bpjstkFee: data.bpjstkFee || 0,
+      penanggungJawab: data.penanggungJawab || '',
     });
     setJumlahDisplay(formatRupiahInput(String(data.jumlah)));
     setEditingId(data.id);
     setShowForm(true);
+    if ((data.biayaInsentif || 0) > 0) {
+      setUseInsentif(true);
+    }
+    if ((data.biayaLegalisasi || 0) > 0) {
+      setJenisAgunan('shm');
+    }
   };
 
   const handleDelete = (id: string) => {
@@ -340,14 +350,17 @@ export default function PinjamanPage() {
       bpjstkPremi: 0,
       bpjstkDibayar: 0,
       bpjstkFee: 0,
+      penanggungJawab: '',
     });
     setJumlahDisplay('');
     setShowForm(false);
     setEditingId(null);
     setShowRincianBiaya(false);
-    setUseLegalisasi(false);
     setBpjstkTenorInput(0);
     setSearchAnggota('');
+    setUseInsentif(false);
+    setPenanggungJawab('');
+    setJenisAgunan('none');
   };
 
   const anggotaAktif = anggota.filter(a => a.status === 'aktif');
@@ -544,36 +557,40 @@ export default function PinjamanPage() {
                   </div>
                   
                   <div className="mt-4 pt-3 border-t border-purple-200">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={useLegalisasi}
-                        onChange={e => {
-                          setUseLegalisasi(e.target.checked);
-                          if (e.target.checked) {
-                            setFormData({
-                              ...formData,
-                              biayaLegalisasi: 400000,
-                              biayaLegalisasiNotaris: 300000,
-                              biayaLegalisasiKSP: 100000,
-                              biayaMateraiLegalisasi: 12000,
-                            });
-                          } else {
-                            setFormData({
-                              ...formData,
-                              biayaLegalisasi: 0,
-                              biayaLegalisasiNotaris: 0,
-                              biayaLegalisasiKSP: 0,
-                              biayaMateraiLegalisasi: 0,
-                            });
-                          }
-                        }}
-                        className="w-4 h-4"
-                      />
-                      <span className="font-medium">Gunakan Agunan (SHM/Akta Tanah/Surat Desa)</span>
-                    </label>
-                    {useLegalisasi && (
-                      <div className="mt-2 ml-6 grid grid-cols-2 gap-2 text-sm">
+                    <label className="block text-sm font-medium mb-2">Jenis Agunan (Legalisasi)</label>
+                    <select
+                      value={jenisAgunan}
+                      onChange={e => {
+                        const val = e.target.value;
+                        setJenisAgunan(val);
+                        if (val === 'none') {
+                          setFormData({
+                            ...formData,
+                            biayaLegalisasi: 0,
+                            biayaLegalisasiNotaris: 0,
+                            biayaLegalisasiKSP: 0,
+                            biayaMateraiLegalisasi: 0,
+                          });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            biayaLegalisasi: 400000,
+                            biayaLegalisasiNotaris: 300000,
+                            biayaLegalisasiKSP: 100000,
+                            biayaMateraiLegalisasi: 12000,
+                          });
+                        }
+                      }}
+                      className="border p-2 rounded w-full"
+                    >
+                      <option value="none">Tidak Menggunakan Agunan</option>
+                      <option value="shm">SHM (Surat Hak Milik)</option>
+                      <option value="bpkb">BPKB (Buku Petunjuk Kendaraan)</option>
+                      <option value="akta">Akta Tanah</option>
+                      <option value="surat_desa">Surat Desa</option>
+                    </select>
+                    {jenisAgunan !== 'none' && (
+                      <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
                         <div className="bg-white p-2 rounded">
                           <p className="text-slate-500">Biaya Legalisasi Notaris</p>
                           <p className="font-bold">{formatRupiah(formData.biayaLegalisasiNotaris)}</p>
@@ -586,6 +603,50 @@ export default function PinjamanPage() {
                           <p className="text-slate-500">Materai Legalisasi</p>
                           <p className="font-bold">{formatRupiah(formData.biayaMateraiLegalisasi)}</p>
                         </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="mt-4 pt-3 border-t border-purple-200">
+                    <label className="flex items-center gap-2 cursor-pointer mb-2">
+                      <input
+                        type="checkbox"
+                        checked={useInsentif}
+                        onChange={e => {
+                          setUseInsentif(e.target.checked);
+                          if (e.target.checked) {
+                            setFormData({
+                              ...formData,
+                              biayaInsentif: Math.round(formData.jumlah * 0.01),
+                            });
+                          } else {
+                            setFormData({
+                              ...formData,
+                              biayaInsentif: 0,
+                            });
+                            setPenanggungJawab('');
+                          }
+                        }}
+                        className="w-4 h-4"
+                      />
+                      <span className="font-medium">Insentif Penanggung Jawab Pinjaman (1%)</span>
+                    </label>
+                    {useInsentif && (
+                      <div className="ml-6">
+                        <input
+                          type="text"
+                          placeholder="Nama Penanggung Jawab Pinjaman"
+                          value={penanggungJawab}
+                          onChange={e => {
+                            setPenanggungJawab(e.target.value);
+                            setFormData({
+                              ...formData,
+                              penanggungJawab: e.target.value,
+                            });
+                          }}
+                          className="border p-2 rounded w-full"
+                        />
+                        <p className="text-sm mt-1">Insentif: {formatRupiah(formData.biayaInsentif)}</p>
                       </div>
                     )}
                   </div>

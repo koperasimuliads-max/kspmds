@@ -54,6 +54,7 @@ export interface Pinjaman {
   bpjstkPremi?: number;
   bpjstkDibayar?: number;
   bpjstkFee?: number;
+  penanggungJawab?: string;
 }
 
 export interface Simpanan {
