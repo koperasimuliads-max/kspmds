@@ -325,16 +325,15 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
   const simpananByAnggota = useMemo(() => {
     return anggotaAktif.map(ag => {
       const sims = simpanans.filter(s => s.anggotaId === ag.id && s.status !== 'ditarik');
-      const getJenis = (jenis: string) => sims.find(s => s.jenis === jenis);
       return {
         anggota: ag,
         simpanans: sims,
-        pokok: getJenis('pokok')?.jumlah || 0,
-        wajib: getJenis('wajib')?.jumlah || 0,
-        sibuhar: getJenis('sibuhar')?.jumlah || 0,
-        simapan: getJenis('simapan')?.jumlah || 0,
-        sihat: getJenis('sihat')?.jumlah || 0,
-        sihar: getJenis('sihar')?.jumlah || 0,
+        pokok: sims.filter(s => s.jenis === 'pokok').reduce((sum, s) => sum + s.jumlah, 0),
+        wajib: sims.filter(s => s.jenis === 'wajib').reduce((sum, s) => sum + s.jumlah, 0),
+        sibuhar: sims.filter(s => s.jenis === 'sibuhar').reduce((sum, s) => sum + s.jumlah, 0),
+        simapan: sims.filter(s => s.jenis === 'simapan').reduce((sum, s) => sum + s.jumlah, 0),
+        sihat: sims.filter(s => s.jenis === 'sihat').reduce((sum, s) => sum + s.jumlah, 0),
+        sihar: sims.filter(s => s.jenis === 'sihar').reduce((sum, s) => sum + s.jumlah, 0),
         total: sims.reduce((sum, s) => sum + s.jumlah, 0),
       };
     }).filter(a => a.total > 0);
