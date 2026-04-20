@@ -28,6 +28,7 @@ Building a KSP (Kredit Simpanan Pinjaman) financial management application calle
 - [x] Added conditional field visibility - nama pasangan & jumlah anak only show when status perkawinan != belum_kawin
 - [x] Added BackButton component for navigation back to previous page
 - [x] Added comprehensive anggota keluar flow: check active loans, show summary, auto-withdraw savings, add pendapatan administrasi (Rp 50.000)
+- [x] Fixed date formatting - created formatDate utility to properly display dates in dd/mm/yyyy format without timezone issues
 
 ## Current Focus
 
@@ -50,6 +51,7 @@ All main features are complete. The app now has:
 | `src/app/pinjaman/page.tsx` | Loans with number formatting |
 | `src/app/pendapatan/page.tsx` | Income/expense tracking |
 | `src/components/BackButton.tsx` | Back navigation component |
+| `src/utils/dateUtils.ts` | Date formatting utility for dd/mm/yyyy format |
 
 ## Key Features Implemented
 
