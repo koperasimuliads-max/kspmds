@@ -375,16 +375,25 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
   const simpananByAnggota = useMemo(() => {
     return anggotaAktif.map(ag => {
       const sims = simpanans.filter(s => s.anggotaId === ag.id && s.status !== 'ditarik');
+      
+      // Hitung jumlah per jenis dengan mengurangi penarikan
+      const hitungJenis = (jenis: string) => {
+        const simJenis = sims.filter(s => s.jenis === jenis);
+        const setoran = simJenis.filter(s => s.jenisPembayaran !== 'penarikan').reduce((sum, s) => sum + s.jumlah, 0);
+        const penarikan = simJenis.filter(s => s.jenisPembayaran === 'penarikan').reduce((sum, s) => sum + s.jumlah, 0);
+        return Math.max(0, setoran - penarikan);
+      };
+      
       return {
         anggota: ag,
         simpanans: sims,
-        pokok: sims.filter(s => s.jenis === 'pokok').reduce((sum, s) => sum + s.jumlah, 0),
-        wajib: sims.filter(s => s.jenis === 'wajib').reduce((sum, s) => sum + s.jumlah, 0),
-        sibuhar: sims.filter(s => s.jenis === 'sibuhar').reduce((sum, s) => sum + s.jumlah, 0),
-        simapan: sims.filter(s => s.jenis === 'simapan').reduce((sum, s) => sum + s.jumlah, 0),
-        sihat: sims.filter(s => s.jenis === 'sihat').reduce((sum, s) => sum + s.jumlah, 0),
-        sihar: sims.filter(s => s.jenis === 'sihar').reduce((sum, s) => sum + s.jumlah, 0),
-        total: sims.reduce((sum, s) => sum + s.jumlah, 0),
+        pokok: hitungJenis('pokok'),
+        wajib: hitungJenis('wajib'),
+        sibuhar: hitungJenis('sibuhar'),
+        simapan: hitungJenis('simapan'),
+        sihat: hitungJenis('sihat'),
+        sihar: hitungJenis('sihar'),
+        total: hitungJenis('pokok') + hitungJenis('wajib') + hitungJenis('sibuhar') + hitungJenis('simapan') + hitungJenis('sihat') + hitungJenis('sihar'),
       };
     }).filter(a => a.total > 0);
   }, [anggotaAktif, simpanans]);
