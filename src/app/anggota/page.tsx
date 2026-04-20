@@ -168,6 +168,14 @@ export default function AnggotaPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
   
+  // State untuk modal keluar
+  const [showKeluarModal, setShowKeluarModal] = useState(false);
+  const [keluarData, setKeluarData] = useState({
+    anggotaId: '',
+    tanggalKeluar: '',
+    alasan: '',
+  });
+  
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
   
   const getLabel = (options: {value: string, label: string}[], value: string) => options.find(o => o.value === value)?.label || value;
@@ -324,7 +332,79 @@ export default function AnggotaPage() {
     }
   };
 
-  const handleKeluar = (id: string) => {
+  const openKeluarModal = (id: string) => {
+    const ag = anggota.find(a => a.id === id);
+    if (!ag) return;
+    
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yyyy = today.getFullYear();
+    
+    setKeluarData({
+      anggotaId: id,
+      tanggalKeluar: `${dd}-${mm}-${yyyy}`,
+      alasan: '',
+    });
+    setShowKeluarModal(true);
+  };
+
+  const handleKeluarSubmit = () => {
+    if (!keluarData.tanggalKeluar || !keluarData.alasan) {
+      alert('Mohon lengkapi tanggal keluar dan alasan!');
+      return;
+    }
+    
+    const ag = anggota.find(a => a.id === keluarData.anggotaId);
+    if (!ag) return;
+    
+    // Convert dd-mm-yyyy to yyyy-mm-dd
+    const parts = keluarData.tanggalKeluar.split('-');
+    const today = `${parts[2]}-${parts[1]}-${parts[0]}`;
+    
+    // Check active loans
+    const pinjamanAktif = pinjamans.filter(p => p.anggotaId === keluarData.anggotaId && p.status === 'aktif');
+    if (pinjamanAktif.length > 0) {
+      alert('Anggota masih memiliki pinjaman aktif yang harus dilunasi terlebih dahulu!');
+      return;
+    }
+    
+    const simpananAktif = simpanans.filter(s => s.anggotaId === keluarData.anggotaId && s.status === 'aktif');
+    const simpananPokok = simpananAktif.filter(s => s.jenis === 'pokok').reduce((sum, s) => sum + s.jumlah, 0);
+    const simpananWajib = simpananAktif.filter(s => s.jenis === 'wajib').reduce((sum, s) => sum + s.jumlah, 0);
+    const simpananLain = simpananAktif.filter(s => s.jenis !== 'pokok' && s.jenis !== 'wajib').reduce((sum, s) => sum + s.jumlah, 0);
+    const totalSimpanan = simpananPokok + simpananWajib + simpananLain;
+    const BIAYA_ADMINISTRASI = 50000;
+    
+    if (!confirm(`Konfirmasi keluar anggota "${ag.nama}"?\n\n📋 RINGKASAN:\n- Tanggal Keluar: ${keluarData.tanggalKeluar}\n- Alasan: ${keluarData.alasan}\n\n💰 SIMPANAN:\n- Simpanan Pokok: Rp ${simpananPokok.toLocaleString('id-ID')}\n- Simpanan Wajib: Rp ${simpananWajib.toLocaleString('id-ID')}\n- Simpanan Lain: Rp ${simpananLain.toLocaleString('id-ID')}\n- Total: Rp ${totalSimpanan.toLocaleString('id-ID')}\n\n📝 BIAYA ADMINISTRASI:\n- Rp ${BIAYA_ADMINISTRASI.toLocaleString('id-ID')}`)) {
+      return;
+    }
+    
+    // Update all simpanan to ditarik
+    simpananAktif.forEach(s => {
+      updateSimpanan(s.id, { status: 'ditarik' });
+    });
+    
+    // Update anggota status
+    updateAnggota(keluarData.anggotaId, {
+      status: 'nonaktif',
+      tanggalKeluar: today,
+    });
+    
+    // Add admin fee to pendapatan
+    addPendapatan({
+      jenis: 'administrasi_pengunduran_diri',
+      deskripsi: `Biaya admin pengunduran diri - ${ag.nama} (${keluarData.alasan})`,
+      jumlah: BIAYA_ADMINISTRASI,
+      tanggal: today,
+    });
+    
+    setShowKeluarModal(false);
+    alert(`✅ ANGGOTA KELAR!\n\n"${ag.nama}" telah keluar.\n\nAlasan: ${keluarData.alasan}\nTanggal: ${keluarData.tanggalKeluar}\n\nBiaya Admin: Rp ${BIAYA_ADMINISTRASI.toLocaleString('id-ID')}`);
+  };
+
+  // Placeholder for original handleKeluar - now replaced by modal
+  const handleKeluarLegacy = (id: string) => {
     const ag = anggota.find(a => a.id === id);
     if (!ag) return;
     
@@ -923,6 +1003,104 @@ export default function AnggotaPage() {
         </div>
       )}
 
+      {showKeluarModal && (() => {
+        const ag = anggota.find(a => a.id === keluarData.anggotaId);
+        const simpananAktif = ag ? simpanans.filter(s => s.anggotaId === ag.id && s.status === 'aktif') : [];
+        const simpananPokok = simpananAktif.filter(s => s.jenis === 'pokok').reduce((sum, s) => sum + s.jumlah, 0);
+        const simpananWajib = simpananAktif.filter(s => s.jenis === 'wajib').reduce((sum, s) => sum + s.jumlah, 0);
+        const simpananSibuhar = simpananAktif.filter(s => s.jenis === 'sibuhar').reduce((sum, s) => sum + s.jumlah, 0);
+        const simpananSimapan = simpananAktif.filter(s => s.jenis === 'simapan').reduce((sum, s) => sum + s.jumlah, 0);
+        const simpananSihat = simpananAktif.filter(s => s.jenis === 'sihat').reduce((sum, s) => sum + s.jumlah, 0);
+        const simpananSihar = simpananAktif.filter(s => s.jenis === 'sihar').reduce((sum, s) => sum + s.jumlah, 0);
+        const totalSimpanan = simpananPokok + simpananWajib + simpananSibuhar + simpananSimapan + simpananSihat + simpananSihar;
+        const BIAYA_ADMINISTRASI = 50000;
+        
+        return (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+              <h2 className="font-bold text-xl mb-4 text-orange-600">Keluar Anggota</h2>
+              
+              {ag && (
+                <>
+                  <div className="bg-slate-50 p-4 rounded-lg mb-4">
+                    <h3 className="font-semibold mb-2">{ag.nama}</h3>
+                    <p className="text-sm text-slate-500">NBA: {ag.nomorNBA || '-'} | Tanggal Masuk: {ag.tanggalJoin ? new Date(ag.tanggalJoin).toLocaleDateString('id-ID') : '-'}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Tanggal Keluar</label>
+                      <input
+                        type="text"
+                        value={keluarData.tanggalKeluar}
+                        onChange={e => setKeluarData({ ...keluarData, tanggalKeluar: e.target.value })}
+                        placeholder="dd-mm-yyyy"
+                        className="border p-2 rounded w-full"
+                      />
+                      <p className="text-xs text-slate-500 mt-1">Format: dd-mm-yyyy (contoh: 15-03-2024)</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Alasan Keluar</label>
+                      <select
+                        value={keluarData.alasan}
+                        onChange={e => setKeluarData({ ...keluarData, alasan: e.target.value })}
+                        className="border p-2 rounded w-full"
+                      >
+                        <option value="">Pilih Alasan</option>
+                        {alasanKeluarOptions.map(o => (
+                          <option key={o.value} value={o.label}>{o.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-yellow-50 p-4 rounded-lg mb-4">
+                    <h4 className="font-semibold mb-2 text-yellow-800">💰 Ringkasan Simpanan</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>Simpanan Pokok:</div>
+                      <div className="text-right font-medium">{formatRupiah(simpananPokok)}</div>
+                      <div>Simpanan Wajib:</div>
+                      <div className="text-right font-medium">{formatRupiah(simpananWajib)}</div>
+                      <div>SBH (Bunga Harian):</div>
+                      <div className="text-right font-medium">{formatRupiah(simpananSibuhar)}</div>
+                      <div>Simapan:</div>
+                      <div className="text-right font-medium">{formatRupiah(simpananSimapan)}</div>
+                      <div>Sihat:</div>
+                      <div className="text-right font-medium">{formatRupiah(simpananSihat)}</div>
+                      <div>Sihar:</div>
+                      <div className="text-right font-medium">{formatRupiah(simpananSihar)}</div>
+                      <div className="border-t pt-2 font-bold">TOTAL:</div>
+                      <div className="text-right font-bold border-t pt-2">{formatRupiah(totalSimpanan)}</div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-red-50 p-4 rounded-lg mb-4">
+                    <h4 className="font-semibold mb-2 text-red-800">📝 Biaya ADMINISTRASI</h4>
+                    <div className="text-right font-bold text-red-600">{formatRupiah(BIAYA_ADMINISTRASI)}</div>
+                    <p className="text-xs text-slate-500 mt-1">*) Akan menjadi pendapatan Koperasi</p>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleKeluarSubmit}
+                      className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 flex-1"
+                    >
+                      Simpan & Keluarkan
+                    </button>
+                    <button
+                      onClick={() => setShowKeluarModal(false)}
+                      className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                    >
+                      Batal
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
       {showBulkUpdate && (
         <div className="bg-white p-4 rounded-lg shadow mb-4 border-l-4 border-purple-500">
           <h2 className="font-semibold mb-3">🔄 Ubah Pekerjaan Massal</h2>
@@ -1152,7 +1330,7 @@ export default function AnggotaPage() {
                       <td className="p-2 text-center no-print">
                         <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-1 text-sm">Edit</button>
                         {a.status === 'aktif' && (
-                          <button onClick={() => handleKeluar(a.id)} className="bg-orange-500 text-white px-2 py-1 rounded text-sm hover:bg-orange-600 mr-1">Keluar</button>
+                          <button onClick={() => openKeluarModal(a.id)} className="bg-orange-500 text-white px-2 py-1 rounded text-sm hover:bg-orange-600 mr-1">Keluar</button>
                         )}
                         <button onClick={() => handleDelete(a.id)} className="text-red-600 hover:underline text-sm">Hapus</button>
                       </td>
