@@ -64,7 +64,23 @@ export default function PinjamanPage() {
     kolektibilitas: 'lancar' as 'lancar' | 'kurang_lancar' | 'diragukan' | 'macet',
     kategoriKesehatan: 'sehat' as 'sehat' | 'cukup_sehat' | 'kurang_sehat' | 'tidak_sehat',
     tipePinjaman: 'flat' as 'flat' | 'musiman',
+    biayaAdmin: 0,
+    biayaDanaResiko: 0,
+    biayaDanaSosial: 0,
+    biayaInsentif: 0,
+    biayaMaterai: 0,
+    biayaLegalisasi: 0,
+    biayaLegalisasiNotaris: 0,
+    biayaLegalisasiKSP: 0,
+    biayaMateraiLegalisasi: 0,
+    bpjstkTenor: 0,
+    bpjstkPremi: 0,
+    bpjstkDibayar: 0,
+    bpjstkFee: 0,
   });
+  const [showRincianBiaya, setShowRincianBiaya] = useState(false);
+  const [useLegalisasi, setUseLegalisasi] = useState(false);
+  const [bpjstkTenorInput, setBpjstkTenorInput] = useState(0);
   const [jumlahBayar, setJumlahBayar] = useState(0);
   const [hariTerlambatInput, setHariTerlambatInput] = useState(0);
   const [jumlahDisplay, setJumlahDisplay] = useState('');
@@ -200,6 +216,22 @@ export default function PinjamanPage() {
         tanggal: formData.tanggalPinjaman,
         deskripsi: `Pinjaman dari ${ag?.nama || '-'}`,
       });
+      
+      const totalBiaya = (formData.biayaAdmin || 0) + (formData.biayaDanaResiko || 0) + 
+        (formData.biayaDanaSosial || 0) + (formData.biayaInsentif || 0) + 
+        (formData.biayaMaterai || 0) + (formData.biayaLegalisasi || 0) + 
+        (formData.biayaLegalisasiNotaris || 0) + (formData.biayaLegalisasiKSP || 0) + 
+        (formData.biayaMateraiLegalisasi || 0) + (formData.bpjstkPremi || 0) + (formData.bpjstkFee || 0);
+      if (totalBiaya > 0) {
+        addTransaksi({
+          jenis: 'pendapatan',
+          anggotaId: formData.anggotaId,
+          referensiId: '',
+          jumlah: totalBiaya,
+          tanggal: formData.tanggalPinjaman,
+          deskripsi: `Biaya administrasi pinjaman - ${ag?.nama || '-'}`,
+        });
+      }
     }
     resetForm();
   };
@@ -219,6 +251,19 @@ export default function PinjamanPage() {
       kolektibilitas: data.kolektibilitas || 'lancar',
       kategoriKesehatan: data.kategoriKesehatan || 'sehat',
       tipePinjaman: data.tipePinjaman || 'flat',
+      biayaAdmin: data.biayaAdmin || 0,
+      biayaDanaResiko: data.biayaDanaResiko || 0,
+      biayaDanaSosial: data.biayaDanaSosial || 0,
+      biayaInsentif: data.biayaInsentif || 0,
+      biayaMaterai: data.biayaMaterai || 0,
+      biayaLegalisasi: data.biayaLegalisasi || 0,
+      biayaLegalisasiNotaris: data.biayaLegalisasiNotaris || 0,
+      biayaLegalisasiKSP: data.biayaLegalisasiKSP || 0,
+      biayaMateraiLegalisasi: data.biayaMateraiLegalisasi || 0,
+      bpjstkTenor: data.bpjstkTenor || 0,
+      bpjstkPremi: data.bpjstkPremi || 0,
+      bpjstkDibayar: data.bpjstkDibayar || 0,
+      bpjstkFee: data.bpjstkFee || 0,
     });
     setJumlahDisplay(formatRupiahInput(String(data.jumlah)));
     setEditingId(data.id);
@@ -281,10 +326,26 @@ export default function PinjamanPage() {
       kolektibilitas: 'lancar',
       kategoriKesehatan: 'sehat',
       tipePinjaman: 'flat',
+      biayaAdmin: 0,
+      biayaDanaResiko: 0,
+      biayaDanaSosial: 0,
+      biayaInsentif: 0,
+      biayaMaterai: 0,
+      biayaLegalisasi: 0,
+      biayaLegalisasiNotaris: 0,
+      biayaLegalisasiKSP: 0,
+      biayaMateraiLegalisasi: 0,
+      bpjstkTenor: 0,
+      bpjstkPremi: 0,
+      bpjstkDibayar: 0,
+      bpjstkFee: 0,
     });
     setJumlahDisplay('');
     setShowForm(false);
     setEditingId(null);
+    setShowRincianBiaya(false);
+    setUseLegalisasi(false);
+    setBpjstkTenorInput(0);
   };
 
   const anggotaAktif = anggota.filter(a => a.status === 'aktif');
@@ -411,6 +472,170 @@ export default function PinjamanPage() {
                 <p>Total Pembayaran: <strong>{formatRupiah(hitungCicilan(formData.jumlah, formData.bunga, formData.tenor, formData.tipePinjaman || 'flat') * formData.tenor)}</strong></p>
               </div>
             )}
+            
+            <div className="mt-4 pt-4 border-t">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowRincianBiaya(!showRincianBiaya);
+                  if (!showRincianBiaya) {
+                    const jumlah = formData.jumlah;
+                    const admin = Math.round(jumlah * 0.02);
+                    const danaResiko = Math.round(jumlah * 0.01);
+                    const danaSosial = Math.round(jumlah * 0.01);
+                    const insentif = Math.round(jumlah * 0.01);
+                    const materai = 12000;
+                    setFormData({
+                      ...formData,
+                      biayaAdmin: admin,
+                      biayaDanaResiko: danaResiko,
+                      biayaDanaSosial: danaSosial,
+                      biayaInsentif: insentif,
+                      biayaMaterai: materai,
+                    });
+                  }
+                }}
+                className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 mb-3"
+              >
+                {showRincianBiaya ? 'Tutup' : '+'} Rincian Biaya Admin Pinjaman
+              </button>
+              
+              {showRincianBiaya && formData.jumlah > 0 && (
+                <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                  <h4 className="font-semibold mb-3 text-purple-800">💰 Rincian Biaya Administrasi Pinjaman</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                    <div className="bg-white p-2 rounded">
+                      <p className="text-slate-500">Biaya Admin (2%)</p>
+                      <p className="font-bold">{formatRupiah(formData.biayaAdmin)}</p>
+                    </div>
+                    <div className="bg-white p-2 rounded">
+                      <p className="text-slate-500">Dana Resiko (1%)</p>
+                      <p className="font-bold">{formatRupiah(formData.biayaDanaResiko)}</p>
+                    </div>
+                    <div className="bg-white p-2 rounded">
+                      <p className="text-slate-500">Dana Sosial (1%)</p>
+                      <p className="font-bold">{formatRupiah(formData.biayaDanaSosial)}</p>
+                    </div>
+                    <div className="bg-white p-2 rounded">
+                      <p className="text-slate-500">Insentif Penanggung Jawab (1%)</p>
+                      <p className="font-bold">{formatRupiah(formData.biayaInsentif)}</p>
+                    </div>
+                    <div className="bg-white p-2 rounded">
+                      <p className="text-slate-500">Materai</p>
+                      <p className="font-bold">{formatRupiah(formData.biayaMaterai)}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 pt-3 border-t border-purple-200">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={useLegalisasi}
+                        onChange={e => {
+                          setUseLegalisasi(e.target.checked);
+                          if (e.target.checked) {
+                            setFormData({
+                              ...formData,
+                              biayaLegalisasi: 400000,
+                              biayaLegalisasiNotaris: 300000,
+                              biayaLegalisasiKSP: 100000,
+                              biayaMateraiLegalisasi: 12000,
+                            });
+                          } else {
+                            setFormData({
+                              ...formData,
+                              biayaLegalisasi: 0,
+                              biayaLegalisasiNotaris: 0,
+                              biayaLegalisasiKSP: 0,
+                              biayaMateraiLegalisasi: 0,
+                            });
+                          }
+                        }}
+                        className="w-4 h-4"
+                      />
+                      <span className="font-medium">Gunakan Agunan (SHM/Akta Tanah/Surat Desa)</span>
+                    </label>
+                    {useLegalisasi && (
+                      <div className="mt-2 ml-6 grid grid-cols-2 gap-2 text-sm">
+                        <div className="bg-white p-2 rounded">
+                          <p className="text-slate-500">Biaya Legalisasi Notaris</p>
+                          <p className="font-bold">{formatRupiah(formData.biayaLegalisasiNotaris)}</p>
+                        </div>
+                        <div className="bg-white p-2 rounded">
+                          <p className="text-slate-500">Insentif KSP</p>
+                          <p className="font-bold">{formatRupiah(formData.biayaLegalisasiKSP)}</p>
+                        </div>
+                        <div className="bg-white p-2 rounded">
+                          <p className="text-slate-500">Materai Legalisasi</p>
+                          <p className="font-bold">{formatRupiah(formData.biayaMateraiLegalisasi)}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="mt-4 pt-3 border-t border-purple-200">
+                    <h5 className="font-medium mb-2">BPJSTK (Jaminan Kecelakaan Kerja)</h5>
+                    <div className="flex items-center gap-3">
+                      <label className="text-sm">Tenor:</label>
+                      <select
+                        value={bpjstkTenorInput}
+                        onChange={e => {
+                          const tenor = Number(e.target.value);
+                          setBpjstkTenorInput(tenor);
+                          const premi = tenor * 20000;
+                          const dibayar = tenor * 16800;
+                          const fee = tenor * 3200;
+                          setFormData({
+                            ...formData,
+                            bpjstkTenor: tenor,
+                            bpjstkPremi: premi,
+                            bpjstkDibayar: dibayar,
+                            bpjstkFee: fee,
+                          });
+                        }}
+                        className="border p-2 rounded"
+                      >
+                        <option value={0}>Tidak menggunakan</option>
+                        {[1,2,3,4,5,6,7,8,9,10,11,12].map(b => (
+                          <option key={b} value={b}>{b} bulan</option>
+                        ))}
+                      </select>
+                      {bpjstkTenorInput > 0 && (
+                        <div className="flex gap-4 text-sm">
+                          <div>
+                            <p className="text-slate-500">Premi</p>
+                            <p className="font-bold">{formatRupiah(formData.bpjstkPremi)}</p>
+                          </div>
+                          <div>
+                            <p className="text-slate-500">Disetor ke BPJSTK</p>
+                            <p className="font-bold">{formatRupiah(formData.bpjstkDibayar)}</p>
+                          </div>
+                          <div>
+                            <p className="text-slate-500">Fee KSP</p>
+                            <p className="font-bold text-green-600">{formatRupiah(formData.bpjstkFee)}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 pt-3 border-t border-purple-200 bg-purple-100 p-3 rounded">
+                    <div className="flex justify-between items-center">
+                      <p className="font-bold text-purple-800">TOTAL BIAYA:</p>
+                      <p className="font-bold text-xl text-purple-800">
+                        {formatRupiah(
+                          (formData.biayaAdmin || 0) + (formData.biayaDanaResiko || 0) + 
+                          (formData.biayaDanaSosial || 0) + (formData.biayaInsentif || 0) + 
+                          (formData.biayaMaterai || 0) + (formData.biayaLegalisasi || 0) + 
+                          (formData.biayaMateraiLegalisasi || 0) + (formData.bpjstkPremi || 0)
+                        )}
+                      </p>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">*) Biaya akan menjadi pendapatan Koperasi</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </form>
 
           <div className="mt-4 pt-4 border-t">

@@ -41,6 +41,19 @@ export interface Pinjaman {
   kategoriKesehatan: 'sehat' | 'cukup_sehat' | 'kurang_sehat' | 'tidak_sehat';
   tipePinjaman?: 'flat' | 'musiman';
   isSaldoAwal?: boolean;
+  biayaAdmin?: number;
+  biayaDanaResiko?: number;
+  biayaDanaSosial?: number;
+  biayaInsentif?: number;
+  biayaMaterai?: number;
+  biayaLegalisasi?: number;
+  biayaLegalisasiNotaris?: number;
+  biayaLegalisasiKSP?: number;
+  biayaMateraiLegalisasi?: number;
+  bpjstkTenor?: number;
+  bpjstkPremi?: number;
+  bpjstkDibayar?: number;
+  bpjstkFee?: number;
 }
 
 export interface Simpanan {
