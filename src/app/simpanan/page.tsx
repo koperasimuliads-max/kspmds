@@ -108,22 +108,52 @@ export default function SimpananPage() {
 
   const parseDate = (dateStr: string): string => {
     if (!dateStr) return '';
-    const trimmed = dateStr.trim();
+    const trimmed = String(dateStr).trim();
     if (!trimmed) return '';
+    
+    // Handle Excel serial date (numbers like 45306)
+    if (/^\d+$/.test(trimmed)) {
+      const serial = parseInt(trimmed, 10);
+      if (serial > 25569 && serial < 50000) { // Excel dates from 1970-2035
+        const excelDate = new Date((serial - 25569) * 86400 * 1000);
+        const year = excelDate.getFullYear();
+        const month = String(excelDate.getMonth() + 1).padStart(2, '0');
+        const day = String(excelDate.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+    }
+    
+    // Format: yyyy-mm-dd
     if (trimmed.match(/^\d{4}-\d{2}-\d{2}$/)) return trimmed;
+    
+    // Format: dd-mm-yyyy
     if (trimmed.match(/^\d{2}-\d{2}-\d{4}$/)) {
       const parts = trimmed.split('-');
       return `${parts[2]}-${parts[1]}-${parts[0]}`;
     }
+    
+    // Format: dd/mm/yyyy
     if (trimmed.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
       const parts = trimmed.split('/');
       return `${parts[2]}-${parts[1]}-${parts[0]}`;
     }
+    
+    // Format: yyyy/mm/dd
     if (trimmed.match(/^\d{4}\/\d{2}\/\d{2}$/)) {
       const parts = trimmed.split('/');
       return `${parts[0]}-${parts[1]}-${parts[2]}`;
     }
-    return trimmed;
+    
+    // Try parsing as regular date
+    const parsed = new Date(trimmed);
+    if (!isNaN(parsed.getTime())) {
+      const year = parsed.getFullYear();
+      const month = String(parsed.getMonth() + 1).padStart(2, '0');
+      const day = String(parsed.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    
+    return '';
   };
 
 const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
