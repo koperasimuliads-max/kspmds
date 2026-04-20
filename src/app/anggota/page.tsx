@@ -131,6 +131,23 @@ const referensiOptions = [
   { value: 'Erni Sembiring', label: 'Erni Sembiring' },
 ];
 
+const alasanKeluarOptions = [
+  { value: 'Kebutuhan mendesak', label: 'Kebutuhan mendesak' },
+  { value: 'Pindah domisili', label: 'Pindah domisili' },
+  { value: 'Berhenti bekerja', label: 'Berhenti bekerja' },
+  { value: 'Ketidaksesuaian prinsip', label: 'Ketidaksesuaian prinsip' },
+  { value: 'Hilangnya Kepercayaan pada Pengurus', label: 'Hilangnya Kepercayaan pada Pengurus' },
+  { value: 'Kinerja Keuangan Koperasi Menurun', label: 'Kinerja Keuangan Koperasi Menurun' },
+  { value: 'Koperasi Bermasalah/Gagal Bayar', label: 'Koperasi Bermasalah/Gagal Bayar' },
+  { value: 'Mendapatkan Tawaran Pinjaman Lebih Baik', label: 'Mendapatkan Tawaran Pinjaman Lebih Baik' },
+  { value: 'Berhenti Menabung Secara Rutin', label: 'Berhenti Menabung Secara Rutin' },
+  { value: 'Ingin Membersihkan BI Checking/SLIK', label: 'Ingin Membersihkan BI Checking/SLIK' },
+  { value: 'Pemutusan Hubungan Kerja (PHK)', label: 'Pemutusan Hubungan Kerja (PHK)' },
+  { value: 'Tidak Lagi Membutuhkan Komunitasnya', label: 'Tidak Lagi Membutuhkan Komunitasnya' },
+  { value: 'Ikut-ikutan (Panic Withdrawal)', label: 'Ikut-ikutan (Panic Withdrawal)' },
+  { value: 'Tidak diberikan pinjaman', label: 'Tidak diberikan pinjaman' },
+];
+
 export default function AnggotaPage() {
   const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
   const { anggota, addAnggota, updateAnggota, deleteAnggota, clearAllAnggota, bulkUpdateTanggalJoin, pinjamans, simpanans, addSimpanan, updateSimpanan, addPendapatan, pendapatans, isHydrated } = useKSP();
@@ -312,9 +329,19 @@ export default function AnggotaPage() {
     if (!ag) return;
     
     const defaultDate = new Date().toISOString().split('T')[0];
+    
+    // Get alasan options as string
+    const alasanOptionsStr = 'Pilih alasan keluar:\n' + alasanKeluarOptions.map((o, i) => `${i + 1}. ${o.label}`).join('\n');
+    let alasanChoose = prompt(alasanOptionsStr + '\n\nMasukkan nomor alasan (1-' + alasanKeluarOptions.length + '):');
+    
+    if (!alasanChoose) return;
+    
+    const alasanIndex = parseInt(alasanChoose) - 1;
+    const alasan = alasanKeluarOptions[alasanIndex]?.label || alasanKeluarOptions[0].label;
+    
     const tanggalKeluar = prompt('Masukkan tanggal keluar anggota (format: YYYY-MM-DD):', defaultDate);
     
-    if (!tanggalKeluar) return; // User cancelled
+    if (!tanggalKeluar) return;
     
     // Validate date format
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -343,6 +370,7 @@ export default function AnggotaPage() {
     let message = `Yakin anggota "${ag.nama}" keluar/mengundurkan diri?\n\n`;
     message += `📋 RINGKASAN ANGGOTA:\n`;
     message += `- Tanggal Masuk: ${ag.tanggalJoin ? new Date(ag.tanggalJoin).toLocaleDateString('id-ID') : '-'}\n`;
+    message += `- Alasan Keluar: ${alasan}\n`;
     message += `- Status: ${ag.status}\n\n`;
     
     if (pinjamanAktif.length > 0) {
@@ -389,12 +417,12 @@ export default function AnggotaPage() {
       // Tambah pendapatan administrasi pengunduran diri
       addPendapatan({
         jenis: 'administrasi_pengunduran_diri',
-        deskripsi: `Biaya administrasi pengunduran diri - ${ag.nama}`,
+        deskripsi: `Biaya administrasi pengunduran diri - ${ag.nama} (Alasan: ${alasan})`,
         jumlah: BIAYA_ADMINISTRASI,
         tanggal: today,
       });
       
-      alert(`✅ ANGGOTA KELAR!\n\n"${ag.nama}" telah keluar pada ${new Date(today).toLocaleDateString('id-ID')}.\n\nSimpanan yang dikembalikan: Rp ${totalSimpanan.toLocaleString('id-ID')}\nBiaya Administrasi: Rp ${BIAYA_ADMINISTRASI.toLocaleString('id-ID')}\n(Data simpanan ditandai "ditarik", biaya admin masuk ke pendapatan)`);
+      alert(`✅ ANGGOTA KELAR!\n\n"${ag.nama}" telah keluar pada ${new Date(today).toLocaleDateString('id-ID')}.\n\nAlasan Keluar: ${alasan}\n\nSimpanan yang dikembalikan: Rp ${totalSimpanan.toLocaleString('id-ID')}\nBiaya Administrasi: Rp ${BIAYA_ADMINISTRASI.toLocaleString('id-ID')}\n(Data simpanan ditandai "ditarik", biaya admin masuk ke pendapatan)`);
     }
   };
 
