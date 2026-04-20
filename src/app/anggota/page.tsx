@@ -197,14 +197,9 @@ export default function AnggotaPage() {
           updateAnggota(a.id, { pekerjaan: 'wiraswasta' });
           countPekerjaan++;
         }
-        const simpananWajib = Number(a.simpananWajib);
-        if (simpananWajib >= 50000) {
-          updateAnggota(a.id, { simpananWajib: 25000 });
-          countSimpanan++;
-        }
       });
-      if (countPekerjaan > 0 || countSimpanan > 0) {
-        alert(`Data diperbaiki:\n- Pekerjaan pedagang→wiraswasta: ${countPekerjaan}\n- Simpanan wajib 50rb→25rb: ${countSimpanan}`);
+      if (countPekerjaan > 0) {
+        alert(`Data diperbaiki:\n- Pekerjaan pedagang→wiraswasta: ${countPekerjaan}`);
       }
     };
     if (anggota.length > 0) {
@@ -254,10 +249,6 @@ export default function AnggotaPage() {
     pendapatanPerbulan: '',
     statusRumah: 'rumah_sendiri' as 'rumah_sendiri' | 'kontrak_sewa' | 'dinas' | 'rumah_orang_tua' | 'menumpang',
     namaReferensi: '',
-    simpananPokok: 0,
-    simpananWajib: 0,
-    uangBuku: 0,
-    jenisPembayaran: 'tunai' as 'tunai' | 'bri_tigabinanga' | 'bri_berastagi',
     telefon: '',
     tanggalJoin: '2024-01-01',
     status: 'aktif' as 'aktif' | 'nonaktif',
@@ -270,9 +261,6 @@ export default function AnggotaPage() {
     const dataToSubmit = {
       ...formData,
       alamatDomisili: alamatSamaKTP ? formData.alamat : formData.alamatDomisili,
-      simpananPokok: formData.simpananPokok,
-      simpananWajib: formData.simpananWajib,
-      uangBuku: formData.uangBuku,
     };
     if (editingId) {
       updateAnggota(editingId, dataToSubmit);
@@ -304,10 +292,6 @@ export default function AnggotaPage() {
       pendapatanPerbulan: data.pendapatanPerbulan || '',
       statusRumah: data.statusRumah || 'milik_sendiri',
       namaReferensi: data.namaReferensi || '',
-      simpananPokok: data.simpananPokok || 0,
-      simpananWajib: data.simpananWajib || 0,
-      uangBuku: data.uangBuku || 0,
-      jenisPembayaran: data.jenisPembayaran || 'tunai',
       telefon: data.telefon,
       tanggalJoin: data.tanggalJoin,
       status: data.status,
@@ -431,10 +415,6 @@ export default function AnggotaPage() {
       pendapatanPerbulan: '',
       statusRumah: 'rumah_sendiri',
       namaReferensi: '',
-      simpananPokok: 0,
-      simpananWajib: 0,
-      uangBuku: 0,
-      jenisPembayaran: 'tunai',
       telefon: '',
       tanggalJoin: '2024-01-01',
       status: 'aktif',
@@ -570,10 +550,6 @@ export default function AnggotaPage() {
                   pendapatanPerbulan: a.pendapatanPerbulan,
                   statusRumah: a.statusRumah,
                   namaReferensi: a.namaReferensi,
-                  simpananPokok: a.simpananPokok,
-                  simpananWajib: a.simpananWajib,
-                  uangBuku: a.uangBuku,
-                  jenisPembayaran: a.jenisPembayaran,
                   telefon: a.telefon,
                   tanggalJoin: a.tanggalJoin,
                   status: a.status,
@@ -772,10 +748,6 @@ export default function AnggotaPage() {
                           pendapatanPerbulan: row.pendapatanPerbulan || '',
                           statusRumah: row.statusRumah || 'rumah_sendiri',
                           namaReferensi: row.namaReferensi || '',
-                          simpananPokok: Number(row.simpananPokok) || 0,
-                          simpananWajib: Number(row.simpananWajib) || 0,
-                          uangBuku: Number(row.uangBuku) || 0,
-                          jenisPembayaran: row.jenisPembayaran || 'tunai',
                           telefon: row.telefon || '',
                           tanggalJoin: row.tanggalJoin || '2024-01-01',
                           status: row.status === 'nonaktif' ? 'nonaktif' : 'aktif',
@@ -833,10 +805,6 @@ export default function AnggotaPage() {
                       pendapatanPerbulan: row.pendapatanPerbulan || row['Pendapatan Perbulan'] || row.pendapatan_perbulan || '',
                       statusRumah: row.statusRumah || row['Status Rumah'] || row.status_rumah || 'rumah_sendiri',
                       namaReferensi: row.namaReferensi || row['Nama Referensi'] || row.nama_referensi || '',
-                      simpananPokok: Number(row.simpananPokok || row['Simpanan Pokok'] || row.simpanan_pokok) || 0,
-                      simpananWajib: Number(row.simpananWajib || row['Simpanan Wajib'] || row.simpanan_wajib) || 0,
-                      uangBuku: Number(row.uangBuku || row['Uang Buku'] || row.uang_buku) || 0,
-                      jenisPembayaran: row.jenisPembayaran || row['Jenis Pembayaran'] || row.jenis_pembayaran || 'tunai',
                       telefon: row.telefon || row.Telepon || row.noTelepon || '',
                       tanggalJoin: parseDate(row.tanggalJoin || row['Tanggal Join'] || row.tanggal_join || row['Tgl Masuk'] || row.tgl_masuk || row.tanggalMasuk || row['Tanggal Masuk']) || '2024-01-01',
                       status: 'aktif',
@@ -889,12 +857,8 @@ export default function AnggotaPage() {
                         pendapatanPerbulan: cols[16] || '',
                         statusRumah: (cols[17] as any) || 'rumah_sendiri',
                         namaReferensi: cols[18] || '',
-                        simpananPokok: Number(cols[19]) || 0,
-                        simpananWajib: Number(cols[20]) || 0,
-                        uangBuku: Number(cols[21]) || 0,
-                        jenisPembayaran: (cols[22] as any) || 'tunai',
-                        telefon: cols[23] || '',
-                        tanggalJoin: cols[24] || cols[25] || cols[26] || '2024-01-01',
+                        telefon: cols[19] || '',
+                        tanggalJoin: cols[20] || cols[21] || cols[22] || '2024-01-01',
                         status: 'aktif',
                       });
                       count++;
@@ -1094,27 +1058,6 @@ export default function AnggotaPage() {
             </div>
 
             <div className="mb-4">
-              <h3 className="text-sm font-semibold text-slate-600 mb-2 border-b pb-1">Keanggotaan</h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <div className="border p-2 rounded bg-slate-100">
-                  <label className="text-xs text-slate-500 block">Simpanan Pokok</label>
-                  <span className="font-medium">Rp 100.000</span>
-                </div>
-                <div className="border p-2 rounded bg-slate-100">
-                  <label className="text-xs text-slate-500 block">Simpanan Wajib</label>
-                  <span className="font-medium">Rp 25.000</span>
-                </div>
-                <div className="border p-2 rounded bg-slate-100">
-                  <label className="text-xs text-slate-500 block">Uang Buku</label>
-                  <span className="font-medium">Rp 25.000</span>
-                </div>
-                <select value={formData.jenisPembayaran} onChange={e => setFormData({ ...formData, jenisPembayaran: e.target.value as any })} className="border p-2 rounded">
-                  {jenisPembayaranOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </select>
-              </div>
-            </div>
-
-            <div className="mb-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <input type="date" value={formData.tanggalJoin} onChange={e => setFormData({ ...formData, tanggalJoin: e.target.value })} className="border p-2 rounded" required />
                 <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value as 'aktif' | 'nonaktif' })} className="border p-2 rounded">
@@ -1146,15 +1089,12 @@ export default function AnggotaPage() {
                 <th className="text-left p-2">Status</th>
                 <th className="text-left p-2">Tgl Keluar</th>
                 <th className="text-left p-2">Pekerjaan</th>
-                <th className="text-right p-2">Simpanan Pokok</th>
-                <th className="text-right p-2">Simpanan Wajib</th>
-                <th className="text-right p-2">Uang Buku</th>
                 <th className="text-center p-2 no-print">Aksi</th>
               </tr>
             </thead>
             <tbody>
               {sortedAnggota.length === 0 ? (
-                <tr><td colSpan={14} className="text-center p-4 text-slate-500">Belum ada anggota</td></tr>
+                <tr><td colSpan={11} className="text-center p-4 text-slate-500">Belum ada anggota</td></tr>
               ) : (
                 <>
                   {sortedAnggota.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((a, index) => (
@@ -1169,9 +1109,6 @@ export default function AnggotaPage() {
                       <td className="p-2"><span className={`px-2 py-1 rounded text-xs ${a.status === 'aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{a.status}</span></td>
                       <td className="p-2 text-slate-500">{a.tanggalKeluar ? new Date(a.tanggalKeluar).toLocaleDateString('id-ID') : '-'}</td>
                       <td className="p-2">{a.pekerjaan ? getLabel(pekerjaanOptions, a.pekerjaan) : '-'}</td>
-                      <td className="p-2 text-right">{formatRupiah(a.simpananPokok)}</td>
-                      <td className="p-2 text-right">{formatRupiah(a.simpananWajib)}</td>
-                      <td className="p-2 text-right">{formatRupiah(a.uangBuku)}</td>
                       <td className="p-2 text-center no-print">
                         <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-1">Edit</button>
                         {a.status === 'aktif' && (
@@ -1292,33 +1229,12 @@ export default function AnggotaPage() {
                     </select>
                     <select value={formData.statusRumah} onChange={e => setFormData({ ...formData, statusRumah: e.target.value as any })} className="border p-2 rounded">
                       {statusRumahOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                    </select>
-                  </div>
-                </div>
+</select>
+              </div>
+            </div>
 
-                <div className="mb-4">
-                  <h3 className="text-sm font-semibold text-slate-600 mb-2 border-b pb-1">Keanggotaan</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <div className="border p-2 rounded bg-slate-100">
-                      <label className="text-xs text-slate-500 block">Simpanan Pokok</label>
-                      <span className="font-medium">Rp 100.000</span>
-                    </div>
-                    <div className="border p-2 rounded bg-slate-100">
-                      <label className="text-xs text-slate-500 block">Simpanan Wajib</label>
-                      <span className="font-medium">Rp 25.000</span>
-                    </div>
-                    <div className="border p-2 rounded bg-slate-100">
-                      <label className="text-xs text-slate-500 block">Uang Buku</label>
-                      <span className="font-medium">Rp 25.000</span>
-                    </div>
-                    <select value={formData.jenisPembayaran} onChange={e => setFormData({ ...formData, jenisPembayaran: e.target.value as any })} className="border p-2 rounded">
-                      {jenisPembayaranOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <input type="date" value={formData.tanggalJoin} onChange={e => setFormData({ ...formData, tanggalJoin: e.target.value })} className="border p-2 rounded" required />
                     <select value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value as 'aktif' | 'nonaktif' })} className="border p-2 rounded">
                       <option value="aktif">Aktif</option>

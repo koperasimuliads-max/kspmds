@@ -33,7 +33,7 @@ export default function SHUPerAnggotaPage() {
   };
 
   const totalSimpananTable = simpanans.filter(s => s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
-  const totalSimpananAwal = anggota.reduce((sum, a) => sum + (a.simpananPokok || 0) + (a.simpananWajib || 0), 0);
+  const totalSimpananAwal = 0;
   const totalSimpananSemua = totalSimpananTable + totalSimpananAwal;
   const totalPinjamanSemua = pinjamans.filter(p => p.status === 'aktif').reduce((sum, p) => sum + p.jumlah, 0);
 
@@ -55,7 +55,7 @@ export default function SHUPerAnggotaPage() {
 
     return anggota.map(ag => {
       const simpananDariTable = simpanans.filter(s => s.anggotaId === ag.id && s.status === 'aktif').reduce((sum, s) => sum + s.jumlah, 0);
-      const simpananTotal = simpananDariTable + (ag.simpananPokok || 0) + (ag.simpananWajib || 0);
+      const simpananTotal = simpananDariTable;
       const pinjaman = pinjamans.filter(p => p.anggotaId === ag.id && p.status === 'aktif').reduce((sum, p) => sum + p.jumlah, 0);
       const jasaModal = totalSimpananSemua > 0 && simpananTotal > 0 ? (simpananTotal / totalSimpananSemua) * distribution.jasa_modal : 0;
       const jasaTransaksi = totalPinjamanSemua > 0 && pinjaman > 0 ? (pinjaman / totalPinjamanSemua) * distribution.jasa_transaksi : 0;

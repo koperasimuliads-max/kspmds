@@ -152,36 +152,11 @@ export function KSPProvider({ children }: { children: ReactNode }) {
 
   const addAnggota = useCallback((data: Omit<Anggota, 'id'>) => {
     setAnggota(prev => [...prev, { ...data, id: generateId() }]);
-  }, []);
+}, []);
 
   const updateAnggota = useCallback((id: string, data: Partial<Anggota>) => {
     setAnggota(prev => prev.map(a => a.id === id ? { ...a, ...data } : a));
-    
-    if (data.simpananPokok !== undefined || data.simpananWajib !== undefined || data.uangBuku !== undefined) {
-      setTimeout(() => {
-        const updated = anggota.find(a => a.id === id);
-        if (!updated) return;
-        
-        if (data.simpananPokok !== undefined) {
-          setSimpanans(prev => prev.map(s => 
-            s.anggotaId === id && s.jenis === 'pokok' ? { ...s, jumlah: data.simpananPokok! } : s
-          ));
-        }
-        if (data.simpananWajib !== undefined) {
-          setSimpanans(prev => prev.map(s => 
-            s.anggotaId === id && s.jenis === 'wajib' ? { ...s, jumlah: data.simpananWajib! } : s
-          ));
-        }
-        if (data.uangBuku !== undefined) {
-          setPendapatans(prev => prev.map(p => 
-            p.jenis === 'uang_buku' && p.deskripsi?.includes(`Uang Buku - ${updated.nama}`) 
-              ? { ...p, jumlah: data.uangBuku! } 
-              : p
-          ));
-        }
-      }, 100);
-    }
-  }, [anggota]);
+  }, []);
 
   const deleteAnggota = useCallback((id: string) => {
     setAnggota(prev => prev.filter(a => a.id !== id));

@@ -19,10 +19,6 @@ export interface Anggota {
   pendapatanPerbulan: string;
   statusRumah: 'rumah_sendiri' | 'kontrak_sewa' | 'dinas' | 'rumah_orang_tua' | 'menumpang';
   namaReferensi: string;
-  simpananPokok: number;
-  simpananWajib: number;
-  uangBuku: number;
-  jenisPembayaran: 'tunai' | 'bri_tigabinanga' | 'bri_berastagi';
   telefon: string;
   tanggalJoin: string;
   tanggalKeluar?: string;

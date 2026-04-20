@@ -37,8 +37,8 @@ export default function PendapatanPage() {
   const filteredPendapatans = selectedYear ? pendapatans.filter(p => new Date(p.tanggal).getFullYear() === selectedYear) : pendapatans;
   const sortedPendapatans = [...filteredPendapatans].sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime());
 
-  const uangBukuTotal = anggota.reduce((sum, a) => sum + (a.uangBuku || 0), 0);
-  const anggotaWithUangBuku = anggota.filter(a => a.uangBuku > 0);
+  const uangBukuTotal = 0;
+  const anggotaWithUangBuku: typeof anggota = [];
   const totalPendapatan = filteredPendapatans.reduce((sum, p) => sum + p.jumlah, 0);
 
   const handleEditStart = (id: string, currentJumlah: number, currentDeskripsi: string) => {
@@ -239,57 +239,6 @@ export default function PendapatanPage() {
               <button
                 onClick={() => setCurrentPagePendapatan(p => Math.min(Math.ceil(sortedPendapatans.length / itemsPerPage), p + 1))}
                 disabled={currentPagePendapatan >= Math.ceil(sortedPendapatans.length / itemsPerPage)}
-                className="px-2 py-1 rounded border bg-white text-sm disabled:opacity-50"
-              >
-                &gt;
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="bg-white p-4 rounded-lg shadow mt-4">
-        <h2 className="font-semibold text-lg text-slate-700 mb-3 border-b pb-2">Uang Buku per Anggota</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-100">
-              <tr>
-                <th className="text-left p-2">Nama</th>
-                <th className="text-left p-2">NBA</th>
-                <th className="text-right p-2">Uang Buku</th>
-              </tr>
-            </thead>
-            <tbody>
-              {anggotaWithUangBuku.length === 0 ? (
-                <tr><td colSpan={3} className="text-center p-4 text-slate-500">Belum ada anggota dengan uang buku</td></tr>
-              ) : (
-                anggotaWithUangBuku
-                  .slice((currentPageUangBuku - 1) * itemsPerPage, currentPageUangBuku * itemsPerPage)
-                  .map(a => (
-                    <tr key={a.id} className="border-b hover:bg-slate-50">
-                      <td className="p-2 font-medium">{a.nama}</td>
-                      <td className="p-2">{a.nomorNBA || '-'}</td>
-                      <td className="p-2 text-right">{formatRupiah(a.uangBuku)}</td>
-                    </tr>
-                  ))
-              )}
-            </tbody>
-          </table>
-          {anggotaWithUangBuku.length > itemsPerPage && (
-            <div className="flex justify-center items-center gap-2 p-3 border-t">
-              <button
-                onClick={() => setCurrentPageUangBuku(p => Math.max(1, p - 1))}
-                disabled={currentPageUangBuku === 1}
-                className="px-2 py-1 rounded border bg-white text-sm disabled:opacity-50"
-              >
-                &lt;
-              </button>
-              <span className="text-xs text-slate-600">
-                {currentPageUangBuku} / {Math.ceil(anggotaWithUangBuku.length / itemsPerPage)}
-              </span>
-              <button
-                onClick={() => setCurrentPageUangBuku(p => Math.min(Math.ceil(anggotaWithUangBuku.length / itemsPerPage), p + 1))}
-                disabled={currentPageUangBuku >= Math.ceil(anggotaWithUangBuku.length / itemsPerPage)}
                 className="px-2 py-1 rounded border bg-white text-sm disabled:opacity-50"
               >
                 &gt;
