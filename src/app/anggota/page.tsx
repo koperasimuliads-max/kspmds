@@ -311,7 +311,19 @@ export default function AnggotaPage() {
     const ag = anggota.find(a => a.id === id);
     if (!ag) return;
     
-    const today = new Date().toISOString().split('T')[0];
+    const defaultDate = new Date().toISOString().split('T')[0];
+    const tanggalKeluar = prompt('Masukkan tanggal keluar anggota (format: YYYY-MM-DD):', defaultDate);
+    
+    if (!tanggalKeluar) return; // User cancelled
+    
+    // Validate date format
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(tanggalKeluar)) {
+      alert('Format tanggal salah! Gunakan format: YYYY-MM-DD (contoh: 2024-01-15)');
+      return;
+    }
+    
+    const today = tanggalKeluar;
     
     // Cek pinjaman aktif
     const pinjamanAktif = pinjamans.filter(p => p.anggotaId === id && p.status === 'aktif');
