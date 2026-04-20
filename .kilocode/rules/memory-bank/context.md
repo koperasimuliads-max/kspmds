@@ -29,6 +29,7 @@ Building a KSP (Kredit Simpanan Pinjaman) financial management application calle
 - [x] Added BackButton component for navigation back to previous page
 - [x] Added comprehensive anggota keluar flow: check active loans, show summary, auto-withdraw savings, add pendapatan administrasi (Rp 50.000)
 - [x] Fixed date formatting - created formatDate utility to properly display dates in dd/mm/yyyy format without timezone issues
+- [x] Added search column for anggota in simpanan page - search by NBA or nama
 
 ## Current Focus
 
