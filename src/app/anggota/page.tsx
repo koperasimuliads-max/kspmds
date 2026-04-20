@@ -1089,7 +1089,7 @@ export default function AnggotaPage() {
                 <th className="text-left p-2">Status</th>
                 <th className="text-left p-2">Tgl Keluar</th>
                 <th className="text-left p-2">Pekerjaan</th>
-                <th className="text-center p-2 no-print">Aksi</th>
+                <th className="text-center p-2 min-w-[120px] no-print">Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -1110,11 +1110,11 @@ export default function AnggotaPage() {
                       <td className="p-2 text-slate-500">{a.tanggalKeluar ? new Date(a.tanggalKeluar).toLocaleDateString('id-ID') : '-'}</td>
                       <td className="p-2">{a.pekerjaan ? getLabel(pekerjaanOptions, a.pekerjaan) : '-'}</td>
                       <td className="p-2 text-center no-print">
-                        <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-1">Edit</button>
+                        <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-1 text-sm">Edit</button>
                         {a.status === 'aktif' && (
-                          <button onClick={() => handleKeluar(a.id)} className="text-orange-600 hover:underline mr-1">Keluar</button>
+                          <button onClick={() => handleKeluar(a.id)} className="bg-orange-500 text-white px-2 py-1 rounded text-sm hover:bg-orange-600 mr-1">Keluar</button>
                         )}
-                        <button onClick={() => handleDelete(a.id)} className="text-red-600 hover:underline">Hapus</button>
+                        <button onClick={() => handleDelete(a.id)} className="text-red-600 hover:underline text-sm">Hapus</button>
                       </td>
                     </tr>
                   ))}
