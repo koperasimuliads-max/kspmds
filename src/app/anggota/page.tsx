@@ -175,6 +175,13 @@ export default function AnggotaPage() {
     tanggalKeluar: '',
     alasan: '',
   });
+  const [showEditTanggalKeluarModal, setShowEditTanggalKeluarModal] = useState(false);
+  const [editTanggalKeluarData, setEditTanggalKeluarData] = useState({
+    anggotaId: '',
+    nama: '',
+    tanggalKeluarLama: '',
+    tanggalKeluarBaru: '',
+  });
   
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
   
@@ -401,6 +408,41 @@ export default function AnggotaPage() {
     
     setShowKeluarModal(false);
     alert(`✅ ANGGOTA KELAR!\n\n"${ag.nama}" telah keluar.\n\nAlasan: ${keluarData.alasan}\nTanggal: ${keluarData.tanggalKeluar}\n\nBiaya Admin: Rp ${BIAYA_ADMINISTRASI.toLocaleString('id-ID')}`);
+  };
+
+  const openEditTanggalKeluar = (id: string) => {
+    const ag = anggota.find(a => a.id === id);
+    if (!ag || !ag.tanggalKeluar) return;
+    
+    const tgl = ag.tanggalKeluar;
+    const parts = tgl.split('-');
+    const tanggalFormatted = `${parts[2]}-${parts[1]}-${parts[0]}`;
+    
+    setEditTanggalKeluarData({
+      anggotaId: id,
+      nama: ag.nama,
+      tanggalKeluarLama: tanggalFormatted,
+      tanggalKeluarBaru: tanggalFormatted,
+    });
+    setShowEditTanggalKeluarModal(true);
+  };
+
+  const handleEditTanggalKeluar = () => {
+    if (!editTanggalKeluarData.tanggalKeluarBaru) {
+      alert('Mohon masukkan tanggal keluar baru!');
+      return;
+    }
+    
+    // Convert dd-mm-yyyy to yyyy-mm-dd
+    const parts = editTanggalKeluarData.tanggalKeluarBaru.split('-');
+    const tanggalBaru = `${parts[2]}-${parts[1]}-${parts[0]}`;
+    
+    updateAnggota(editTanggalKeluarData.anggotaId, {
+      tanggalKeluar: tanggalBaru,
+    });
+    
+    setShowEditTanggalKeluarModal(false);
+    alert(`✅ Tanggal keluar berhasil diperbarui!\n\nAnggota: ${editTanggalKeluarData.nama}\nTanggal Baru: ${editTanggalKeluarData.tanggalKeluarBaru}`);
   };
 
   // Placeholder for original handleKeluar - now replaced by modal
@@ -1096,10 +1138,50 @@ export default function AnggotaPage() {
                   </div>
                 </>
               )}
-            </div>
+</div>
           </div>
         );
-      })()}
+      })}
+
+      {showEditTanggalKeluarModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+            <h2 className="font-bold text-xl mb-4 text-orange-600">Edit Tanggal Keluar</h2>
+            
+            <div className="bg-slate-50 p-4 rounded-lg mb-4">
+              <p className="font-medium">{editTanggalKeluarData.nama}</p>
+              <p className="text-sm text-slate-500">Tanggal Lama: {editTanggalKeluarData.tanggalKeluarLama}</p>
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-700 mb-2">Tanggal Keluar Baru</label>
+              <input
+                type="text"
+                value={editTanggalKeluarData.tanggalKeluarBaru}
+                onChange={e => setEditTanggalKeluarData({ ...editTanggalKeluarData, tanggalKeluarBaru: e.target.value })}
+                placeholder="dd-mm-yyyy"
+                className="border p-2 rounded w-full"
+              />
+              <p className="text-xs text-slate-500 mt-1">Format: dd-mm-yyyy (contoh: 15-03-2024)</p>
+            </div>
+            
+            <div className="flex gap-2">
+              <button
+                onClick={handleEditTanggalKeluar}
+                className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 flex-1"
+              >
+                Simpan
+              </button>
+              <button
+                onClick={() => setShowEditTanggalKeluarModal(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showBulkUpdate && (
         <div className="bg-white p-4 rounded-lg shadow mb-4 border-l-4 border-purple-500">
@@ -1325,7 +1407,20 @@ export default function AnggotaPage() {
                       <td className="p-2">{a.jenisKelamin === 'L' ? 'L' : 'P'}</td>
                       <td className="p-2 text-xs">{a.tempatLahir ? `${a.tempatLahir}, ${a.tanggalLahir ? new Date(a.tanggalLahir).toLocaleDateString('id-ID') : '-'}` : '-'}</td>
                       <td className="p-2"><span className={`px-2 py-1 rounded text-xs ${a.status === 'aktif' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{a.status}</span></td>
-                      <td className="p-2 text-slate-500">{a.tanggalKeluar ? new Date(a.tanggalKeluar).toLocaleDateString('id-ID') : '-'}</td>
+                      <td className="p-2">
+                        <span className="text-slate-500">
+                          {a.tanggalKeluar ? new Date(a.tanggalKeluar).toLocaleDateString('id-ID') : '-'}
+                        </span>
+                        {a.status === 'nonaktif' && a.tanggalKeluar && (
+                          <button 
+                            onClick={() => openEditTanggalKeluar(a.id)} 
+                            className="ml-2 text-orange-500 hover:text-orange-700 text-xs"
+                            title="Edit Tanggal Keluar"
+                          >
+                            ✏️
+                          </button>
+                        )}
+                      </td>
                       <td className="p-2">{a.pekerjaan ? getLabel(pekerjaanOptions, a.pekerjaan) : '-'}</td>
                       <td className="p-2 text-center no-print">
                         <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-1 text-sm">Edit</button>
