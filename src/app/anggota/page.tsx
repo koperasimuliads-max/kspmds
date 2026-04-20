@@ -624,6 +624,21 @@ export default function AnggotaPage() {
           >
             🖨️ Cetak
           </button>
+          <select
+            onChange={e => {
+              if (e.target.value) {
+                openKeluarModal(e.target.value);
+                e.target.value = '';
+              }
+            }}
+            className="border p-2 rounded bg-red-50 text-red-600 font-medium"
+            defaultValue=""
+          >
+            <option value="" disabled>🚪 Keluar Anggota</option>
+            {anggota.filter(a => a.status === 'aktif').map(a => (
+              <option key={a.id} value={a.id}>{a.nama} ({a.nomorNBA || 'N/A'})</option>
+            ))}
+          </select>
         </div>
       </div>
 
