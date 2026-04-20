@@ -341,20 +341,29 @@ export default function AnggotaPage() {
   };
 
   const openKeluarModal = (id: string) => {
-    const ag = anggota.find(a => a.id === id);
-    if (!ag) return;
-    
-    const today = new Date();
-    const dd = String(today.getDate()).padStart(2, '0');
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const yyyy = today.getFullYear();
-    
-    setKeluarData({
-      anggotaId: id,
-      tanggalKeluar: `${dd}-${mm}-${yyyy}`,
-      alasan: '',
-    });
-    setShowKeluarModal(true);
+    try {
+      const ag = anggota.find(a => a.id === id);
+      if (!ag) {
+        console.log('Anggota tidak ditemukan:', id);
+        alert('Anggota tidak ditemukan');
+        return;
+      }
+      
+      const today = new Date();
+      const dd = String(today.getDate()).padStart(2, '0');
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const yyyy = today.getFullYear();
+      
+      setKeluarData({
+        anggotaId: id,
+        tanggalKeluar: `${dd}-${mm}-${yyyy}`,
+        alasan: '',
+      });
+      setShowKeluarModal(true);
+    } catch (err) {
+      console.error('Error opening keluar modal:', err);
+      alert('Terjadi kesalahan saat membuka modal');
+    }
   };
 
   const handleKeluarSubmit = () => {
