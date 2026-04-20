@@ -70,7 +70,6 @@ export default function SimpananPage() {
   const [importing, setImporting] = useState(false);
   const [importJenis, setImportJenis] = useState<string>('wajib');
   const [showImportModal, setShowImportModal] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'anggota'>('list');
   const [currentPageAnggota, setCurrentPageAnggota] = useState(1);
 
   const currentYear = new Date().getFullYear();
@@ -484,20 +483,6 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
           >
             🗑️ Hapus SBH
           </button>
-          <div className="ml-auto flex gap-2">
-            <button
-              onClick={() => setViewMode('list')}
-              className={`px-3 py-2 rounded text-sm ${viewMode === 'list' ? 'bg-slate-700 text-white' : 'bg-white border'}`}
-            >
-              📋 Daftar
-            </button>
-            <button
-              onClick={() => setViewMode('anggota')}
-              className={`px-3 py-2 rounded text-sm ${viewMode === 'anggota' ? 'bg-slate-700 text-white' : 'bg-white border'}`}
-            >
-              👤 per Anggota
-            </button>
-          </div>
         </div>
 
       {showForm && (
@@ -659,7 +644,6 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
         </div>
       )}
 
-      {viewMode === 'list' && (
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-slate-100">
@@ -752,7 +736,6 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
           </div>
         )}
       </div>
-      )}
     </div>
   );
 }
