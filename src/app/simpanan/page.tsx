@@ -33,7 +33,7 @@ function formatDate(dateStr: string) {
 const jenisSimpananOptions = [
   { value: 'pokok', label: 'SP - Simpanan Pokok', bunga: 0 },
   { value: 'wajib', label: 'SW - Simpanan Wajib', bunga: 0 },
-  { value: 'sibuhar', label: 'Sibuhar - Masa Depan (3%)', bunga: 3, tenor: 12 },
+  { value: 'sibuhar', label: 'SBH - Simpanan Bunga Harian (3%)', bunga: 3, tenor: 12 },
   { value: 'simapan', label: 'Simapan - Masa Depan (5%)', bunga: 5, tenor: 12, tenorMax: 120 },
   { value: 'sihat', label: 'Sihat - Hari Tua (6%)', bunga: 6, tenor: 12, tenorMax: 180 },
   { value: 'sihar', label: 'Sihar - Hari Raya', bunga: 0, tenor: 12 },
@@ -397,7 +397,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
             </div>
             <div className="mb-4">
               <p className="text-sm text-slate-600 mb-2">
-                {importJenis === 'sibuhar' ? 'Format Kolom Excel Sibuhar:' : 'Format Kolom Excel:'}
+                {importJenis === 'sibuhar' ? 'Format Kolom Excel Simpanan Bunga Harian:' : 'Format Kolom Excel:'}
               </p>
               <ul className="text-xs text-slate-500 space-y-1 bg-slate-50 p-2 rounded">
                 {importJenis === 'sibuhar' ? (
@@ -475,14 +475,14 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
           <button
             onClick={() => {
               const count = simpanans.filter(s => s.jenis === 'sibuhar').length;
-              if (confirm(`Hapus semua ${count} data Sibuhar?`)) {
+              if (confirm(`Hapus semua ${count} data Simpanan Bunga Harian?`)) {
                 deleteAllSimpananByJenis('sibuhar');
-                alert(`${count} data Sibuhar telah dihapus!`);
+                alert(`${count} data Simpanan Bunga Harian telah dihapus!`);
               }
             }}
             className="px-3 py-2 rounded text-sm bg-red-500 text-white hover:bg-red-600"
           >
-            🗑️ Hapus Sibuhar
+            🗑️ Hapus SBH
           </button>
           <div className="ml-auto flex gap-2">
             <button
@@ -589,7 +589,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
                   <th className="text-left p-3 border-b min-w-[150px]">Nama Anggota</th>
                   <th className="text-right p-3 border-b min-w-[120px]">Pokok</th>
                   <th className="text-right p-3 border-b min-w-[120px]">Wajib</th>
-                  <th className="text-right p-3 border-b min-w-[120px]">Sibuhar</th>
+                  <th className="text-right p-3 border-b min-w-[120px]">SBH</th>
                   <th className="text-right p-3 border-b min-w-[120px]">Simapan</th>
                   <th className="text-right p-3 border-b min-w-[120px]">Sihat</th>
                   <th className="text-right p-3 border-b min-w-[120px]">Sihar</th>
