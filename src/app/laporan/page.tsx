@@ -102,7 +102,7 @@ function LaporanContent() {
   const asetLain = 0;
 
   // ===== LIABILITAS =====
-  // Simpanan Sukarela (Sibuhar, Simapan, Sihat, Sihar) - KEWAJIBAN
+  // Simpanan Sukarela (SBH, Simapan, Sihat, Sihar) - KEWAJIBAN
   const simpananSukarela = simpanans
     .filter(s => s.status === 'aktif' && ['sibuhar', 'simapan', 'sihat', 'sihar'].includes(s.jenis) && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
     .reduce((sum, s) => sum + s.jumlah, 0);
@@ -112,8 +112,8 @@ function LaporanContent() {
   const liabilitasLain = 0;
   
   // Utang Bunga (bunga yang harus dibayar - metode akrual)
-  const utangBungaSibuhar = Math.round(simpananSukarela * 0.03 / 12);
-  const utangBunga = utangBungaSibuhar;
+  const utangBungaSBH = Math.round(simpananSukarela * 0.03 / 12);
+  const utangBunga = utangBungaSBH;
 
   // ===== EKUITAS =====
   // Simpanan Pokok - MODAL
@@ -515,15 +515,15 @@ function LaporanContent() {
                     <td className="p-2 text-slate-500">Kewajiban</td>
                     <td className="p-2 text-right font-medium">{formatRupiah(simpananSukarela)}</td>
                   </tr>
-                  <tr className="border-b">
+<tr className="border-b">
                     <td className="p-2 pl-8">II.2.2.1</td>
-                    <td className="p-2">- Simpanan Harian (Sibuhar)</td>
+                    <td className="p-2">- Simpanan Bunga Harian (SBH)</td>
                     <td className="p-2 text-slate-500">Kewajiban</td>
                     <td className="p-2 text-right">{formatRupiah(simpananSukarela)}</td>
-</tr>
+                  </tr>
                   <tr className="border-b">
                     <td className="p-2 pl-8">II.2.2.1</td>
-                    <td className="p-2">- Simpanan Berjangka (Sibuhar/Sisujang)</td>
+                    <td className="p-2">- Simpanan Berjangka (Simapan)</td>
                     <td className="p-2 text-slate-500">Kewajiban</td>
                     <td className="p-2 text-right">{formatRupiah(simpananSukarela)}</td>
                   </tr>
@@ -768,7 +768,7 @@ function LaporanContent() {
                 <tbody>
                   <tr className="border-b">
                     <td className="p-2 pl-4">V.1.1</td>
-                    <td className="p-2">Beban Bunga Simpanan Harian (Sibuhar)</td>
+                    <td className="p-2">Beban Bunga Simpanan Bunga Harian (SBH)</td>
                     <td className="p-2 text-slate-500">Biaya Bunga</td>
                     <td className="p-2 text-right">{formatRupiah(bebanBungaSimpananHarian)}</td>
                   </tr>

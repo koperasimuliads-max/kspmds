@@ -67,14 +67,14 @@ export default function AutodebitPage() {
       const totalTagihan = totalBunga + wajibBulanan;
       
       if (simpananHarian < totalTagihan) {
-        throw new Error('Saldo Sibuhar tidak mencukupi');
+        throw new Error('Saldo SBH tidak mencukupi');
       }
 
-      // 1. Potong Sibuhar (mengurangi liabilitas)
-      const sibuharSimpanan = agSimpanans.find(s => s.jenis === 'sibuhar');
-      if (sibuharSimpanan) {
-        updateSimpanan(sibuharSimpanan.id, {
-          jumlah: sibuharSimpanan.jumlah - totalTagihan
+      // 1. Potong SBH (mengurangi liabilitas)
+      const sbhSimpanan = agSimpanans.find(s => s.jenis === 'sibuhar');
+      if (sbhSimpanan) {
+        updateSimpanan(sbhSimpanan.id, {
+          jumlah: sbhSimpanan.jumlah - totalTagihan
         });
       }
 
@@ -165,7 +165,7 @@ export default function AutodebitPage() {
               <th className="text-right p-3">Bunga/Bulan</th>
               <th className="text-right p-3">Wajib/Bulan</th>
               <th className="text-right p-3">Total Tagihan</th>
-              <th className="text-right p-3">Sibuhar Tersedia</th>
+              <th className="text-right p-3">SBH Tersedia</th>
               <th className="text-center p-3">Aksi</th>
             </tr>
           </thead>
@@ -222,8 +222,8 @@ export default function AutodebitPage() {
         <h3 className="font-bold text-blue-800 mb-2">ℹ️ Cara Kerja Autodebit:</h3>
         <ul className="text-sm text-blue-700 space-y-1">
           <li>1. Sistem mengambil tagihan bunga pinjaman + simpanan wajib per bulan</li>
-          <li>2. Cek saldo Sibuhar (simpanan harian) anggota</li>
-          <li>3. Jika saldo cukup → potong Sibuhar, catat wajib, catat pendapatan bunga</li>
+<li>2. Cek saldo SBH (simpanan bunga harian) anggota</li>
+            <li>3. Jika saldo cukup → potong SBH, catat wajib, catat pendapatan bunga</li>
           <li>4. Semua laporan (Neraca, SHU) otomatis terupdate</li>
           <li>5. Jika saldo tidak cukup → tidak bisa autodebit</li>
         </ul>

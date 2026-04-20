@@ -268,7 +268,7 @@ export default function Dashboard() {
                   'Tanggal Join': ag.tanggalJoin || '',
                   'Simpanan Pokok': agSimpanans.filter(s => s.jenis === 'pokok').reduce((sum, s) => sum + s.jumlah, 0),
                   'Simpanan Wajib': agSimpanans.filter(s => s.jenis === 'wajib').reduce((sum, s) => sum + s.jumlah, 0),
-                  'Sibuhar': agSimpanans.filter(s => s.jenis === 'sibuhar').reduce((sum, s) => sum + s.jumlah, 0),
+                  'SBH - Simpanan Bunga Harian': agSimpanans.filter(s => s.jenis === 'sibuhar').reduce((sum, s) => sum + s.jumlah, 0),
                   'Simapan': agSimpanans.filter(s => s.jenis === 'simapan').reduce((sum, s) => sum + s.jumlah, 0),
                   'Sihat': agSimpanans.filter(s => s.jenis === 'sihat').reduce((sum, s) => sum + s.jumlah, 0),
                   'Sihar': agSimpanans.filter(s => s.jenis === 'sihar').reduce((sum, s) => sum + s.jumlah, 0),
@@ -342,7 +342,7 @@ export default function Dashboard() {
             {[
               { label: 'Simpanan Wajib', value: simpananWajib, color: 'bg-yellow-500' },
               { label: 'Simpanan Pokok', value: simpananPokok, color: 'bg-teal-500' },
-              { label: 'Sibuhar', value: simpananSibuhar, color: 'bg-blue-500' },
+              { label: 'SBH - Simpanan Bunga Harian', value: simpananSibuhar, color: 'bg-blue-500' },
               { label: 'Simapan', value: simpananSimapan, color: 'bg-purple-500' },
               { label: 'Sihat', value: simpananSihat, color: 'bg-indigo-500' },
               { label: 'Sihar', value: simpananSihar, color: 'bg-pink-500' },
