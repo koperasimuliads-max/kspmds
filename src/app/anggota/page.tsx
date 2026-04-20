@@ -214,53 +214,12 @@ export default function AnggotaPage() {
 
   useEffect(() => {
     const syncDataToTables = () => {
-      const existingPokok = new Set(simpanans.filter(s => s.jenis === 'pokok').map(s => s.anggotaId));
-      const existingWajib = new Set(simpanans.filter(s => s.jenis === 'wajib').map(s => s.anggotaId));
-      const existingUangBuku = new Set(pendapatans.filter(p => p.jenis === 'uang_buku').map(p => p.deskripsi));
-      
-      let countSimpanan = 0;
-      let countPendapatan = 0;
-      
-      anggota.forEach(a => {
-        if (a.simpananPokok > 0 && !existingPokok.has(a.id)) {
-          addSimpanan({
-            anggotaId: a.id,
-            jenis: 'pokok',
-            jumlah: a.simpananPokok,
-            tanggalSimpan: a.tanggalJoin || '2024-01-01',
-            status: 'aktif',
-          });
-          countSimpanan++;
-        }
-        if (a.simpananWajib > 0 && !existingWajib.has(a.id)) {
-          addSimpanan({
-            anggotaId: a.id,
-            jenis: 'wajib',
-            jumlah: a.simpananWajib,
-            tanggalSimpan: a.tanggalJoin || '2024-01-01',
-            status: 'aktif',
-          });
-          countSimpanan++;
-        }
-        const uangBukuDeskripsi = `Uang Buku - ${a.nama}`;
-        if (a.uangBuku > 0 && !existingUangBuku.has(uangBukuDeskripsi)) {
-          addPendapatan({
-            jenis: 'uang_buku',
-            deskripsi: uangBukuDeskripsi,
-            jumlah: a.uangBuku,
-            tanggal: a.tanggalJoin || '2024-01-01',
-          });
-          countPendapatan++;
-        }
-      });
-      
-      if (countSimpanan > 0 || countPendapatan > 0) {
-        alert(`Data disinkronkan:\n- Simpanan ditambahkan: ${countSimpanan}\n- Pendapatan uang buku ditambahkan: ${countPendapatan}`);
-      }
+      // Auto-sync simpanan pokok, wajib, dan uang buku dinonaktifkan
+      // Sekarang import simpanan dilakukan secara manual
     };
     
     if (anggota.length > 0 && isHydrated) {
-      setTimeout(syncDataToTables, 500);
+      // setTimeout(syncDataToTables, 500);
     }
   }, [anggota, simpanans, pendapatans, isHydrated, addSimpanan, addPendapatan]);
 
@@ -311,38 +270,15 @@ export default function AnggotaPage() {
     const dataToSubmit = {
       ...formData,
       alamatDomisili: alamatSamaKTP ? formData.alamat : formData.alamatDomisili,
-      simpananPokok: 100000,
-      simpananWajib: 25000,
-      uangBuku: 25000,
+      simpananPokok: formData.simpananPokok,
+      simpananWajib: formData.simpananWajib,
+      uangBuku: formData.uangBuku,
     };
     if (editingId) {
       updateAnggota(editingId, dataToSubmit);
       setEditingId(null);
     } else {
-      const newId = generateId();
-      const newAnggota = { ...dataToSubmit, id: newId };
-      addAnggota(newAnggota);
-      
-      addSimpanan({
-        anggotaId: newId,
-        jenis: 'pokok',
-        jumlah: 100000,
-        tanggalSimpan: formData.tanggalJoin,
-        status: 'aktif',
-      });
-      addSimpanan({
-        anggotaId: newId,
-        jenis: 'wajib',
-        jumlah: 25000,
-        tanggalSimpan: formData.tanggalJoin,
-        status: 'aktif',
-      });
-      addPendapatan({
-        jenis: 'uang_buku',
-        deskripsi: `Uang Buku - ${formData.nama}`,
-        jumlah: 25000,
-        tanggal: formData.tanggalJoin,
-      });
+      addAnggota(dataToSubmit);
     }
     resetForm();
   };
