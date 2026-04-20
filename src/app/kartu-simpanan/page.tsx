@@ -174,15 +174,18 @@ export default function KartuSimpananPage() {
           {/* Signature */}
           <div className="mt-8 grid grid-cols-3 gap-4 print:break-before-page">
             <div className="text-center">
-              <p className="text-sm mb-4">Admin/Kasir</p>
+              <p className="text-sm mb-1">Admin/Kasir</p>
+              <div className="h-12"></div>
               <p className="text-slate-500">Erni Sembiring</p>
             </div>
             <div className="text-center">
-              <p className="text-sm mb-4">Manager</p>
+              <p className="text-sm mb-1">Manager</p>
+              <div className="h-12"></div>
               <p className="text-slate-500">Marwan Esra Bangun</p>
             </div>
             <div className="text-center">
-              <p className="text-sm mb-4">Anggota</p>
+              <p className="text-sm mb-1">Anggota</p>
+              <div className="h-12"></div>
               <p className="border-t border-black inline-block px-8">{selectedAnggota.nama}</p>
             </div>
           </div>
