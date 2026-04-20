@@ -183,8 +183,28 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
       json.forEach((row, index) => {
         const rowNum = index + 2;
-        const noNBA = String(row['No. NBA'] || row['noNBA'] || row['NBA'] || '').trim();
-        const nama = String(row['Nama Anggota'] || row['nama'] || '').trim();
+        
+        // Get NBA - handle various column name formats
+        const noNBA = String(
+          row['No. NBA'] || 
+          row['noNBA'] || 
+          row['NBA'] || 
+          row['No NBA'] || 
+          row['No.'] || 
+          row['no'] || 
+          ''
+        ).trim();
+        
+        // Get Nama Anggota - handle various column name formats
+        const nama = String(
+          row['Nama Anggota'] || 
+          row['nama'] || 
+          row['Nama'] || 
+          row['Nama Lengkap'] || 
+          row['nama_lengkap'] || 
+          ''
+        ).trim();
+        
         const jumlah = Number(row['Nilai Simpanan'] || row['Jumlah Transaksi'] || row['jumlah'] || row['Jumlah'] || 0);
         const tanggalStr = String(row['Tanggal Transaksi'] || row['Tanggal'] || row['tanggal'] || '').trim();
         
