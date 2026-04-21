@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useKSP } from '@/context/KSPContext';
-import { formatDate } from '@/utils/dateUtils';
+import { formatDate, parseDate } from '@/utils/dateUtils';
 import BackButton from '@/components/BackButton';
 
 function formatRupiah(amount: number): string {
@@ -25,7 +25,8 @@ export default function KartuSimpananPage() {
         uraian: `Setoran ${s.jenis}`,
         debet: s.jumlah,
         kredit: 0,
-        jenis: 'simpanan'
+        jenis: 'simpanan',
+        originalDate: s.tanggalSimpan
       }));
     
     const transaksiRecords = transactions
@@ -35,11 +36,19 @@ export default function KartuSimpananPage() {
         uraian: t.deskripsi,
         debet: t.jenis === 'simpanan' ? t.jumlah : 0,
         kredit: t.jenis === 'penarikan' || t.jenis === 'pinjaman' ? t.jumlah : 0,
-        jenis: t.jenis
+        jenis: t.jenis,
+        originalDate: t.tanggal
       }));
 
     return [...simpananRecords, ...transaksiRecords]
-      .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime());
+      .sort((a, b) => {
+        const dateA = parseDate(a.tanggal);
+        const dateB = parseDate(b.tanggal);
+        if (!dateA && !dateB) return 0;
+        if (!dateA) return 1;
+        if (!dateB) return -1;
+        return dateB.getTime() - dateA.getTime();
+      });
   }, [selectedAnggotaId, simpanans, transactions]);
 
   const totalSaldo = useMemo(() => {
