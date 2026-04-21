@@ -302,7 +302,10 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
   useEffect(() => {
     const hasWrongDate = simpanans.some(s => {
       const ag = anggota.find(a => a.id === s.anggotaId);
-      return ag && ag.tanggalJoin && s.tanggalSimpan !== ag.tanggalJoin && (s.jenis === 'pokok' || s.jenis === 'wajib');
+      if (!ag || !ag.tanggalJoin) return false;
+      // Only fix if date is clearly invalid (default 2024-01-01) AND should match join date
+      const isDefaultDate = s.tanggalSimpan === '2024-01-01' || s.tanggalSimpan.startsWith('2024-01-01');
+      return isDefaultDate && (s.jenis === 'pokok' || s.jenis === 'wajib');
     });
     if (hasWrongDate) {
       fixSimpananTanggal();
