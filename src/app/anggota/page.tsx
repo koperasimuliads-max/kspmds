@@ -636,6 +636,7 @@ export default function AnggotaPage() {
           <select
             onChange={e => {
               if (e.target.value) {
+                console.log('Dropdown Keluar dipilih:', e.target.value);
                 openKeluarModal(e.target.value);
                 e.target.value = '';
               }
@@ -1450,7 +1451,10 @@ export default function AnggotaPage() {
                       <td className="p-2 text-center no-print">
                         <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-1 text-sm">Edit</button>
                         {a.status === 'aktif' && (
-                          <button onClick={() => openKeluarModal(a.id)} className="bg-orange-500 text-white px-2 py-1 rounded text-sm hover:bg-orange-600 mr-1">Keluar</button>
+                          <button onClick={() => {
+                            console.log('Tombol Keluar diklik untuk:', a.id, a.nama);
+                            openKeluarModal(a.id);
+                          }} className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600 mr-1">Keluar</button>
                         )}
                         <button onClick={() => handleDelete(a.id)} className="text-red-600 hover:underline text-sm">Hapus</button>
                       </td>
