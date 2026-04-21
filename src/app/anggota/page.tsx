@@ -1064,9 +1064,8 @@ export default function AnggotaPage() {
         </div>
       )}
 
-      {showKeluarModal && (() => {
-        const ag = anggota.find(a => a.id === keluarData.anggotaId);
-        if (!ag) return null;
+      {showKeluarModal && anggota.find(a => a.id === keluarData.anggotaId) ? (() => {
+        const ag = anggota.find(a => a.id === keluarData.anggotaId)!;
         
         const simpananAktif = simpanans.filter(s => s.anggotaId === ag.id && s.status === 'aktif');
         const simpananPokok = simpananAktif.filter(s => s.jenis === 'pokok').reduce((sum, s) => sum + s.jumlah, 0);
@@ -1079,90 +1078,86 @@ export default function AnggotaPage() {
         const BIAYA_ADMINISTRASI = 50000;
         
         return (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
             <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
               <h2 className="font-bold text-xl mb-4 text-orange-600">Keluar Anggota</h2>
               
-              {ag && (
-                <>
-                  <div className="bg-slate-50 p-4 rounded-lg mb-4">
-                    <h3 className="font-semibold mb-2">{ag.nama}</h3>
-                    <p className="text-sm text-slate-500">NBA: {ag.nomorNBA || '-'} | Tanggal Masuk: {formatDate(ag.tanggalJoin)}</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Tanggal Keluar</label>
-                      <input
-                        type="text"
-                        value={keluarData.tanggalKeluar}
-                        onChange={e => setKeluarData({ ...keluarData, tanggalKeluar: e.target.value })}
-                        placeholder="dd-mm-yyyy"
-                        className="border p-2 rounded w-full"
-                      />
-                      <p className="text-xs text-slate-500 mt-1">Format: dd-mm-yyyy (contoh: 15-03-2024)</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Alasan Keluar</label>
-                      <select
-                        value={keluarData.alasan}
-                        onChange={e => setKeluarData({ ...keluarData, alasan: e.target.value })}
-                        className="border p-2 rounded w-full"
-                      >
-                        <option value="">Pilih Alasan</option>
-                        {alasanKeluarOptions.map(o => (
-                          <option key={o.value} value={o.label}>{o.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-yellow-50 p-4 rounded-lg mb-4">
-                    <h4 className="font-semibold mb-2 text-yellow-800">💰 Ringkasan Simpanan</h4>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>Simpanan Pokok:</div>
-                      <div className="text-right font-medium">{formatRupiah(simpananPokok)}</div>
-                      <div>Simpanan Wajib:</div>
-                      <div className="text-right font-medium">{formatRupiah(simpananWajib)}</div>
-                      <div>SBH (Bunga Harian):</div>
-                      <div className="text-right font-medium">{formatRupiah(simpananSibuhar)}</div>
-                      <div>Simapan:</div>
-                      <div className="text-right font-medium">{formatRupiah(simpananSimapan)}</div>
-                      <div>Sihat:</div>
-                      <div className="text-right font-medium">{formatRupiah(simpananSihat)}</div>
-                      <div>Sihar:</div>
-                      <div className="text-right font-medium">{formatRupiah(simpananSihar)}</div>
-                      <div className="border-t pt-2 font-bold">TOTAL:</div>
-                      <div className="text-right font-bold border-t pt-2">{formatRupiah(totalSimpanan)}</div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-red-50 p-4 rounded-lg mb-4">
-                    <h4 className="font-semibold mb-2 text-red-800">📝 Biaya ADMINISTRASI</h4>
-                    <div className="text-right font-bold text-red-600">{formatRupiah(BIAYA_ADMINISTRASI)}</div>
-                    <p className="text-xs text-slate-500 mt-1">*) Akan menjadi pendapatan Koperasi</p>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleKeluarSubmit}
-                      className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 flex-1"
-                    >
-                      Simpan & Keluarkan
-                    </button>
-                    <button
-                      onClick={() => setShowKeluarModal(false)}
-                      className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-                    >
-                      Batal
-                    </button>
-                  </div>
-                </>
-              )}
-</div>
+              <div className="bg-slate-50 p-4 rounded-lg mb-4">
+                <h3 className="font-semibold mb-2">{ag.nama}</h3>
+                <p className="text-sm text-slate-500">NBA: {ag.nomorNBA || '-'} | Tanggal Masuk: {formatDate(ag.tanggalJoin)}</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Tanggal Keluar</label>
+                  <input
+                    type="text"
+                    value={keluarData.tanggalKeluar}
+                    onChange={e => setKeluarData({ ...keluarData, tanggalKeluar: e.target.value })}
+                    placeholder="dd-mm-yyyy"
+                    className="border p-2 rounded w-full"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">Format: dd-mm-yyyy</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Alasan Keluar</label>
+                  <select
+                    value={keluarData.alasan}
+                    onChange={e => setKeluarData({ ...keluarData, alasan: e.target.value })}
+                    className="border p-2 rounded w-full"
+                  >
+                    <option value="">Pilih Alasan</option>
+                    {alasanKeluarOptions.map(o => (
+                      <option key={o.value} value={o.label}>{o.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              
+              <div className="bg-yellow-50 p-4 rounded-lg mb-4">
+                <h4 className="font-semibold mb-2 text-yellow-800">Ringkasan Simpanan</h4>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>Simpanan Pokok:</div>
+                  <div className="text-right font-medium">{formatRupiah(simpananPokok)}</div>
+                  <div>Simpanan Wajib:</div>
+                  <div className="text-right font-medium">{formatRupiah(simpananWajib)}</div>
+                  <div>SBH:</div>
+                  <div className="text-right font-medium">{formatRupiah(simpananSibuhar)}</div>
+                  <div>Simapan:</div>
+                  <div className="text-right font-medium">{formatRupiah(simpananSimapan)}</div>
+                  <div>Sihat:</div>
+                  <div className="text-right font-medium">{formatRupiah(simpananSihat)}</div>
+                  <div>Sihar:</div>
+                  <div className="text-right font-medium">{formatRupiah(simpananSihar)}</div>
+                  <div className="border-t pt-2 font-bold">TOTAL:</div>
+                  <div className="text-right font-bold border-t pt-2">{formatRupiah(totalSimpanan)}</div>
+                </div>
+              </div>
+              
+              <div className="bg-red-50 p-4 rounded-lg mb-4">
+                <h4 className="font-semibold mb-2 text-red-800">Biaya ADMINISTRASI</h4>
+                <div className="text-right font-bold text-red-600">{formatRupiah(BIAYA_ADMINISTRASI)}</div>
+                <p className="text-xs text-slate-500 mt-1">*) Akan menjadi pendapatan Cooperativa</p>
+              </div>
+              
+              <div className="flex gap-2">
+                <button
+                  onClick={handleKeluarSubmit}
+                  className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 flex-1"
+                >
+                  Simpan & Keluar
+                </button>
+                <button
+                  onClick={() => setShowKeluarModal(false)}
+                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                >
+                  Batal
+                </button>
+              </div>
+            </div>
           </div>
         );
-      })}
+      })() : null}
 
       {showEditTanggalKeluarModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
