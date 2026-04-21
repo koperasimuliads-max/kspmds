@@ -5,8 +5,13 @@ import { Anggota, Pinjaman, Simpanan, Transaksi, Pengeluaran, Pendapatan, Lapora
 
 const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
   if (typeof window === 'undefined') return defaultValue;
-  const stored = localStorage.getItem(key);
-  return stored ? JSON.parse(stored) : defaultValue;
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : defaultValue;
+  } catch (e) {
+    console.error(`Error loading ${key} from localStorage:`, e);
+    return defaultValue;
+  }
 };
 
 const getInitialState = () => {
@@ -122,32 +127,56 @@ export function KSPProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isHydrated) return;
-    localStorage.setItem('ksp_anggota', JSON.stringify(anggota));
+    try {
+      localStorage.setItem('ksp_anggota', JSON.stringify(anggota));
+    } catch (e) {
+      console.error('Error saving ks p_anggota:', e);
+    }
   }, [anggota, isHydrated]);
 
   useEffect(() => {
     if (!isHydrated) return;
-    localStorage.setItem('ksp_pinjamans', JSON.stringify(pinjamans));
+    try {
+      localStorage.setItem('ksp_pinjamans', JSON.stringify(pinjamans));
+    } catch (e) {
+      console.error('Error saving ksp_pinjamans:', e);
+    }
   }, [pinjamans, isHydrated]);
 
   useEffect(() => {
     if (!isHydrated) return;
-    localStorage.setItem('ksp_simpanans', JSON.stringify(simpanans));
+    try {
+      localStorage.setItem('ksp_simpanans', JSON.stringify(simpanans));
+    } catch (e) {
+      console.error('Error saving ksp_simpanans:', e);
+    }
   }, [simpanans, isHydrated]);
 
   useEffect(() => {
     if (!isHydrated) return;
-    localStorage.setItem('ksp_transactions', JSON.stringify(transactions));
+    try {
+      localStorage.setItem('ksp_transactions', JSON.stringify(transactions));
+    } catch (e) {
+      console.error('Error saving ksp_transactions:', e);
+    }
   }, [transactions, isHydrated]);
 
   useEffect(() => {
     if (!isHydrated) return;
-    localStorage.setItem('ksp_pengeluarans', JSON.stringify(pengeluarans));
+    try {
+      localStorage.setItem('ksp_pengeluarans', JSON.stringify(pengeluarans));
+    } catch (e) {
+      console.error('Error saving ksp_pengeluarans:', e);
+    }
   }, [pengeluarans, isHydrated]);
 
   useEffect(() => {
     if (!isHydrated) return;
-    localStorage.setItem('ksp_pendapatans', JSON.stringify(pendapatans));
+    try {
+      localStorage.setItem('ksp_pendapatans', JSON.stringify(pendapatans));
+    } catch (e) {
+      console.error('Error saving ksp_pendapatans:', e);
+    }
   }, [pendapatans, isHydrated]);
 
   const addAnggota = useCallback((data: Omit<Anggota, 'id'>) => {
