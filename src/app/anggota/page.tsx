@@ -138,15 +138,16 @@ const alasanKeluarOptions = [
   { value: 'Berhenti bekerja', label: 'Berhenti bekerja' },
   { value: 'Ketidaksesuaian prinsip', label: 'Ketidaksesuaian prinsip' },
   { value: 'Hilangnya Kepercayaan pada Pengurus', label: 'Hilangnya Kepercayaan pada Pengurus' },
-  { value: 'Kinerja Keuangan Koperasi Menurun', label: 'Kinerja Keuangan Koperasi Menurun' },
-  { value: 'Koperasi Bermasalah/Gagal Bayar', label: 'Koperasi Bermasalah/Gagal Bayar' },
-  { value: 'Mendapatkan Tawaran Pinjaman Lebih Baik', label: 'Mendapatkan Tawaran Pinjaman Lebih Baik' },
+  { value: 'Kinerja Keuangan Cooperativa Menurun', label: 'Kinerja Keuangan Cooperativa Menurun' },
+  { value: 'Cooperativa Bermasalah/Gagal Bayar', label: 'Cooperativa Bermasalah/Gagal Bayar' },
+  { value: 'Mendapat Tawaran Pinjaman Lebih Baik', label: 'Mendapat Tawaran Pinjaman Lebih Baik' },
   { value: 'Berhenti Menabung Secara Rutin', label: 'Berhenti Menabung Secara Rutin' },
   { value: 'Ingin Membersihkan BI Checking/SLIK', label: 'Ingin Membersihkan BI Checking/SLIK' },
   { value: 'Pemutusan Hubungan Kerja (PHK)', label: 'Pemutusan Hubungan Kerja (PHK)' },
   { value: 'Tidak Lagi Membutuhkan Komunitasnya', label: 'Tidak Lagi Membutuhkan Komunitasnya' },
   { value: 'Ikut-ikutan (Panic Withdrawal)', label: 'Ikut-ikutan (Panic Withdrawal)' },
   { value: 'Tidak diberikan pinjaman', label: 'Tidak diberikan pinjaman' },
+  { value: 'Menutup Sisa Pinjaman', label: 'Menutup Sisa Pinjaman' },
 ];
 
 export default function AnggotaPage() {
