@@ -61,6 +61,8 @@ interface KSPContextType {
   bulkUpdateTanggalJoin: (startNBA: number, endNBA: number, tanggal: string) => void;
   bulkUpdateUangBuku: (startNBA: number, endNBA: number, jumlah: number) => void;
   fixSimpananTanggal: () => void;
+  fixCorruptedDates: () => void;
+  getRawSimpananDates: () => { id: string; anggotaId: string; jenis: string; tanggalSimpan: string; jumlah: number }[];
   hitungBungaBulanan: () => void;
   auditLogs: AuditLog[];
   addAuditLog: (action: string, tableName: string, recordId: string, details: string) => void;
@@ -318,6 +320,35 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     }));
   }, [anggota]);
 
+  // Fix corrupted dates - use join date as base
+  const fixCorruptedDates = useCallback(() => {
+    if (!confirm('PERINGATAN!\n\nIni akan memperbaiki tanggal simpanan yang korup.\nTanggal akan diset ke tanggal join anggota.\n\nLanjutkan?')) return;
+    
+    setSimpanans(prev => prev.map(s => {
+      // Only fix if date looks corrupted (all same or 2024-01-01)
+      const isCorrupted = s.tanggalSimpan === '2024-01-01' || s.tanggalSimpan.startsWith('2024-01-01');
+      if (!isCorrupted) return s;
+      
+      const ag = anggota.find(a => a.id === s.anggotaId);
+      if (ag && ag.tanggalJoin) {
+        return { ...s, tanggalSimpan: ag.tanggalJoin };
+      }
+      return s;
+    }));
+    alert('Tanggal simpanan telah diperbaiki!');
+  }, [anggota]);
+
+  // Show raw dates for debugging
+  const getRawSimpananDates = useCallback(() => {
+    return simpanans.map(s => ({
+      id: s.id,
+      anggotaId: s.anggotaId,
+      jenis: s.jenis,
+      tanggalSimpan: s.tanggalSimpan,
+      jumlah: s.jumlah
+    }));
+  }, [simpanans]);
+
   const hitungBungaBulanan = useCallback(() => {
     const now = new Date();
     const currentMonth = now.getMonth();
@@ -392,6 +423,8 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       bulkUpdateTanggalJoin,
       bulkUpdateUangBuku,
       fixSimpananTanggal,
+      fixCorruptedDates,
+      getRawSimpananDates,
       hitungBungaBulanan,
       auditLogs,
       addAuditLog,
