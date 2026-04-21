@@ -299,19 +299,6 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
     }
   };
 
-  useEffect(() => {
-    const hasWrongDate = simpanans.some(s => {
-      const ag = anggota.find(a => a.id === s.anggotaId);
-      if (!ag || !ag.tanggalJoin) return false;
-      // Only fix if date is clearly invalid (default 2024-01-01) AND should match join date
-      const isDefaultDate = s.tanggalSimpan === '2024-01-01' || s.tanggalSimpan.startsWith('2024-01-01');
-      return isDefaultDate && (s.jenis === 'pokok' || s.jenis === 'wajib');
-    });
-    if (hasWrongDate) {
-      fixSimpananTanggal();
-    }
-  }, [anggota, simpanans, fixSimpananTanggal]);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingId) {
@@ -544,7 +531,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
           ))}
           <button
             onClick={() => {
-              if (confirm('Samakan tanggal simpanan pokok & wajib dengan tanggal masuk anggota?')) {
+              if (confirm('PERINGATAN!\n\nTombol ini akan mengubah tanggal simpanan pokok & wajib menjadi sama dengan tanggal masuk anggota.\n\nIni hanya untuk tangal yang SALAH (default 2024-01-01).\n\nLanjutkan?')) {
                 fixSimpananTanggal();
                 alert('Tanggal simpanan telah diperbaiki!');
               }
