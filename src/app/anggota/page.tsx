@@ -343,11 +343,9 @@ export default function AnggotaPage() {
   const openKeluarModal = (id: string) => {
     const ag = anggota.find(a => a.id === id);
     if (!ag) {
-      alert('Anggota dengan ID ' + id + ' tidak ditemukan!');
+      alert('Anggota tidak ditemukan!');
       return;
     }
-    
-    console.log('Membuka modal keluar untuk:', ag.nama, id);
     
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, '0');
@@ -359,9 +357,7 @@ export default function AnggotaPage() {
       tanggalKeluar: `${dd}-${mm}-${yyyy}`,
       alasan: '',
     });
-    alert('Modal keluar akan dibuka untuk: ' + ag.nama);
     setShowKeluarModal(true);
-    console.log('showKeluarModal set ke true');
   };
 
   const handleKeluarSubmit = () => {
@@ -634,7 +630,6 @@ export default function AnggotaPage() {
           <select
             onChange={e => {
               if (e.target.value) {
-                console.log('Dropdown Keluar dipilih:', e.target.value);
                 openKeluarModal(e.target.value);
                 e.target.value = '';
               }
@@ -1071,7 +1066,9 @@ export default function AnggotaPage() {
 
       {showKeluarModal && (() => {
         const ag = anggota.find(a => a.id === keluarData.anggotaId);
-        const simpananAktif = ag ? simpanans.filter(s => s.anggotaId === ag.id && s.status === 'aktif') : [];
+        if (!ag) return null;
+        
+        const simpananAktif = simpanans.filter(s => s.anggotaId === ag.id && s.status === 'aktif');
         const simpananPokok = simpananAktif.filter(s => s.jenis === 'pokok').reduce((sum, s) => sum + s.jumlah, 0);
         const simpananWajib = simpananAktif.filter(s => s.jenis === 'wajib').reduce((sum, s) => sum + s.jumlah, 0);
         const simpananSibuhar = simpananAktif.filter(s => s.jenis === 'sibuhar').reduce((sum, s) => sum + s.jumlah, 0);
@@ -1449,10 +1446,7 @@ export default function AnggotaPage() {
                       <td className="p-2 text-center no-print">
                         <button onClick={() => handleEdit(a)} className="text-blue-600 hover:underline mr-1 text-sm">Edit</button>
                         {a.status === 'aktif' && (
-                          <button onClick={() => {
-                            console.log('Tombol Keluar diklik untuk:', a.id, a.nama);
-                            openKeluarModal(a.id);
-                          }} className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600 mr-1">Keluar</button>
+                          <button onClick={() => openKeluarModal(a.id)} className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600 mr-1">Keluar</button>
                         )}
                         <button onClick={() => handleDelete(a.id)} className="text-red-600 hover:underline text-sm">Hapus</button>
                       </td>
