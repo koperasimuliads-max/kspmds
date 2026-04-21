@@ -2,21 +2,11 @@
 
 import { useState, useMemo } from 'react';
 import { useKSP } from '@/context/KSPContext';
+import { formatDate } from '@/utils/dateUtils';
 import BackButton from '@/components/BackButton';
 
 function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
-}
-
-function formatDate(dateStr: string) {
-  if (!dateStr) return '-';
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return '-';
-    return d.toLocaleDateString('id-ID');
-  } catch {
-    return '-';
-  }
 }
 
 export default function KartuSimpananPage() {
