@@ -62,7 +62,8 @@ interface KSPContextType {
   bulkUpdateUangBuku: (startNBA: number, endNBA: number, jumlah: number) => void;
   fixSimpananTanggal: () => void;
   fixCorruptedDates: () => void;
-  getRawSimpananDates: () => { id: string; anggotaId: string; jenis: string; tanggalSimpan: string; jumlah: number }[];
+  getRawSimpananDates: () => void;
+  resetAllSimpananDates: () => void;
   hitungBungaBulanan: () => void;
   auditLogs: AuditLog[];
   addAuditLog: (action: string, tableName: string, recordId: string, details: string) => void;
@@ -338,16 +339,36 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     alert('Tanggal simpanan telah diperbaiki!');
   }, [anggota]);
 
-  // Show raw dates for debugging
+  // Show raw dates for debugging - opens alert with all dates
   const getRawSimpananDates = useCallback(() => {
-    return simpanans.map(s => ({
-      id: s.id,
-      anggotaId: s.anggotaId,
-      jenis: s.jenis,
-      tanggalSimpan: s.tanggalSimpan,
-      jumlah: s.jumlah
+    const data = simpanans.map(s => {
+      const ag = anggota.find(a => a.id === s.anggotaId);
+      return {
+        nama: ag?.nama || 'Unknown',
+        jenis: s.jenis,
+        tanggal: s.tanggalSimpan,
+        jumlah: s.jumlah
+      };
+    });
+    // Group by nama and show first 10
+    const grouped = data.slice(0, 50).map((d, i) => `${i+1}. ${d.nama} | ${d.jenis} | ${d.tanggal} | ${d.jumlah}`);
+    alert('DEBUG - Tanggal Simpanan (50 pertama):\n\n' + grouped.join('\n'));
+    return data;
+  }, [simpanans, anggota]);
+
+  // Reset ALL simpanan dates to match anggota join date - MOST AGGRESSIVE
+  const resetAllSimpananDates = useCallback(() => {
+    if (!confirm('PERINGATAN MENDENGAR!\n\nIni akan RESET SEMUA tanggal simpanan ke tanggal join anggota.\n\nSEMUA record akan受到影响!\n\nYakin mau melanjutkan?')) return;
+    
+    setSimpanans(prev => prev.map(s => {
+      const ag = anggota.find(a => a.id === s.anggotaId);
+      if (ag && ag.tanggalJoin) {
+        return { ...s, tanggalSimpan: ag.tanggalJoin };
+      }
+      return s;
     }));
-  }, [simpanans]);
+    alert('SEMUA tanggal simpanan telah di-reset ke tanggal join!');
+  }, [anggota]);
 
   const hitungBungaBulanan = useCallback(() => {
     const now = new Date();
@@ -425,6 +446,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       fixSimpananTanggal,
       fixCorruptedDates,
       getRawSimpananDates,
+      resetAllSimpananDates,
       hitungBungaBulanan,
       auditLogs,
       addAuditLog,
