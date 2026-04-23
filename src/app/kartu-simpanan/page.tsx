@@ -95,8 +95,26 @@ export default function KartuSimpananPage() {
             {anggota
               .filter(a => {
                 if (!searchAnggota.trim()) return true;
-                const query = searchAnggota.toLowerCase();
-                return a.nama.toLowerCase().includes(query) || (a.nomorNBA || '').toLowerCase().includes(query);
+                const query = searchAnggota.toLowerCase().trim();
+                return a.nama.toLowerCase().includes(query) ||
+                       (a.nomorNBA || '').toLowerCase().includes(query) ||
+                       a.nama.toLowerCase().startsWith(query) ||
+                       (a.nomorNBA || '').toLowerCase().startsWith(query);
+              })
+              .sort((a, b) => {
+                const query = searchAnggota.toLowerCase().trim();
+                // Prioritize exact matches
+                const aExact = a.nama.toLowerCase() === query || (a.nomorNBA || '').toLowerCase() === query;
+                const bExact = b.nama.toLowerCase() === query || (b.nomorNBA || '').toLowerCase() === query;
+                if (aExact && !bExact) return -1;
+                if (!aExact && bExact) return 1;
+                // Then starts with
+                const aStarts = a.nama.toLowerCase().startsWith(query) || (a.nomorNBA || '').toLowerCase().startsWith(query);
+                const bStarts = b.nama.toLowerCase().startsWith(query) || (b.nomorNBA || '').toLowerCase().startsWith(query);
+                if (aStarts && !bStarts) return -1;
+                if (!aStarts && bStarts) return 1;
+                // Finally alphabetical by name
+                return a.nama.localeCompare(b.nama);
               })
               .map(a => (
               <option key={a.id} value={a.id}>
