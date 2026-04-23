@@ -10,7 +10,7 @@ function formatRupiah(amount: number): string {
 }
 
 export default function KartuSimpananPage() {
-  const { anggota, simpanans, transactions } = useKSP();
+  const { anggota, simpanans } = useKSP();
   const [selectedAnggotaId, setSelectedAnggotaId] = useState<string>('');
   const [searchAnggota, setSearchAnggota] = useState('');
 
@@ -37,18 +37,7 @@ export default function KartuSimpananPage() {
         originalDate: s.tanggalSimpan
       }));
 
-    const transaksiRecords = transactions
-      .filter(t => t.anggotaId === selectedAnggotaId)
-      .map(t => ({
-        tanggal: t.tanggal,
-        uraian: t.deskripsi,
-        debet: t.jenis === 'simpanan' ? t.jumlah : 0,
-        kredit: t.jenis === 'penarikan' || t.jenis === 'pinjaman' ? t.jumlah : 0,
-        jenis: t.jenis,
-        originalDate: t.tanggal
-      }));
-
-    return [...simpananRecords, ...transaksiRecords]
+    return simpananRecords
       .sort((a, b) => {
         const dateA = parseDate(a.originalDate) || parseDate(a.tanggal);
         const dateB = parseDate(b.originalDate) || parseDate(b.tanggal);
@@ -57,13 +46,11 @@ export default function KartuSimpananPage() {
         if (!dateB) return -1;
         return dateB.getTime() - dateA.getTime();
       });
-  }, [selectedAnggotaId, simpanans, transactions]);
+  }, [selectedAnggotaId, simpanans]);
 
   const totalSaldo = useMemo(() => {
-    return simpanans
-      .filter(s => s.anggotaId === selectedAnggotaId && s.status !== 'ditarik')
-      .reduce((sum, s) => sum + s.jumlah, 0);
-  }, [selectedAnggotaId, simpanans]);
+    return mutasiData.reduce((sum, item) => sum + item.debet - item.kredit, 0);
+  }, [mutasiData]);
 
   return (
     <div className="p-4">
