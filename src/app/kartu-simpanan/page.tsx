@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useKSP } from '@/context/KSPContext';
 import { formatDate, parseDate } from '@/utils/dateUtils';
 import BackButton from '@/components/BackButton';
@@ -16,12 +16,7 @@ export default function KartuSimpananPage() {
 
   const selectedAnggota = anggota.find(a => a.id === selectedAnggotaId);
 
-  // Update search text when anggota is selected
-  useEffect(() => {
-    if (selectedAnggota && !searchAnggota.includes(selectedAnggota.nama)) {
-      setSearchAnggota(selectedAnggota.nama + ' (NBA: ' + (selectedAnggota.nomorNBA || 'N/A') + ')');
-    }
-  }, [selectedAnggota, searchAnggota]);
+
 
   const mutasiData = useMemo(() => {
     if (!selectedAnggotaId) return [];

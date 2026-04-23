@@ -30,6 +30,8 @@ Building a KSP (Kredit Simpanan Pinjaman) financial management application calle
 - [x] Added comprehensive anggota keluar flow: check active loans, show summary, auto-withdraw savings, add pendapatan administrasi (Rp 50.000)
 - [x] Fixed date formatting - created formatDate utility to properly display dates in dd/mm/yyyy format without timezone issues
 - [x] Added search column for anggota in simpanan page - search by NBA or nama
+- [x] Fixed linting error in kartu-simpanan page - removed useEffect that was calling setState synchronously
+- [x] Added search column for anggota in kartu-simpanan page - search by NBA or nama
 
 ## Current Focus
 
@@ -71,3 +73,4 @@ All main features are complete. The app now has:
 | Date | Changes |
 |------|---------|
 | 2026-04-13 | KSP application development - added anggota keluar with loan check, savings auto-withdraw, admin fee to pendapatan |
+| 2026-04-23 | Fixed linting error in kartu-simpanan page, improved search functionality |
