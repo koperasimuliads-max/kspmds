@@ -40,7 +40,7 @@ const jenisSimpananOptions = [
 ];
 
 export default function SimpananPage() {
-  const { anggota, simpanans, addSimpanan, updateSimpanan, deleteSimpanan, deleteAllSimpananByJenis, fixSimpananTanggal, fixCorruptedDates, getRawSimpananDates, resetAllSimpananDates, addTransaksi } = useKSP();
+  const { anggota, simpanans, addSimpanan, updateSimpanan, deleteSimpanan, deleteAllSimpananByJenis, fixSimpananTanggal, fixCorruptedDates, getRawSimpananDates, resetAllSimpananDates, fixAllDates, addTransaksi } = useKSP();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filterJenis, setFilterJenis] = useState('all');
@@ -563,6 +563,12 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
             className="px-3 py-2 rounded text-sm bg-blue-500 text-white hover:bg-blue-600"
           >
             🔍 Debug Tanggal
+          </button>
+          <button
+            onClick={() => fixAllDates()}
+            className="px-3 py-2 rounded text-sm bg-purple-600 text-white hover:bg-purple-700"
+          >
+            🔧 Fix All Dates
           </button>
           <button
             onClick={() => resetAllSimpananDates()}

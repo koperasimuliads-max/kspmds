@@ -64,6 +64,7 @@ interface KSPContextType {
   fixCorruptedDates: () => void;
   getRawSimpananDates: () => void;
   resetAllSimpananDates: () => void;
+  fixAllDates: () => void;
   hitungBungaBulanan: () => void;
   auditLogs: AuditLog[];
   addAuditLog: (action: string, tableName: string, recordId: string, details: string) => void;
@@ -390,6 +391,41 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     alert('SEMUA tanggal simpanan telah di-reset ke tanggal join!');
   }, [anggota]);
 
+  // Fix all corrupted dates in simpanans and transactions
+  const fixAllDates = useCallback(() => {
+    if (!confirm('PERINGATAN!\n\nIni akan MEMPERBAIKI semua tanggal yang corrupt di seluruh sistem.\n\nData yang sudah benar tidak akan diubah.\n\nLanjutkan?')) return;
+
+    // Fix simpanans - only fix obviously corrupted dates (like all same date)
+    setSimpanans(prev => prev.map(s => {
+      // If date is corrupted (default 2024-01-01 or empty), fix it
+      if (!s.tanggalSimpan || s.tanggalSimpan === '2024-01-01' || s.tanggalSimpan.includes('2024-01-01')) {
+        const ag = anggota.find(a => a.id === s.anggotaId);
+        if (ag && ag.tanggalJoin) {
+          return { ...s, tanggalSimpan: ag.tanggalJoin };
+        }
+      }
+      return s;
+    }));
+
+    // Fix transactions - if date is corrupted, try to get from related simpanan
+    setTransactions(prev => prev.map(t => {
+      if (!t.tanggal || t.tanggal === '2024-01-01' || t.tanggal.includes('2024-01-01')) {
+        // For simpanan transactions, try to find matching simpanan record
+        if (t.jenis === 'simpanan' && t.referensiId) {
+          const simpanan = simpanans.find(s => s.id === t.referensiId);
+          if (simpanan && simpanan.tanggalSimpan) {
+            return { ...t, tanggal: simpanan.tanggalSimpan };
+          }
+        }
+        // Fallback: use current date as last resort
+        return { ...t, tanggal: new Date().toISOString().split('T')[0] };
+      }
+      return t;
+    }));
+
+    alert('Semua tanggal corrupt telah diperbaiki!');
+  }, [anggota, simpanans]);
+
   const hitungBungaBulanan = useCallback(() => {
     const now = new Date();
     const currentMonth = now.getMonth();
@@ -467,6 +503,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       fixCorruptedDates,
       getRawSimpananDates,
       resetAllSimpananDates,
+      fixAllDates,
       hitungBungaBulanan,
       auditLogs,
       addAuditLog,

@@ -31,28 +31,34 @@ export function formatDate(dateStr: string | null | undefined): string {
 
 export function parseDate(dateStr: string | null | undefined): Date | null {
   if (!dateStr) return null;
-  
+
   const dateStrClean = String(dateStr).trim();
-  
+
   // Try various formats
   const formats = [
-    /^(\d{4})-(\d{2})-(\d{2})$/, // YYYY-MM-DD
-    /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/, // DD/MM/YYYY
-    /^(\d{1,2})-(\d{1,2})-(\d{4})$/, // DD-MM-YYYY
+    { regex: /^(\d{4})-(\d{2})-(\d{2})$/, order: 'YMD' }, // YYYY-MM-DD
+    { regex: /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/, order: 'DMY' }, // DD/MM/YYYY
+    { regex: /^(\d{1,2})-(\d{1,2})-(\d{4})$/, order: 'DMY' }, // DD-MM-YYYY
   ];
-  
+
   for (const format of formats) {
-    const match = dateStrClean.match(format);
+    const match = dateStrClean.match(format.regex);
     if (match) {
       let year, month, day;
-      if (format.source.includes('YYYY')) {
+      if (format.order === 'YMD') {
         [, year, month, day] = match;
       } else {
         [, day, month, year] = match;
       }
-      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      // Validate date
+      if (date.getFullYear() === parseInt(year) &&
+          date.getMonth() === parseInt(month) - 1 &&
+          date.getDate() === parseInt(day)) {
+        return date;
+      }
     }
   }
-  
+
   return null;
 }

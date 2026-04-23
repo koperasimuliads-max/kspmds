@@ -25,7 +25,7 @@ export default function KartuSimpananPage() {
 
   const mutasiData = useMemo(() => {
     if (!selectedAnggotaId) return [];
-    
+
     const simpananRecords = simpanans
       .filter(s => s.anggotaId === selectedAnggotaId && s.status !== 'ditarik')
       .map(s => ({
@@ -36,7 +36,7 @@ export default function KartuSimpananPage() {
         jenis: 'simpanan',
         originalDate: s.tanggalSimpan
       }));
-    
+
     const transaksiRecords = transactions
       .filter(t => t.anggotaId === selectedAnggotaId)
       .map(t => ({
@@ -50,8 +50,8 @@ export default function KartuSimpananPage() {
 
     return [...simpananRecords, ...transaksiRecords]
       .sort((a, b) => {
-        const dateA = parseDate(a.tanggal);
-        const dateB = parseDate(b.tanggal);
+        const dateA = parseDate(a.originalDate) || parseDate(a.tanggal);
+        const dateB = parseDate(b.originalDate) || parseDate(b.tanggal);
         if (!dateA && !dateB) return 0;
         if (!dateA) return 1;
         if (!dateB) return -1;
@@ -207,7 +207,9 @@ export default function KartuSimpananPage() {
                     return (
                       <tr key={index} className="border-b hover:bg-slate-50">
                         <td className="p-3 text-center">{index + 1}</td>
-                        <td className="p-3">{formatDate(m.tanggal)}</td>
+                        <td className="p-3" title={`Raw: ${m.tanggal} | Original: ${m.originalDate}`}>
+                          {formatDate(m.originalDate) || formatDate(m.tanggal) || '-'}
+                        </td>
                         <td className="p-3 capitalize">{m.uraian}</td>
                         <td className="p-3 text-right text-green-600">
                           {m.debet > 0 ? formatRupiah(m.debet) : '-'}
