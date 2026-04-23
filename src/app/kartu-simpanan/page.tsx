@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useKSP } from '@/context/KSPContext';
 import { formatDate, parseDate } from '@/utils/dateUtils';
 import BackButton from '@/components/BackButton';
@@ -12,8 +12,16 @@ function formatRupiah(amount: number): string {
 export default function KartuSimpananPage() {
   const { anggota, simpanans, transactions } = useKSP();
   const [selectedAnggotaId, setSelectedAnggotaId] = useState<string>('');
+  const [searchAnggota, setSearchAnggota] = useState('');
 
   const selectedAnggota = anggota.find(a => a.id === selectedAnggotaId);
+
+  // Clear search when anggota is selected
+  useEffect(() => {
+    if (selectedAnggotaId && searchAnggota) {
+      setSearchAnggota('');
+    }
+  }, [selectedAnggotaId, searchAnggota]);
 
   const mutasiData = useMemo(() => {
     if (!selectedAnggotaId) return [];
@@ -66,19 +74,48 @@ export default function KartuSimpananPage() {
 
       {/* Select Anggota */}
       <div className="bg-white rounded-lg shadow p-4 mb-6 print:hidden">
-        <label className="block text-sm font-medium mb-2">Pilih Anggota:</label>
-        <select
-          value={selectedAnggotaId}
-          onChange={e => setSelectedAnggotaId(e.target.value)}
-          className="border p-2 rounded w-full md:w-1/2"
-        >
-          <option value="">-- Pilih Anggota --</option>
-          {anggota.map(a => (
-            <option key={a.id} value={a.id}>
-              {a.nama} (NBA: {a.nomorNBA})
-            </option>
-          ))}
-        </select>
+        <label className="block text-sm font-medium mb-2">Cari Anggota:</label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Cari Nama atau No. NBA..."
+            value={searchAnggota}
+            onChange={e => setSearchAnggota(e.target.value)}
+            className="border p-2 rounded flex-1"
+          />
+          <select
+            value={selectedAnggotaId}
+            onChange={e => {
+              setSelectedAnggotaId(e.target.value);
+              setSearchAnggota('');
+            }}
+            className="border p-2 rounded flex-1"
+          >
+            <option value="">-- Pilih Anggota --</option>
+            {anggota
+              .filter(a => {
+                if (!searchAnggota.trim()) return true;
+                const query = searchAnggota.toLowerCase();
+                return a.nama.toLowerCase().includes(query) || (a.nomorNBA || '').toLowerCase().includes(query);
+              })
+              .map(a => (
+              <option key={a.id} value={a.id}>
+                {a.nama} (NBA: {a.nomorNBA || 'N/A'})
+              </option>
+            ))}
+          </select>
+          {selectedAnggotaId && (
+            <button
+              onClick={() => {
+                setSelectedAnggotaId('');
+                setSearchAnggota('');
+              }}
+              className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       {selectedAnggota && (
