@@ -16,12 +16,12 @@ export default function KartuSimpananPage() {
 
   const selectedAnggota = anggota.find(a => a.id === selectedAnggotaId);
 
-  // Clear search when anggota is selected
+  // Update search text when anggota is selected
   useEffect(() => {
-    if (selectedAnggotaId && searchAnggota) {
-      setSearchAnggota('');
+    if (selectedAnggota && !searchAnggota.includes(selectedAnggota.nama)) {
+      setSearchAnggota(selectedAnggota.nama + ' (NBA: ' + (selectedAnggota.nomorNBA || 'N/A') + ')');
     }
-  }, [selectedAnggotaId, searchAnggota]);
+  }, [selectedAnggota, searchAnggota]);
 
   const mutasiData = useMemo(() => {
     if (!selectedAnggotaId) return [];
@@ -72,63 +72,70 @@ export default function KartuSimpananPage() {
         <h1 className="text-2xl font-bold text-slate-800">Kartu Simpanan Anggota</h1>
       </div>
 
-      {/* Select Anggota */}
+      {/* Cari Anggota */}
       <div className="bg-white rounded-lg shadow p-4 mb-6 print:hidden">
         <label className="block text-sm font-medium mb-2">Cari Anggota:</label>
-        <div className="flex gap-2">
+        <div className="relative">
           <input
             type="text"
-            placeholder="Cari Nama atau No. NBA..."
+            placeholder="Ketik nama atau No. NBA anggota..."
             value={searchAnggota}
             onChange={e => setSearchAnggota(e.target.value)}
-            className="border p-2 rounded flex-1"
+            className="border p-2 rounded w-full"
           />
-          <select
-            value={selectedAnggotaId}
-            onChange={e => {
-              setSelectedAnggotaId(e.target.value);
-              setSearchAnggota('');
-            }}
-            className="border p-2 rounded flex-1"
-          >
-            <option value="">-- Pilih Anggota --</option>
-            {anggota
-              .filter(a => {
-                if (!searchAnggota.trim()) return true;
+          {searchAnggota && (
+            <div className="absolute z-10 w-full bg-white border rounded mt-1 max-h-48 overflow-y-auto shadow-lg">
+              {anggota
+                .filter(a => {
+                  if (!searchAnggota.trim()) return false;
+                  const query = searchAnggota.toLowerCase().trim();
+                  return a.nama.toLowerCase().includes(query) ||
+                         (a.nomorNBA || '').toLowerCase().includes(query);
+                })
+                .sort((a, b) => {
+                  const query = searchAnggota.toLowerCase().trim();
+                  // Prioritize exact matches
+                  const aExact = a.nama.toLowerCase() === query || (a.nomorNBA || '').toLowerCase() === query;
+                  const bExact = b.nama.toLowerCase() === query || (b.nomorNBA || '').toLowerCase() === query;
+                  if (aExact && !bExact) return -1;
+                  if (!aExact && bExact) return 1;
+                  // Then starts with
+                  const aStarts = a.nama.toLowerCase().startsWith(query) || (a.nomorNBA || '').toLowerCase().startsWith(query);
+                  const bStarts = b.nama.toLowerCase().startsWith(query) || (b.nomorNBA || '').toLowerCase().startsWith(query);
+                  if (aStarts && !bStarts) return -1;
+                  if (!aStarts && bStarts) return 1;
+                  // Finally alphabetical by name
+                  return a.nama.localeCompare(b.nama);
+                })
+                .slice(0, 10) // Limit to 10 results
+                .map(a => (
+                <div
+                  key={a.id}
+                  onClick={() => {
+                    setSelectedAnggotaId(a.id);
+                    setSearchAnggota(a.nama + ' (NBA: ' + (a.nomorNBA || 'N/A') + ')');
+                  }}
+                  className="p-2 hover:bg-blue-50 cursor-pointer border-b last:border-b-0"
+                >
+                  <div className="font-medium">{a.nama}</div>
+                  <div className="text-sm text-gray-500">NBA: {a.nomorNBA || 'N/A'}</div>
+                </div>
+              ))}
+              {anggota.filter(a => {
                 const query = searchAnggota.toLowerCase().trim();
-                return a.nama.toLowerCase().includes(query) ||
-                       (a.nomorNBA || '').toLowerCase().includes(query) ||
-                       a.nama.toLowerCase().startsWith(query) ||
-                       (a.nomorNBA || '').toLowerCase().startsWith(query);
-              })
-              .sort((a, b) => {
-                const query = searchAnggota.toLowerCase().trim();
-                // Prioritize exact matches
-                const aExact = a.nama.toLowerCase() === query || (a.nomorNBA || '').toLowerCase() === query;
-                const bExact = b.nama.toLowerCase() === query || (b.nomorNBA || '').toLowerCase() === query;
-                if (aExact && !bExact) return -1;
-                if (!aExact && bExact) return 1;
-                // Then starts with
-                const aStarts = a.nama.toLowerCase().startsWith(query) || (a.nomorNBA || '').toLowerCase().startsWith(query);
-                const bStarts = b.nama.toLowerCase().startsWith(query) || (b.nomorNBA || '').toLowerCase().startsWith(query);
-                if (aStarts && !bStarts) return -1;
-                if (!aStarts && bStarts) return 1;
-                // Finally alphabetical by name
-                return a.nama.localeCompare(b.nama);
-              })
-              .map(a => (
-              <option key={a.id} value={a.id}>
-                {a.nama} (NBA: {a.nomorNBA || 'N/A'})
-              </option>
-            ))}
-          </select>
+                return a.nama.toLowerCase().includes(query) || (a.nomorNBA || '').toLowerCase().includes(query);
+              }).length === 0 && (
+                <div className="p-2 text-gray-500">Tidak ada anggota ditemukan</div>
+              )}
+            </div>
+          )}
           {selectedAnggotaId && (
             <button
               onClick={() => {
                 setSelectedAnggotaId('');
                 setSearchAnggota('');
               }}
-              className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              className="absolute right-2 top-2 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
             >
               ✕
             </button>
