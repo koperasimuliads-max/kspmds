@@ -5,18 +5,6 @@ import { useKSP } from '@/context/KSPContext';
 import { formatDate, parseDate } from '@/utils/dateUtils';
 import BackButton from '@/components/BackButton';
 
-// Debug function
-const debugSimpanans = (simpanans: any[], selectedAnggotaId: string) => {
-  const filtered = simpanans.filter(s => s.anggotaId === selectedAnggotaId);
-  console.log('Raw simpanans data for selected anggota:', filtered.map(s => ({
-    id: s.id,
-    jenis: s.jenis,
-    tanggalSimpan: s.tanggalSimpan,
-    jumlah: s.jumlah,
-    status: s.status
-  })));
-};
-
 function formatRupiah(amount: number): string {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
 }
@@ -38,9 +26,6 @@ export default function KartuSimpananPage() {
   const mutasiData = useMemo(() => {
     if (!selectedAnggotaId) return [];
 
-    // Debug: log raw simpanans data
-    debugSimpanans(simpanans, selectedAnggotaId);
-
     const simpananRecords = simpanans
       .filter(s => s.anggotaId === selectedAnggotaId && s.status !== 'ditarik')
       .map(s => ({
@@ -51,12 +36,6 @@ export default function KartuSimpananPage() {
         jenis: 'simpanan',
         originalDate: s.tanggalSimpan
       }));
-
-    console.log('Mutasi records:', simpananRecords.map(r => ({
-      uraian: r.uraian,
-      tanggal: r.tanggal,
-      parsedDate: parseDate(r.tanggal)?.toISOString()
-    })));
 
     return simpananRecords
       .sort((a, b) => {

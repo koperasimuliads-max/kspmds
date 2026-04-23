@@ -405,76 +405,70 @@ function LaporanContent() {
                     <td className="p-2 text-slate-500">(Pengurang Aset)</td>
                     <td className="p-2 text-right text-red-500">({formatRupiah(penyisihanPinjaman)})</td>
                   </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-4">1.1.6</td>
-                    <td className="p-2">Pinjaman Koperasi Lain</td>
-                    <td className="p-2 text-slate-500">Aset Lancar</td>
-                    <td className="p-2 text-right">{formatRupiah(pinjamansKopLain)}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-4">1.1.7</td>
-                    <td className="p-2">Penyisihan Pinjaman (Kop. Lain)</td>
-                    <td className="p-2 text-slate-500">(Pengurang Aset)</td>
-                    <td className="p-2 text-right text-red-500">({formatRupiah(penyisihanPinjamanKopLain)})</td>
-                  </tr>
+                   <tr className="border-b">
+                     <td className="p-2 pl-4">1.1.6</td>
+                     <td className="p-2">Pinjaman Koperasi Lain</td>
+                     <td className="p-2 text-slate-500">Aset Lancar</td>
+                     <td className="p-2 text-right">{formatRupiah(pinjamansKopLain)}</td>
+                   </tr>
+                   <tr className="border-b">
+                     <td className="p-2 pl-4">1.1.8</td>
+                     <td className="p-2">Penyisihan Pinjaman (Kop. Lain)</td>
+                     <td className="p-2 text-slate-500">(Pengurang Aset)</td>
+                     <td className="p-2 text-right text-red-500">({formatRupiah(penyisihanPinjamanKopLain)})</td>
+                   </tr>
                   <tr className="bg-blue-50 font-bold">
                     <td className="p-2" colSpan={3}>I.2 ASET TIDAK LANCAR</td>
                     <td className="p-2 text-right"></td>
                   </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-4">1.1.8</td>
-                    <td className="p-2">Aset Tetap</td>
-                    <td className="p-2 text-slate-500">Aset Tidak Lancar</td>
-                    <td className="p-2 text-right">{formatRupiah(asetTetap)}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-4">1.1.9</td>
-                    <td className="p-2">Tanah</td>
-                    <td className="p-2 text-slate-500">Aset Tetap</td>
-                    <td className="p-2 text-right">{formatRupiah(tanah)}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-4">1.1.10</td>
-                    <td className="p-2">Bangunan</td>
-                    <td className="p-2 text-slate-500">Aset Tetap</td>
-                    <td className="p-2 text-right">{formatRupiah(bangunan)}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-4">1.1.11</td>
-                    <td className="p-2">Mesin dan Kendaraan</td>
-                    <td className="p-2 text-slate-500">Aset Tetap</td>
-                    <td className="p-2 text-right">{formatRupiah(mesinKendaraan)}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-4">1.1.12</td>
-                    <td className="p-2">Inventaris & Peralatan Kantor</td>
-                    <td className="p-2 text-slate-500">Aset Tetap</td>
-                    <td className="p-2 text-right">{formatRupiah(inventaris)}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-4">1.1.13</td>
-                    <td className="p-2">Akumulasi Penyusutan Aset Tetap</td>
-                    <td className="p-2 text-slate-500">(Pengurang Aset)</td>
-                    <td className="p-2 text-right text-red-500">({formatRupiah(akumulasiPenyusutan)})</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-4">1.1.14</td>
-                    <td className="p-2">Aset Tak Berwujud</td>
-                    <td className="p-2 text-slate-500">Aset Tidak Lancar</td>
-                    <td className="p-2 text-right">{formatRupiah(asetTakBerwujud)}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-4">1.1.15</td>
-                    <td className="p-2">Akumulasi Amortisasi</td>
-                    <td className="p-2 text-slate-500">(Pengurang Aset)</td>
-                    <td className="p-2 text-right text-red-500">({formatRupiah(akumulasiAmortisasi)})</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-4">1.1.16</td>
-                    <td className="p-2">Aset Lain</td>
-                    <td className="p-2 text-slate-500">Aset Lain-lain</td>
-                    <td className="p-2 text-right">{formatRupiah(asetLain)}</td>
-                  </tr>
+                   <tr className="border-b">
+                     <td className="p-2 pl-6">1.2.1</td>
+                     <td className="p-2">Tanah</td>
+                     <td className="p-2 text-slate-500">Aset Tetap</td>
+                     <td className="p-2 text-right">{formatRupiah(tanah)}</td>
+                   </tr>
+                   <tr className="border-b">
+                     <td className="p-2 pl-6">1.2.2</td>
+                     <td className="p-2">Bangunan</td>
+                     <td className="p-2 text-slate-500">Aset Tetap</td>
+                     <td className="p-2 text-right">{formatRupiah(bangunan)}</td>
+                   </tr>
+                   <tr className="border-b">
+                     <td className="p-2 pl-6">1.2.3</td>
+                     <td className="p-2">Mesin dan Kendaraan</td>
+                     <td className="p-2 text-slate-500">Aset Tetap</td>
+                     <td className="p-2 text-right">{formatRupiah(mesinKendaraan)}</td>
+                   </tr>
+                   <tr className="border-b">
+                     <td className="p-2 pl-6">1.2.4</td>
+                     <td className="p-2">Inventaris & Peralatan Kantor</td>
+                     <td className="p-2 text-slate-500">Aset Tetap</td>
+                     <td className="p-2 text-right">{formatRupiah(inventaris)}</td>
+                   </tr>
+                   <tr className="border-b">
+                     <td className="p-2 pl-6">1.2.5</td>
+                     <td className="p-2">Akumulasi Penyusutan Aset Tetap</td>
+                     <td className="p-2 text-slate-500">(Pengurang Aset)</td>
+                     <td className="p-2 text-right text-red-500">({formatRupiah(akumulasiPenyusutan)})</td>
+                   </tr>
+                   <tr className="border-b">
+                     <td className="p-2 pl-4">1.3</td>
+                     <td className="p-2">Aset Tak Berwujud</td>
+                     <td className="p-2 text-slate-500">Aset Tidak Lancar</td>
+                     <td className="p-2 text-right">{formatRupiah(asetTakBerwujud)}</td>
+                   </tr>
+                   <tr className="border-b">
+                     <td className="p-2 pl-6">1.3.1</td>
+                     <td className="p-2">Akumulasi Amortisasi</td>
+                     <td className="p-2 text-slate-500">(Pengurang Aset)</td>
+                     <td className="p-2 text-right text-red-500">({formatRupiah(akumulasiAmortisasi)})</td>
+                   </tr>
+                   <tr className="border-b">
+                     <td className="p-2 pl-4">1.4</td>
+                     <td className="p-2">Aset Lain-lain</td>
+                     <td className="p-2 text-slate-500">Aset Lain-lain</td>
+                     <td className="p-2 text-right">{formatRupiah(asetLain)}</td>
+                   </tr>
                   <tr className="bg-blue-100 font-bold">
                     <td className="p-3" colSpan={3}>TOTAL ASET</td>
                     <td className="p-3 text-right text-blue-800">{formatRupiah(kas + piutangBunga + pinjamansByYear - penyisihanPinjaman)}</td>
@@ -510,41 +504,35 @@ function LaporanContent() {
                     <td className="p-2 text-slate-500">Kewajiban</td>
                     <td className="p-2 text-right">{formatRupiah(utangBunga)}</td>
                   </tr>
-<tr className="border-b bg-red-50">
-                    <td className="p-2 pl-4" colSpan={2}>II.2.2 Simpanan Anggota</td>
-                    <td className="p-2 text-slate-500">Kewajiban</td>
-                    <td className="p-2 text-right font-medium">{formatRupiah(simpananSukarela)}</td>
-                  </tr>
-<tr className="border-b">
-                    <td className="p-2 pl-8">II.2.2.1</td>
-                    <td className="p-2">- Simpanan Bunga Harian (SBH)</td>
-                    <td className="p-2 text-slate-500">Kewajiban</td>
-                    <td className="p-2 text-right">{formatRupiah(simpananSukarela)}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-8">II.2.2.1</td>
-                    <td className="p-2">- Simpanan Berjangka (Simapan)</td>
-                    <td className="p-2 text-slate-500">Kewajiban</td>
-                    <td className="p-2 text-right">{formatRupiah(simpananSukarela)}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-8">II.2.2.2</td>
-                    <td className="p-2">- Simpanan Masa Depan (Simapan)</td>
-                    <td className="p-2 text-slate-500">Kewajiban</td>
-                    <td className="p-2 text-right">{formatRupiah(simpanans.filter(s => s.jenis === 'simapan' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear).reduce((sum, s) => sum + s.jumlah, 0))}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-8">II.2.2.3</td>
-                    <td className="p-2">- Simpanan Hari Tua (Sihat)</td>
-                    <td className="p-2 text-slate-500">Kewajiban</td>
-                    <td className="p-2 text-right">{formatRupiah(simpanans.filter(s => s.jenis === 'sihat' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear).reduce((sum, s) => sum + s.jumlah, 0))}</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="p-2 pl-8">II.2.2.4</td>
-                    <td className="p-2">- Simpanan Hari Raya (Sihar)</td>
-                    <td className="p-2 text-slate-500">Kewajiban</td>
-                    <td className="p-2 text-right">{formatRupiah(simpanans.filter(s => s.jenis === 'sihar' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear).reduce((sum, s) => sum + s.jumlah, 0))}</td>
-                  </tr>
+                   <tr className="border-b bg-red-50">
+                     <td className="p-2 pl-4" colSpan={2}>II.2.1 Simpanan Sukarela</td>
+                     <td className="p-2 text-slate-500">Kewajiban</td>
+                     <td className="p-2 text-right font-medium">{formatRupiah(simpananSukarela)}</td>
+                   </tr>
+                   <tr className="border-b">
+                     <td className="p-2 pl-6">II.2.1.1</td>
+                     <td className="p-2">Simpanan Bunga Harian (SBH)</td>
+                     <td className="p-2 text-slate-500">Simpanan Sukarela</td>
+                     <td className="p-2 text-right">{formatRupiah(simpanans.filter(s => s.jenis === 'sibuhar' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear).reduce((sum, s) => sum + s.jumlah, 0))}</td>
+                   </tr>
+                   <tr className="border-b">
+                     <td className="p-2 pl-6">II.2.1.2</td>
+                     <td className="p-2">Simpanan Masa Depan (Simapan)</td>
+                     <td className="p-2 text-slate-500">Simpanan Sukarela</td>
+                     <td className="p-2 text-right">{formatRupiah(simpanans.filter(s => s.jenis === 'simapan' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear).reduce((sum, s) => sum + s.jumlah, 0))}</td>
+                   </tr>
+                   <tr className="border-b">
+                     <td className="p-2 pl-6">II.2.1.3</td>
+                     <td className="p-2">Simpanan Hari Tua (Sihat)</td>
+                     <td className="p-2 text-slate-500">Simpanan Sukarela</td>
+                     <td className="p-2 text-right">{formatRupiah(simpanans.filter(s => s.jenis === 'sihat' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear).reduce((sum, s) => sum + s.jumlah, 0))}</td>
+                   </tr>
+                   <tr className="border-b">
+                     <td className="p-2 pl-6">II.2.1.4</td>
+                     <td className="p-2">Simpanan Hari Raya (Sihar)</td>
+                     <td className="p-2 text-slate-500">Simpanan Sukarela</td>
+                     <td className="p-2 text-right">{formatRupiah(simpanans.filter(s => s.jenis === 'sihar' && s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear).reduce((sum, s) => sum + s.jumlah, 0))}</td>
+                   </tr>
                   <tr className="border-b">
                     <td className="p-2 pl-4">II.2.3</td>
                     <td className="p-2">Simpanan Koperasi Lain</td>
