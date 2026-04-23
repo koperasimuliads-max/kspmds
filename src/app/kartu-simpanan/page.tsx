@@ -207,9 +207,7 @@ export default function KartuSimpananPage() {
                     return (
                       <tr key={index} className="border-b hover:bg-slate-50">
                         <td className="p-3 text-center">{index + 1}</td>
-                        <td className="p-3" title={`Raw: ${m.tanggal} | Original: ${m.originalDate}`}>
-                          {formatDate(m.originalDate) || formatDate(m.tanggal) || '-'}
-                        </td>
+                        <td className="p-3">{formatDate(m.originalDate) || formatDate(m.tanggal) || '-'}</td>
                         <td className="p-3 capitalize">{m.uraian}</td>
                         <td className="p-3 text-right text-green-600">
                           {m.debet > 0 ? formatRupiah(m.debet) : '-'}
