@@ -48,10 +48,13 @@ function LaporanContent() {
   }, []);;
 
   const tahunOptions = Array.from(new Set([
+    new Date().getFullYear(), // Tahun sekarang
     ...anggota.map(a => a.tanggalJoin ? new Date(a.tanggalJoin).getFullYear() : 2024),
+    ...simpanans.map(s => new Date(s.tanggalSimpan).getFullYear()),
+    ...pinjamans.map(p => new Date(p.tanggalPinjaman).getFullYear()),
     ...pendapatans.map(p => new Date(p.tanggal).getFullYear()),
     ...pengeluarans.map(p => new Date(p.tanggal).getFullYear()),
-  ])).sort((a, b) => b - a);
+  ])).filter(year => year >= 2020).sort((a, b) => b - a);
 
   const handleHitungBunga = () => {
     if (confirm('Hitung bunga bulanan untuk semua simpanan berbunga?')) {
@@ -79,12 +82,13 @@ function LaporanContent() {
   
   const pinjamansByYear = pinjamansSaldoAwal + pinjamansBaru;
 
-  // Kas ( netto ) = Total Simpanan - Total Pinjaman Baru (pinjaman saldo awal sudah ada di piutang)
-  // Karena saat memberikan pinjaman baru, uang kas berkurang dan menjadi piutang
-  const totalSimpanan = simpanans
+  // Kas = Total Simpanan Aktif - Total Pinjaman Aktif (karena pinjaman mengurangi kas)
+  const totalSimpananAktif = simpanans
     .filter(s => s.status === 'aktif' && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
     .reduce((sum, s) => sum + s.jumlah, 0);
-  const kas = totalSimpanan - pinjamansBaru;
+
+  // Kas bersih = Total Simpanan - Pinjaman yang belum dikembalikan
+  const kas = Math.max(0, totalSimpananAktif - pinjamansByYear);
   const bank = 0;
   const piutangBunga = Math.round(totalPinjamanAktif * 0.01);
   
@@ -106,6 +110,9 @@ function LaporanContent() {
   const simpananSukarela = simpanans
     .filter(s => s.status === 'aktif' && ['sibuhar', 'simapan', 'sihat', 'sihar'].includes(s.jenis) && new Date(s.tanggalSimpan).getFullYear() <= selectedYear)
     .reduce((sum, s) => sum + s.jumlah, 0);
+
+  // Total Simpanan untuk reference
+  const totalSimpanan = totalSimpananAktif;
     
   const simpananKopLain = 0;
   const liabilitasImbalanKerja = 0;
@@ -129,41 +136,55 @@ function LaporanContent() {
   const cadangan = 0;
   const cadanganRisiko = 0;
 
-  // SHU - berdasarkan tahun yang dipilih
+  // SHU - berdasarkan tahun yang dipilih (semua jenis pendapatan dan pengeluaran)
   const pendapatanSelectedYear = pendapatans
     .filter(p => new Date(p.tanggal).getFullYear() === selectedYear)
     .reduce((sum, p) => sum + p.jumlah, 0);
-    
+
   const pengeluaranSelectedYear = pengeluarans
     .filter(p => new Date(p.tanggal).getFullYear() === selectedYear)
     .reduce((sum, p) => sum + p.jumlah, 0);
 
-  // SHU Tahun Berjalan
-  const shuTahunBerjalan = Math.max(0, pendapatanSelectedYear - pengeluaranSelectedYear);
+  // SHU Tahun Berjalan = Total Pendapatan - Total Pengeluaran
+  const shuTahunBerjalan = pendapatanSelectedYear - pengeluaranSelectedYear;
   
-  // Ekuitas Lain (Modal Ditahan/Selisih Penyeimbang) - agar Neraca selalu balance
-  // Termasuk saldo awal pinjaman yang sudah ada di piutang
-  const totalAsetHitung = (totalSimpanan - pinjamansBaru) + (totalPinjamanAktif * 0.01) + pinjamansSaldoAwal;
-  const totalLiabilitasHitung = (totalPinjamanAktif * 0.03 / 12) + simpananSukarela;
-  const totalModalDasar = simpananPokok + simpananWajib;
-  const ekuitasLain = Math.max(0, totalAsetHitung - totalLiabilitasHitung - totalModalDasar - shuTahunBerjalan);
+  // Perhitungan Balance Neraca
+  // Total Aset = Kas + Piutang + Aset Tetap + dll
+  const totalAset = kas + piutangBunga + pinjamansSaldoAwal + asetTetap + tanah + bangunan + mesinKendaraan + inventaris - akumulasiPenyusutan + asetTakBerwujud - akumulasiAmortisasi + asetLain;
+
+  // Total Liabilitas = Kewajiban + Simpanan Sukarela
+  const totalLiabilitas = utangBunga + simpananSukarela + simpananKopLain;
+
+  // Total Ekuitas = Modal Dasar + SHU + Cadangan
+  const totalEkuitas = simpananPokok + simpananWajib + cadangan + cadanganRisiko + shuTahunBerjalan;
+
+  // Balance check
+  const totalLiabilitasEkuitas = totalLiabilitas + totalEkuitas;
+  const selisih = totalAset - totalLiabilitasEkuitas;
+  const isBalance = Math.abs(selisih) < 1000; // Toleransi Rp 1.000
+
+  // Ekuitas Lain untuk balance (jika ada selisih)
+  const ekuitasLain = selisih > 0 ? 0 : Math.abs(selisih);
 
   // ========== PERHITUNGAN SHU (TAHUN DIPILIH) ==========
   
+  // Pendapatan dari berbagai sumber
   const pendapatanBunga = pendapatans
-    .filter(p => p.jenis === 'bunga_pinjaman' && new Date(p.tanggal).getFullYear() === selectedYear)
+    .filter(p => p.jenis.includes('bunga') && new Date(p.tanggal).getFullYear() === selectedYear)
     .reduce((sum, p) => sum + p.jumlah, 0);
-    
-  const pendapatanUsahaLain = 0;
-  
+
   const pendapatanAdmin = pendapatans
-    .filter(p => p.jenis === 'administrasi_pengunduran_diri' && new Date(p.tanggal).getFullYear() === selectedYear)
+    .filter(p => p.jenis.includes('administrasi') && new Date(p.tanggal).getFullYear() === selectedYear)
     .reduce((sum, p) => sum + p.jumlah, 0);
-    
+
+  const pendapatanLain = pendapatans
+    .filter(p => !p.jenis.includes('bunga') && !p.jenis.includes('administrasi') && new Date(p.tanggal).getFullYear() === selectedYear)
+    .reduce((sum, p) => sum + p.jumlah, 0);
+
+  const pendapatanUsahaLain = 0;
   const pendapatanProvisi = 0;
   const pendapatanDenda = 0;
   const pendapatanPinalty = 0;
-  const pendapatanLain = 0;
   
   const totalPendapatan = pendapatanBunga + pendapatanUsahaLain + pendapatanAdmin + pendapatanProvisi + pendapatanDenda + pendapatanPinalty + pendapatanLain;
 
@@ -631,7 +652,6 @@ function LaporanContent() {
             const totalLiabilitas = utangBunga + simpananSukarela + simpananKopLain + liabilitasImbalanKerja + liabilitasLain;
             const totalEkuitas = simpananPokok + simpananWajib + cadangan + cadanganRisiko + shuTahunBerjalan + ekuitasLain;
             const selisih = totalAset - (totalLiabilitas + totalEkuitas);
-            const isBalance = selisih === 0;
             return (
               <div className="space-y-3">
                 <div className={`rounded-xl p-4 ${isBalance ? 'bg-green-500' : 'bg-red-500'} text-white`}>
@@ -649,7 +669,7 @@ function LaporanContent() {
                     <div>
                       <p className="text-sm opacity-80">SELISIH</p>
                       <p className="text-xl font-bold">{formatRupiah(selisih)}</p>
-                      <p className="text-xs opacity-70">{isBalance ? 'BALANCE ✓' : 'TIDAK BALANCE!'}</p>
+                      <p className="text-xs opacity-70">{isBalance ? 'BALANCE ✓' : `Selisih: ${formatRupiah(selisih)}`}</p>
                     </div>
                   </div>
                 </div>
