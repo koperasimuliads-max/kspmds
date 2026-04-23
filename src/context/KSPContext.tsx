@@ -86,19 +86,27 @@ export function KSPProvider({ children }: { children: ReactNode }) {
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
 
   const addAuditLog = useCallback((action: string, tableName: string, recordId: string, details: string) => {
-    const newLog: AuditLog = {
-      id: Date.now().toString(),
-      action,
-      tableName,
-      recordId,
-      timestamp: new Date().toISOString(),
-      details,
-    };
-    setAuditLogs(prev => {
-      const updated = [...prev, newLog];
-      localStorage.setItem('ksp_audit_logs', JSON.stringify(updated));
-      return updated;
-    });
+    try {
+      const newLog: AuditLog = {
+        id: Date.now().toString(),
+        action,
+        tableName,
+        recordId,
+        timestamp: new Date().toISOString(),
+        details,
+      };
+      setAuditLogs(prev => {
+        const updated = [...prev, newLog];
+        try {
+          localStorage.setItem('ksp_audit_logs', JSON.stringify(updated));
+        } catch (e) {
+          console.error('Error saving audit logs:', e);
+        }
+        return updated;
+      });
+    } catch (error) {
+      console.error('Error adding audit log:', error);
+    }
   }, []);
 
   useEffect(() => {
@@ -183,12 +191,16 @@ export function KSPProvider({ children }: { children: ReactNode }) {
   }, [pendapatans, isHydrated]);
 
   const addAnggota = useCallback((data: Omit<Anggota, 'id'>) => {
-    setAnggota(prev => [...prev, { ...data, id: generateId() }]);
-}, []);
+    const newId = generateId();
+    setAnggota(prev => [...prev, { ...data, id: newId }]);
+    addAuditLog('CREATE', 'anggota', newId, `Anggota baru: ${data.nama}`);
+  }, [addAuditLog]);
 
   const updateAnggota = useCallback((id: string, data: Partial<Anggota>) => {
     setAnggota(prev => prev.map(a => a.id === id ? { ...a, ...data } : a));
-  }, []);
+    // Note: Cannot access current anggota state here due to closure
+    addAuditLog('UPDATE', 'anggota', id, `Update anggota: ${Object.keys(data).join(', ')}`);
+  }, [addAuditLog]);
 
   const deleteAnggota = useCallback((id: string) => {
     setAnggota(prev => prev.filter(a => a.id !== id));
@@ -198,7 +210,8 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       const isUangBuku = p.jenis === 'uang_buku' && p.deskripsi?.includes('Uang Buku -');
       return !isUangBuku || !p.deskripsi?.includes(id);
     }));
-  }, []);
+    addAuditLog('DELETE', 'anggota', id, `Delete anggota`);
+  }, [addAuditLog]);
 
   const clearAllAnggota = useCallback(() => {
     setAnggota([]);
@@ -222,16 +235,23 @@ export function KSPProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addSimpanan = useCallback((data: Omit<Simpanan, 'id'>) => {
-    setSimpanans(prev => [...prev, { ...data, id: generateId() }]);
-  }, []);
+    const newId = generateId();
+    setSimpanans(prev => [...prev, { ...data, id: newId }]);
+    addAuditLog('CREATE', 'simpanans', newId, `Simpanan ${data.jenis} sebesar ${data.jumlah} untuk anggota ${data.anggotaId}`);
+  }, [addAuditLog]);
 
   const updateSimpanan = useCallback((id: string, data: Partial<Simpanan>) => {
     setSimpanans(prev => prev.map(s => s.id === id ? { ...s, ...data } : s));
-  }, []);
+    addAuditLog('UPDATE', 'simpanans', id, `Update simpanan: ${Object.keys(data).join(', ')}`);
+  }, [addAuditLog]);
 
   const deleteSimpanan = useCallback((id: string) => {
+    const simpanan = simpanans.find(s => s.id === id);
     setSimpanans(prev => prev.filter(s => s.id !== id));
-  }, []);
+    if (simpanan) {
+      addAuditLog('DELETE', 'simpanans', id, `Delete simpanan ${simpanan.jenis} sebesar ${simpanan.jumlah}`);
+    }
+  }, [simpanans, addAuditLog]);
 
   const deleteAllSimpananByJenis = useCallback((jenis: Simpanan['jenis']) => {
     setSimpanans(prev => prev.filter(s => s.jenis !== jenis));
