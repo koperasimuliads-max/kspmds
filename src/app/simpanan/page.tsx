@@ -471,7 +471,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
         </div>
       </div>
 
-      {showImportModal && (
+      {showImportModal ? (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h2 className="font-semibold text-lg mb-4">Import Data Simpanan</h2>
@@ -521,7 +521,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
               className="mb-4 w-full"
               disabled={importing}
             />
-            {importing && <p className="text-sm text-blue-600 mb-2">Mengimpor data...</p>}
+            {importing && <p className="text-sm text-blue-600 mb-2">Mengimport data...</p>}
             <div className="flex gap-2">
               <button
                 onClick={() => setShowImportModal(false)}
@@ -533,7 +533,7 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
             </div>
           </div>
         </div>
-        )}
+      ) : null}
       
       <div className="flex gap-2 mb-4">
           <button
