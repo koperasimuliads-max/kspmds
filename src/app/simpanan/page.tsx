@@ -158,17 +158,73 @@ export default function SimpananPage() {
     return '';
   };
 
-const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setImporting(true);
     try {
-      const XLSX = await import('xlsx');
-      const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data);
+      let XLSX;
+      try {
+        XLSX = await import('xlsx');
+      } catch (importError) {
+        alert('Gagal memuat library Excel. Pastikan koneksi internet tersedia.');
+        setImporting(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
+      let data;
+      try {
+        data = await file.arrayBuffer();
+      } catch (readError) {
+        alert('Gagal membaca file. Pastikan file tidak rusak.');
+        setImporting(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
+      let workbook;
+      try {
+        workbook = XLSX.read(data);
+      } catch (parseError) {
+        alert('File Excel tidak valid. Pastikan file berformat .xlsx atau .xls yang benar.');
+        setImporting(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
+      if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+        alert('File Excel tidak memiliki sheet. Pastikan file memiliki data.');
+        setImporting(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json(sheet) as Record<string, unknown>[];
+      if (!sheet) {
+        alert('Sheet kosong. Pastikan sheet memiliki data.');
+        setImporting(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
+      let json;
+      try {
+        json = XLSX.utils.sheet_to_json(sheet) as Record<string, unknown>[];
+      } catch (jsonError) {
+        alert('Gagal memproses data Excel. Pastikan format data benar.');
+        setImporting(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
+      if (!json || json.length === 0) {
+        alert('Tidak ada data di sheet. Pastikan sheet memiliki data.');
+        setImporting(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
 
       let errorCount = 0;
       const errors: string[] = [];
