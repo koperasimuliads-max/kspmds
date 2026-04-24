@@ -94,52 +94,66 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-6">
-      {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 rounded-2xl p-6 mb-6 text-white shadow-xl">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="flex items-center gap-4">
-            {/* Logo Placeholder - Ganti src dengan URL logo Anda */}
-            <div className="w-20 h-20 bg-white/10 rounded-xl flex items-center justify-center border-2 border-white/30">
-              <span className="text-3xl">🏢</span>
+      {/* Header Section - 4D Effect */}
+      <div className="relative mb-6">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 rounded-3xl transform perspective-1000 rotateX-1 shadow-2xl"></div>
+        <div className="relative bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 rounded-3xl p-8 shadow-2xl card-3d">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex items-center gap-6">
+              <div className="w-24 h-24 bg-white/10 rounded-2xl flex items-center justify-center border-2 border-white/30 shadow-lg transform hover:scale-105 transition-transform duration-300">
+                <span className="text-5xl">🏢</span>
+              </div>
+              <div>
+                <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-2">KSP Mulia Dana Sejahtera</h1>
+                <p className="text-blue-100 text-lg">Koperasi Simpanan Pinjaman - Dashboard Monitoring</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">KSP Mulia Dana Sejahtera</h1>
-              <p className="text-blue-100 mt-1 text-sm md:text-base">Koperasi Simpanan Pinjaman - Dashboard Monitoring</p>
+            <div className="text-right bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+              <p className="text-blue-200 text-sm">Tanggal</p>
+              <p className="text-xl font-semibold text-white">{new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
             </div>
-          </div>
-          <div className="text-right">
-            <p className="text-blue-200 text-sm">Tanggal</p>
-            <p className="text-xl font-semibold">{new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
           </div>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-xl p-4 shadow-lg border-t-4 border-green-500 hover:shadow-xl transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-500 uppercase font-medium">Anggota Aktif</p>
-              <p className="text-2xl font-bold text-slate-800">{anggotaAktif}</p>
+      {/* Stats Cards - 4D/5D Visual Effects */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        <div className="group relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+          <div className="relative bg-white rounded-2xl p-6 shadow-xl border-t-4 border-green-500 hover:shadow-2xl transition-all duration-300 card-3d transform hover:-translate-y-2">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-xs text-slate-500 uppercase font-medium tracking-wider">Anggota Aktif</p>
+                <p className="text-3xl font-bold text-slate-800 mt-1">{anggotaAktif}</p>
+              </div>
+              <div className="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
             </div>
-            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
+            <div className="h-1 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-full bg-green-500 rounded-full shimmer" style={{ width: '70%' }}></div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-lg border-t-4 border-orange-500 hover:shadow-xl transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-slate-500 uppercase font-medium">Anggota Keluar</p>
-              <p className="text-2xl font-bold text-slate-800">{anggotaNonaktif}</p>
+        <div className="group relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+          <div className="relative bg-white rounded-2xl p-6 shadow-xl border-t-4 border-orange-500 hover:shadow-2xl transition-all duration-300 card-3d transform hover:-translate-y-2">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-xs text-slate-500 uppercase font-medium tracking-wider">Anggota Keluar</p>
+                <p className="text-3xl font-bold text-slate-800 mt-1">{anggotaNonaktif}</p>
+              </div>
+              <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <svg className="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </div>
             </div>
-            <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-              <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
+            <div className="h-1 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-full bg-orange-500 rounded-full shimmer" style={{ width: `${anggotaAktif > 0 ? (anggotaNonaktif / anggotaAktif) * 100 : 0}%` }}></div>
             </div>
           </div>
         </div>

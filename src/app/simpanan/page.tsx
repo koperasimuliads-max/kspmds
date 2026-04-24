@@ -242,83 +242,80 @@ export default function SimpananPage() {
       json.forEach((row, index) => {
         const rowNum = index + 2;
         
-        // Get NBA - handle various column name formats
+        // Get NBA
         const noNBA = String(
-          row['No. NBA'] || 
-          row['noNBA'] || 
-          row['NBA'] || 
-          row['No NBA'] || 
-          row['No.'] || 
-          row['no'] || 
-          ''
+          row['No. NBA'] || row['noNBA'] || row['NBA'] || row['No NBA'] || row['No.'] || row['no'] || ''
         ).trim();
         
-        // Get Nama Anggota - handle various column name formats
+        // Get Nama Anggota
         const nama = String(
-          row['Nama Anggota'] || 
-          row['nama'] || 
-          row['Nama'] || 
-          row['Nama Lengkap'] || 
-          row['nama_lengkap'] || 
-          ''
+          row['Nama Anggota'] || row['nama'] || row['Nama'] || row['Nama Lengkap'] || row['nama_lengkap'] || ''
         ).trim();
         
-        const jumlah = Number(row['Nilai Simpanan'] || row['Jumlah Transaksi'] || row['jumlah'] || row['Jumlah'] || 0);
+        // Get Jumlah Transaksi
+        const jumlah = Number(row['Jumlah Transaksi'] || row['Nilai Simpanan'] || row['Jumlah'] || row['jumlah'] || 0);
+        
+        // Get Tanggal Transaksi
         const tanggalStr = String(row['Tanggal Transaksi'] || row['Tanggal'] || row['tanggal'] || '').trim();
         
-        const statusRaw = String(row['Status'] || row['status'] || '').toLowerCase();
-        let status: 'aktif' | 'ditarik' | 'aktif_auto' = 'aktif';
-        if (statusRaw.includes('ditarik')) {
-          status = 'ditarik';
-        } else if (statusRaw.includes('auto')) {
-          status = 'aktif_auto';
-        }
-
+        // Get Jenis Pembayaran
         const jenisBayarRaw = String(row['Jenis Pembayaran'] || row['JenisTransaksi'] || row['jenis_pembayaran'] || '').toLowerCase();
         let jenisPembayaran: 'tunai' | 'bri_tigabinanga' | 'bri_berastagi' | 'penarikan' = 'tunai';
-        if (jenisBayarRaw.includes('tigabinanga')) {
-          jenisPembayaran = 'bri_tigabinanga';
-        } else if (jenisBayarRaw.includes('berastagi')) {
-          jenisPembayaran = 'bri_berastagi';
-        } else if (jenisBayarRaw.includes('penarikan')) {
-          jenisPembayaran = 'penarikan';
-        }
-
+        if (jenisBayarRaw.includes('tigabinanga')) jenisPembayaran = 'bri_tigabinanga';
+        else if (jenisBayarRaw.includes('berastagi')) jenisPembayaran = 'bri_berastagi';
+        else if (jenisBayarRaw.includes('penarikan')) jenisPembayaran = 'penarikan';
+        
+        // Get Jenis Simpanan (NEW - for "seluruh simpanan" support)
+        const jenisSimpananRaw = String(row['Jenis Simpanan'] || row['jenis_simpanan'] || row['Jenis'] || '').toLowerCase();
+        let jenisSimpanan: 'pokok' | 'wajib' | 'sibuhar' | 'simapan' | 'sihat' | 'sihar' = importJenis as 'pokok' | 'wajib' | 'sibuhar' | 'simapan' | 'sihat' | 'sihar';
+        if (jenisSimpananRaw.includes('pokok')) jenisSimpanan = 'pokok';
+        else if (jenisSimpananRaw.includes('wajib')) jenisSimpanan = 'wajib';
+        else if (jenisSimpananRaw.includes('sibuhar') || jenisSimpananRaw.includes('sbh')) jenisSimpanan = 'sibuhar';
+        else if (jenisSimpananRaw.includes('simapan')) jenisSimpanan = 'simapan';
+        else if (jenisSimpananRaw.includes('sihat')) jenisSimpanan = 'sihat';
+        else if (jenisSimpananRaw.includes('sihar')) jenisSimpanan = 'sihar';
+        
+        // Get Status (optional)
+        const statusRaw = String(row['Status'] || row['status'] || '').toLowerCase();
+        let status: 'aktif' | 'ditarik' | 'aktif_auto' = 'aktif';
+        if (statusRaw.includes('ditarik')) status = 'ditarik';
+        else if (statusRaw.includes('auto')) status = 'aktif_auto';
+        
         if (!noNBA && !nama) {
           errorCount++;
           errors.push(`[Baris ${rowNum}] NBA dan Nama kosong`);
           return;
         }
-
+        
         const ag = anggota.find(a => 
           (noNBA && a.nomorNBA === noNBA) || 
           (nama && a.nama.toLowerCase() === nama.toLowerCase())
         );
-
+        
         if (!ag) {
           errorCount++;
           errors.push(`[Baris ${rowNum}] NBA: "${noNBA}" / Nama: "${nama}" - Anggota tidak ditemukan di database`);
           return;
         }
-
+        
         const tanggal = parseDate(tanggalStr);
         if (!tanggal) {
           errorCount++;
           errors.push(`[Baris ${rowNum}] NBA: "${noNBA}" / Nama: "${nama}" - Tanggal tidak valid: "${tanggalStr}" (gunakan format dd-mm-yyyy)`);
           return;
         }
-
+        
         if (jumlah <= 0 || isNaN(jumlah)) {
           errorCount++;
           errors.push(`[Baris ${rowNum}] NBA: "${noNBA}" / Nama: "${nama}" - Jumlah tidak valid: "${jumlah}"`);
           return;
         }
-
+        
         validData.push({
           noNBA,
           nama,
           anggotaId: ag.id,
-          jenis: importJenis as 'pokok' | 'wajib' | 'sibuhar' | 'simapan' | 'sihat' | 'sihar',
+          jenis: jenisSimpanan,
           jumlah: jumlah,
           tanggalSimpan: tanggal,
           status: status,
