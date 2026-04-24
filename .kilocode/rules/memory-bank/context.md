@@ -32,16 +32,19 @@ Building a KSP (Kredit Simpanan Pinjaman) financial management application calle
 - [x] Added search column for anggota in simpanan page - search by NBA or nama
 - [x] Fixed linting error in kartu-simpanan page - removed useEffect that was calling setState synchronously
 - [x] Added search column for anggota in kartu-simpanan page - search by NBA or nama
+- [x] Added seedSampleData function to KSPContext to restore sample data from CSV
+- [x] Added "Restore Sample Data" button on Dashboard to repopulate data
 
 ## Current Focus
 
 All main features are complete. The app now has:
-- Dashboard with navigation
+- Dashboard with navigation and Restore Sample Data button
 - Data Anggota with live search, print, viewMode toggle, auto-filled simpanan values
 - Data Simpanan with number formatting and BackButton
 - Data Pinjaman with NPL health indicator and BackButton
 - Pendapatan & Pengeluaran combined view with BackButton
 - Laporan Keuangan (simplified) with BackButton
+- Ability to restore sample data from /contoh_import_anggota.csv
 
 ## Relevant Files
 
@@ -67,6 +70,7 @@ All main features are complete. The app now has:
 7. **Anggota keluar** - comprehensive flow with loan check, savings auto-withdraw, Rp 50k admin fee to pendapatan
 8. **Back navigation** - BackButton on all pages except dashboard
 9. **Print functionality** - print table with no-print class for controls
+10. **Restore Sample Data** - button on dashboard to repopulate data from CSV template
 
 ## Session History
 
@@ -74,3 +78,4 @@ All main features are complete. The app now has:
 |------|---------|
 | 2026-04-13 | KSP application development - added anggota keluar with loan check, savings auto-withdraw, admin fee to pendapatan |
 | 2026-04-23 | Fixed linting error in kartu-simpanan page, improved search functionality |
+| 2026-04-24 | Added seedSampleData function and Restore Sample Data button on dashboard |

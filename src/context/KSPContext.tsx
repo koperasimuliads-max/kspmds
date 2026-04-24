@@ -68,6 +68,7 @@ interface KSPContextType {
   hitungBungaBulanan: () => void;
   auditLogs: AuditLog[];
   addAuditLog: (action: string, tableName: string, recordId: string, details: string) => void;
+  seedSampleData: () => Promise<void>;
 }
 
 const KSPContext = createContext<KSPContextType | undefined>(undefined);
@@ -467,6 +468,124 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     });
   }, [simpanans, addPengeluaran]);
 
+  const seedSampleData = useCallback(async () => {
+    if (anggota.length > 0) {
+      if (!confirm('Data sudah ada. Apakah Anda yakin ingin menambahkan data contoh?')) return;
+    }
+
+    try {
+      const response = await fetch('/contoh_import_anggota.csv');
+      const csvText = await response.text();
+
+      const lines = csvText.split('\n').filter(line => line.trim());
+      const headers = lines[0].split(',').map(h => h.trim());
+
+      const parseDate = (dateStr: string): string => {
+        if (!dateStr || dateStr === '#N/A') return new Date().toISOString().split('T')[0];
+        const parts = dateStr.split(/[\-\/\.]/);
+        if (parts.length === 3) {
+          let day, month, year;
+          if (parts[2].length === 4) {
+            day = parts[0].padStart(2, '0');
+            month = parts[1].padStart(2, '0');
+            year = parts[2];
+          } else {
+            day = parts[1].padStart(2, '0');
+            month = parts[0].padStart(2, '0');
+            year = parts[2].length === 2 ? '20' + parts[2] : parts[2];
+          }
+          return `${year}-${month}-${day}`;
+        }
+        return dateStr;
+      };
+
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        if (values.length < headers.length) continue;
+
+        const getData = (key: string) => {
+          const index = headers.findIndex(h => h.toLowerCase() === key.toLowerCase());
+          return index >= 0 ? values[index] : '';
+        };
+
+        const nama = getData('nama');
+        if (!nama) continue;
+
+        const tanggalJoin = parseDate(getData('tanggalJoin') || getData('tanggalMasuk') || getData('tglMasuk'));
+
+        const newAnggota = {
+          nama,
+          nik: getData('nik') || '',
+          nomorNBA: getData('nomorNBA') || getData('noNBA') || getData('NBA') || '',
+          jenisKelamin: (getData('jenisKelamin') || getData('jenis_kelamin') || 'L') as 'L' | 'P',
+          tempatLahir: getData('tempatLahir') || getData('tempat_lahir') || '',
+          tanggalLahir: parseDate(getData('tanggalLahir') || getData('tanggal_lahir') || ''),
+          agama: getData('agama') || 'Islam',
+          alamat: getData('alamat') || '',
+          alamatDomisili: getData('alamatDomisili') || getData('alamat_domisili') || getData('alamatDomisili') || '',
+          statusPerkawinan: (getData('statusPerkawinan') || getData('status_perkawinan') || 'belum_kawin') as 'belum_kawin' | 'kawin' | 'cerai' | 'janda' | 'duda',
+          namaPasangan: getData('namaPasangan') || getData('nama_pasangan') || '',
+          jumlahAnak: getData('jumlahAnak') || getData('jumlah_anak') || '0',
+          namaIbuKandung: getData('namaIbuKandung') || getData('nama_ibu_kandung') || '',
+          namaSaudara: getData('namaSaudara') || getData('nama_saudara') || '',
+          noHpSaudara: getData('noHpSaudara') || getData('no_hp_saudara') || '',
+          pekerjaan: getData('pekerjaan') || '',
+          pendapatanPerbulan: getData('pendapatanPerbulan') || getData('pendapatan_perbulan') || '',
+          statusRumah: (getData('statusRumah') || getData('status_rumah') || 'rumah_sendiri') as 'rumah_sendiri' | 'kontrak_sewa' | 'dinas' | 'rumah_orang_tua' | 'menumpang',
+          namaReferensi: getData('namaReferensi') || getData('nama_referensi') || '',
+          telefon: getData('telepon') || '',
+          tanggalJoin,
+          uangBuku: parseInt(getData('uangBuku') || getData('uang_buku') || '0'),
+          jenisPembayaran: (getData('jenisPembayaran') || getData('jenis_pembayaran') || 'tunai') as 'tunai' | 'bri_tigabinanga' | 'bri_berastagi',
+          status: 'aktif' as const,
+        };
+
+        addAnggota(newAnggota);
+
+        // Add simpanan if amounts are specified
+        const simpananPokok = parseInt(getData('simpananPokok') || getData('simpanan_pokok') || '0');
+        const simpananWajib = parseInt(getData('simpananWajib') || getData('simpanan_wajib') || '0');
+        const uangBukuVal = parseInt(getData('uangBuku') || getData('uang_buku') || '0');
+
+        const newId = Date.now().toString() + Math.random().toString();
+
+        if (simpananPokok > 0) {
+          setTimeout(() => addSimpanan({
+            anggotaId: newId,
+            jenis: 'pokok',
+            jumlah: simpananPokok,
+            tanggalSimpan: tanggalJoin,
+            status: 'aktif',
+          }), 100);
+        }
+        if (simpananWajib > 0) {
+          setTimeout(() => addSimpanan({
+            anggotaId: newId,
+            jenis: 'wajib',
+            jumlah: simpananWajib,
+            tanggalSimpan: tanggalJoin,
+            status: 'aktif',
+          }), 200);
+        }
+        if (uangBukuVal > 0) {
+          setTimeout(() => addSimpanan({
+            anggotaId: newId,
+            jenis: 'sibuhar',
+            jumlah: uangBukuVal,
+            tanggalSimpan: tanggalJoin,
+            status: 'aktif',
+          }), 300);
+        }
+      }
+
+      alert('Data contoh berhasil ditambahkan!');
+      addAuditLog('SEED', 'anggota', 'seed', 'Menambahkan data contoh dari CSV');
+    } catch (error) {
+      console.error('Error seeding sample data:', error);
+      alert('Gagal menambahkan data contoh. Silakan coba lagi.');
+    }
+  }, [anggota.length, addAnggota, addSimpanan, addAuditLog]);
+
   return (
     <KSPContext.Provider value={{
       anggota,
@@ -507,6 +626,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       hitungBungaBulanan,
       auditLogs,
       addAuditLog,
+      seedSampleData,
     }}>
       {children}
     </KSPContext.Provider>
