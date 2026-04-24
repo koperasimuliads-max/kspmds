@@ -320,6 +320,30 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
     resetForm();
   };
 
+  const downloadTemplateAll = async () => {
+    const XLSX = await import('xlsx');
+    const data = [
+      {
+        'No. NBA': '1',
+        'Nama Anggota': 'Budi Santoso',
+        'Tanggal Transaksi': '2024-01-15',
+        'Jenis Pembayaran': 'Tunai',
+        'Jumlah Transaksi': 50000,
+      },
+      {
+        'No. NBA': '2',
+        'Nama Anggota': 'Ani Wijaya',
+        'Tanggal Transaksi': '2024-01-16',
+        'Jenis Pembayaran': 'BRI Tigabinanga',
+        'Jumlah Transaksi': 100000,
+      },
+    ];
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Simpanan');
+    XLSX.writeFile(wb, 'template_simpanan_all.xlsx');
+  };
+
   const handleEdit = (data: Simpanan) => {
     setFormData({
       anggotaId: data.anggotaId,
@@ -464,55 +488,53 @@ const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
               </select>
             </div>
             <div className="mb-4">
-              <p className="text-sm text-slate-600 mb-2">
-                {importJenis === 'sibuhar' ? 'Format Kolom Excel Simpanan Bunga Harian:' : 'Format Kolom Excel:'}
-              </p>
+              <p className="text-sm text-slate-600 mb-2">Format Kolom Excel:</p>
               <ul className="text-xs text-slate-500 space-y-1 bg-slate-50 p-2 rounded">
-                {importJenis === 'sibuhar' ? (
-                  <>
-                    <li>- NBA (atau noNBA)</li>
-                    <li>- Nama Anggota (atau nama)</li>
-                    <li>- Tanggal Transaksi (atau Tanggal)</li>
-                    <li>- Jenis Pembayaran (opsional: Tunai, BRI Tigabinanga, BRI Berastagi)</li>
-                    <li>- Jumlah Transaksi (atau Jumlah)</li>
-                  </>
-                ) : (
-                  <>
-                    <li>- No. NBA (atau noNBA)</li>
-                    <li>- Nama Anggota (atau nama)</li>
-                    <li>- Nilai Simpanan (atau Jumlah)</li>
-                    <li>- Tanggal Transaksi (atau Tanggal)</li>
-                    <li>- Status (opsional: aktif, ditarik, aktif_auto)</li>
-                  </>
-                )}
+                <li>- No. NBA (atau noNBA)</li>
+                <li>- Nama Anggota (atau nama)</li>
+                <li>- Tanggal Transaksi (atau Tanggal)</li>
+                <li>- Jenis Pembayaran (opsional: Tunai, BRI Tigabinanga, BRI Berastagi)</li>
+                <li>- Jumlah Transaksi (atau Jumlah/Nilai Simpanan)</li>
               </ul>
             </div>
-            <a 
-              href={importJenis === 'sibuhar' ? '/template_sibuhar.xlsx' : '/template_simpanan.xlsx'}
-              download 
-              className="text-blue-600 text-sm hover:underline mb-4 inline-block"
-            >
-              Download Template Excel
-            </a>
+            <div className="mb-4 space-y-2">
+              <button
+                onClick={downloadTemplateAll}
+                className="text-blue-600 text-sm hover:underline inline-block"
+              >
+                Download Template Format Baru (No. NBA, Nama, Tanggal, Jenis Pembayaran, Jumlah)
+              </button>
+              <br />
+              <a 
+                href={importJenis === 'sibuhar' ? '/template_sibuhar.xlsx' : '/template_simpanan.xlsx'}
+                download 
+                className="text-blue-600 text-sm hover:underline inline-block"
+              >
+                Download Template Standar ({jenisSimpananOptions.find(j => j.value === importJenis)?.label})
+              </a>
+            </div>
             <input
               ref={fileInputRef}
               type="file"
-              accept=".xlsx,.xls,.csv"
+              accept=".xlsx,.xls"
               onChange={handleImportExcel}
-              className="border p-2 rounded w-full mb-4"
+              className="mb-4 w-full"
+              disabled={importing}
             />
+            {importing && <p className="text-sm text-blue-600 mb-2">Mengimpor data...</p>}
             <div className="flex gap-2">
               <button
                 onClick={() => setShowImportModal(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                className="flex-1 bg-slate-200 px-4 py-2 rounded hover:bg-slate-300"
+                disabled={importing}
               >
                 Batal
               </button>
             </div>
           </div>
         </div>
-      )}
-
+        )}
+      
       <div className="flex gap-2 mb-4">
           <button
             onClick={() => setFilterJenis('all')}

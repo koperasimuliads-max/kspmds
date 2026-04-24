@@ -34,17 +34,20 @@ Building a KSP (Kredit Simpanan Pinjaman) financial management application calle
 - [x] Added search column for anggota in kartu-simpanan page - search by NBA or nama
 - [x] Added seedSampleData function to KSPContext to restore sample data from CSV
 - [x] Added "Restore Sample Data" button on Dashboard to repopulate data
+- [x] Added Excel upload format for all simpanan with columns: No. NBA, Nama Anggota, Tanggal Transaksi, Jenis Pembayaran, Jumlah Transaksi
+- [x] Added template download for new Excel format (template_simpanan_all.xlsx)
 
 ## Current Focus
 
 All main features are complete. The app now has:
 - Dashboard with navigation and Restore Sample Data button
 - Data Anggota with live search, print, viewMode toggle, auto-filled simpanan values
-- Data Simpanan with number formatting and BackButton
+- Data Simpanan with number formatting, BackButton, and Excel import (new format)
 - Data Pinjaman with NPL health indicator and BackButton
 - Pendapatan & Pengeluaran combined view with BackButton
 - Laporan Keuangan (simplified) with BackButton
 - Ability to restore sample data from /contoh_import_anggota.csv
+- Excel import for simpanan with format: No. NBA, Nama, Tanggal, Jenis Pembayaran, Jumlah
 
 ## Relevant Files
 
