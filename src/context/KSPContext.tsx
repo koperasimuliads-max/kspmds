@@ -16,7 +16,7 @@ const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
 
 const getInitialState = () => {
   if (typeof window === 'undefined') {
-    return { anggota: [], pinjamans: [], simpanans: [], transactions: [], pengeluarans: [], pendapatans: [], auditLogs: [] };
+    return { anggota: [], pinjamans: [], simpanans: [], transactions: [], pengeluarans: [], pendapatans: [], auditLogs: [], logoUrl: null };
   }
   return {
     anggota: loadFromStorage<Anggota[]>('ksp_anggota', []),
@@ -26,6 +26,7 @@ const getInitialState = () => {
     pengeluarans: loadFromStorage<Pengeluaran[]>('ksp_pengeluarans', []),
     pendapatans: loadFromStorage<Pendapatan[]>('ksp_pendapatans', []),
     auditLogs: loadFromStorage<AuditLog[]>('ksp_audit_logs', []),
+    logoUrl: loadFromStorage<string | null>('ksp_logoUrl', null),
   };
 };
 
@@ -37,6 +38,7 @@ interface KSPContextType {
   pengeluarans: Pengeluaran[];
   pendapatans: Pendapatan[];
   isHydrated: boolean;
+  logoUrl: string | null;
   addAnggota: (anggota: Omit<Anggota, 'id'>) => void;
   updateAnggota: (id: string, anggota: Partial<Anggota>) => void;
   deleteAnggota: (id: string) => void;
@@ -68,6 +70,8 @@ interface KSPContextType {
   hitungBungaBulanan: () => void;
   auditLogs: AuditLog[];
   addAuditLog: (action: string, tableName: string, recordId: string, details: string) => void;
+  setLogoUrl: (url: string | null) => void;
+  uploadLogo: (file: File) => Promise<void>;
 }
 
 const KSPContext = createContext<KSPContextType | undefined>(undefined);
@@ -85,6 +89,7 @@ export function KSPProvider({ children }: { children: ReactNode }) {
   const [pengeluarans, setPengeluarans] = useState<Pengeluaran[]>([]);
   const [pendapatans, setPendapatans] = useState<Pendapatan[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const addAuditLog = useCallback((action: string, tableName: string, recordId: string, details: string) => {
     try {
@@ -467,6 +472,56 @@ export function KSPProvider({ children }: { children: ReactNode }) {
     });
   }, [simpanans, addPengeluaran]);
 
+  const setLogoUrl = useCallback((url: string | null) => {
+    try {
+      setLogoUrl(url);
+      if (url !== null) {
+        localStorage.setItem('ksp_logoUrl', url);
+      } else {
+        localStorage.removeItem('ksp_logoUrl');
+      }
+      addAuditLog('UPDATE_LOGO', 'ksp_logo', 'logo', url ? 'Logo uploaded' : 'Logo removed');
+    } catch (error) {
+      console.error('Error saving logo URL:', error);
+    }
+  }, []);
+
+  const uploadLogo = useCallback(async (file: File) => {
+    try {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/png', 'image/svg+xml'];
+      if (!validTypes.includes(file.type)) {
+        throw new Error('Invalid file type. Please upload JPG, PNG, or SVG files only.');
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('File size too large. Maximum size is 5MB.');
+      }
+
+      // Convert to base64
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (reader.result && typeof reader.result === 'string') {
+            resolve(reader.result);
+          } else {
+            reject(new Error('Failed to read file'));
+          }
+        };
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      });
+
+      setLogoUrl(base64);
+      localStorage.setItem('ksp_logoUrl', base64);
+      addAuditLog('UPLOAD_LOGO', 'ksp_logo', 'logo', `Logo uploaded: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      throw error;
+    }
+  }, []);
+
   const seedSampleData = useCallback(async () => {
     if (anggota.length > 0) {
       if (!confirm('Data sudah ada. Apakah Anda yakin ingin menambahkan data contoh?')) return;
@@ -577,13 +632,55 @@ export function KSPProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      alert('Data contoh berhasil ditambahkan!');
-      addAuditLog('SEED', 'anggota', 'seed', 'Menambahkan data contoh dari CSV');
+   const setLogoUrl = useCallback((url: string | null) => {
+    try {
+      setLogoUrl(url);
+      if (url !== null) {
+        localStorage.setItem('ksp_logoUrl', url);
+      } else {
+        localStorage.removeItem('ksp_logoUrl');
+      }
+      addAuditLog('UPDATE_LOGO', 'ksp_logo', 'logo', url ? 'Logo uploaded' : 'Logo removed');
     } catch (error) {
-      console.error('Error seeding sample data:', error);
-      alert('Gagal menambahkan data contoh. Silakan coba lagi.');
+      console.error('Error saving logo URL:', error);
     }
-  }, [anggota.length, addAnggota, addSimpanan, addAuditLog]);
+  }, []);
+
+  const uploadLogo = useCallback(async (file: File) => {
+    try {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/png', 'image/svg+xml'];
+      if (!validTypes.includes(file.type)) {
+        throw new Error('Invalid file type. Please upload JPG, PNG, or SVG files only.');
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('File size too large. Maximum size is 5MB.');
+      }
+
+      // Convert to base64
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (reader.result && typeof reader.result === 'string') {
+            resolve(reader.result);
+          } else {
+            reject(new Error('Failed to read file'));
+          }
+        };
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      });
+
+      setLogoUrl(base64);
+      localStorage.setItem('ksp_logoUrl', base64);
+      addAuditLog('UPLOAD_LOGO', 'ksp_logo', 'logo', `Logo uploaded: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      throw error;
+    }
+  }, []);
 
   return (
     <KSPContext.Provider value={{
@@ -625,6 +722,9 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       hitungBungaBulanan,
       auditLogs,
       addAuditLog,
+      logoUrl,
+      setLogoUrl,
+      uploadLogo,
     }}>
       {children}
     </KSPContext.Provider>
