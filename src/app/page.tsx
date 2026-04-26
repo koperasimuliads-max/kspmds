@@ -9,7 +9,7 @@ function formatRupiah(amount: number): string {
 }
 
 export default function Dashboard() {
-  const { anggota, pinjamans, simpanans, transactions, pendapatans, pengeluarans, getLaporanKeuangan, seedSampleData } = useKSP();
+  const { anggota, pinjamans, simpanans, transactions, pendapatans, pengeluarans, getLaporanKeuangan } = useKSP();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [mounted, setMounted] = useState(false);
 
@@ -253,128 +253,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-white rounded-xl p-4 shadow-lg mb-6">
-        <div className="flex flex-wrap gap-3">
-          <Link href="/anggota" className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
-            <span className="text-sm font-medium">Tambah Anggota</span>
-          </Link>
-          <Link href="/simpanan" className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            <span className="text-sm font-medium">Tambah Simpanan</span>
-          </Link>
-          <Link href="/pinjaman" className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span className="text-sm font-medium">Ajukan Pinjaman</span>
-          </Link>
-          <Link href="/transaksi" className="flex items-center gap-2 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            <span className="text-sm font-medium">Transaksi</span>
-          </Link>
-          <Link href="/laporan" className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span className="text-sm font-medium">Laporan</span>
-          </Link>
-          <Link href="/audit-logs" className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 5 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-            <span className="text-sm font-medium">Audit Logs</span>
-          </Link>
-          <button
-            onClick={async () => {
-              const XLSX = await import('xlsx');
 
-              // Prepare anggota data with simpanan
-              const anggotaData = anggota.map(ag => {
-                const agSimpanans = simpanans.filter(s => s.anggotaId === ag.id && s.status !== 'ditarik');
-                return {
-                  'No. NBA': ag.nama,
-                  'Nama': ag.nama,
-                  'NIK': ag.nik || '',
-                  'Status': ag.status,
-                  'Tanggal Join': ag.tanggalJoin || '',
-                  'Simpanan Pokok': agSimpanans.filter(s => s.jenis === 'pokok').reduce((sum, s) => sum + s.jumlah, 0),
-                  'Simpanan Wajib': agSimpanans.filter(s => s.jenis === 'wajib').reduce((sum, s) => sum + s.jumlah, 0),
-                  'SBh - Simpanan Bunga Harian': agSimpanans.filter(s => s.jenis === 'sibuhar').reduce((sum, s) => sum + s.jumlah, 0),
-                  'Simapan': agSimpanans.filter(s => s.jenis === 'simapan').reduce((sum, s) => sum + s.jumlah, 0),
-                  'Sihat': agSimpanans.filter(s => s.jenis === 'sihat').reduce((sum, s) => sum + s.jumlah, 0),
-                  'Sihar': agSimpanans.filter(s => s.jenis === 'sihar').reduce((sum, s) => sum + s.jumlah, 0),
-                  'Total Simpanan': agSimpanans.reduce((sum, s) => sum + s.jumlah, 0),
-                };
-              });
-
-              // Prepare pinjaman data
-              const pinjamansData = pinjamans.map(p => {
-                const ag = anggota.find(a => a.id === p.anggotaId);
-                return {
-                  'No. NBA': ag?.nomorNBA || '',
-                  'Nama Anggota': ag?.nama || '',
-                  'Jumlah Pinjaman': p.jumlah,
-                  'Tanggal': p.tanggalPinjaman,
-                  'Jangka Waktu': p.tenor,
-                  'Bunga': p.bunga,
-                  'Status': p.status,
-                  'Angsuran per Bulan': p.jumlah / p.tenor,
-                };
-              });
-
-              // Create workbook
-              const wb = XLSX.utils.book_new();
-
-              const wsAnggota = XLSX.utils.json_to_sheet(anggotaData);
-              XLSX.utils.book_append_sheet(wb, wsAnggota, 'Anggota');
-
-              const wsPinjaman = XLSX.utils.json_to_sheet(pinjamansData);
-              XLSX.utils.book_append_sheet(wb, wsPinjaman, 'Pinjaman');
-
-              // Add summary sheet
-              const now = new Date();
-              const dateStr = now.toLocaleDateString('id-ID').replace(/\//g, '-');
-              const summaryData = [
-                { 'Ringkasan': 'Total Anggota', 'Jumlah': anggota.length },
-                { 'Ringkasan': 'Anggota Aktif', 'Jumlah': anggota.filter(a => a.status === 'aktif').length },
-                { 'Ringkasan': 'Total Simpanan', 'Jumlah': simpanans.filter(s => s.status !== 'ditarik').reduce((sum, s) => sum + s.jumlah, 0) },
-                { 'Ringkasan': 'Total Pinjaman Aktif', 'Jumlah': pinjamans.filter(p => p.status === 'aktif').reduce((sum, p) => sum + p.jumlah, 0) },
-                { 'Ringkasan': 'Tanggal Backup', 'Jumlah': now.toLocaleString('id-ID') },
-                { 'Ringkasan': 'Creator', 'Jumlah': 'Marwan Esra Bangun (MEB Tech)' },
-              ];
-              const wsSummary = XLSX.utils.json_to_sheet(summaryData);
-              XLSX.utils.book_append_sheet(wb, wsSummary, 'Ringkasan');
-
-              // Download
-              XLSX.writeFile(wb, `BACKUP_KSP_MULIA_DANA_${dateStr}.xlsx`);
-              alert('Data berhasil diamankan ke Excel, Bos!');
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-            </svg>
-            <span className="text-sm font-medium">Backup Data</span>
-          </button>
-          <button
-            onClick={() => seedSampleData()}
-            className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-            <span className="text-sm font-medium">Restore Sample Data</span>
-          </button>
-        </div>
-      </div>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">

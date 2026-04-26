@@ -68,7 +68,6 @@ interface KSPContextType {
   hitungBungaBulanan: () => void;
   auditLogs: AuditLog[];
   addAuditLog: (action: string, tableName: string, recordId: string, details: string) => void;
-  seedSampleData: () => Promise<void>;
 }
 
 const KSPContext = createContext<KSPContextType | undefined>(undefined);
@@ -626,7 +625,6 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       hitungBungaBulanan,
       auditLogs,
       addAuditLog,
-      seedSampleData,
     }}>
       {children}
     </KSPContext.Provider>
