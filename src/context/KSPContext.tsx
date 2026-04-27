@@ -731,10 +731,4 @@ export function KSPProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useKSP() {
-  const context = useContext(KSPContext);
-  if (!context) {
-    throw new Error('useKSP must be used within a KSPProvider');
-  }
-  return context;
 }
