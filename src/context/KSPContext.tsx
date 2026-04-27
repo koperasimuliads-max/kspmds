@@ -723,8 +723,9 @@ export function KSPProvider({ children }: { children: ReactNode }) {
       auditLogs,
       addAuditLog,
       logoUrl,
-      setLogoUrl,
       uploadLogo,
+      setLogoUrl,
+      logoUrl,
     }}>
       {children}
     </KSPContext.Provider>
